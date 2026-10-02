@@ -88,15 +88,48 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.warning("Failed to initialize registry service: %s", exc)
         registry_status = "degraded"
 
+    # Initialize Extractor (M4)
+    if not settings.ENABLE_THIRD_PARTY_AI:
+        extractor_status = "disabled"
+    elif settings.LLM_API_KEY:
+        extractor_status = "active"
+    else:
+        extractor_status = "degraded"
+
+    # Initialize Ingest (M5)
+    if not settings.ENABLE_THIRD_PARTY_AI:
+        ingest_status = "disabled"
+    elif settings.LLM_API_KEY and settings.SARVAM_API_KEY:
+        ingest_status = "active"
+    else:
+        ingest_status = "degraded"
+
+    # Initialize Verdict Engine & i18n (M6)
+    try:
+        from app.modules.verdict.i18n import load_translations
+        load_translations()
+        verdict_status = "active"
+    except Exception as exc:
+        logger.warning("Failed to initialize verdict i18n: %s", exc)
+        verdict_status = "degraded"
+
+    # Initialize Voice (M7)
+    if not settings.ENABLE_THIRD_PARTY_AI:
+        voice_status = "disabled"
+    elif settings.SARVAM_API_KEY:
+        voice_status = "active"
+    else:
+        voice_status = "degraded"
+
     model_status = "degraded" if degraded else "active"
     app.state.modules = {
         "model_adapter": model_status,
         "rules": rules_status,
         "registry": registry_status,
-        "extractor": "disabled",
-        "ingest": "disabled",
-        "verdict": "disabled",
-        "voice": "disabled",
+        "extractor": extractor_status,
+        "ingest": ingest_status,
+        "verdict": verdict_status,
+        "voice": voice_status,
         "pause": "disabled",
         "guardrails": "disabled",
     }
@@ -164,7 +197,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     # 6. Mount API routers
     from app.api.routes_misc import router as misc_router
+    from app.api.routes_media import router as media_router
     app.include_router(misc_router)
+    app.include_router(media_router)
 
     return app
 

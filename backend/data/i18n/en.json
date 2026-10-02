@@ -1,0 +1,23 @@
+{
+  "guaranteed_returns": "Promises guaranteed or risk-free returns. No genuine investment can guarantee profit.",
+  "unrealistic_return_claim": "Promises unrealistically high returns that exceed market realities, such as doubling your money or extreme daily/monthly gains.",
+  "upfront_payment_request": "Demands upfront registration fees, processing charges, or deposits before allowing you to withdraw or participate.",
+  "personal_upi_payment": "Asks to send money to a personal or third-party UPI address instead of an official corporate bank account.",
+  "otp_pin_request": "Asks you to share your OTP, ATM PIN, CVV, or banking password. Legitimate financial entities never ask for this.",
+  "apk_or_remote_app": "Instructs you to install an external APK file or remote access tools like AnyDesk or TeamViewer, which can compromise your device.",
+  "authority_impersonation": "Threatens legal action, police arrest, or 'digital arrest'. Law enforcement and regulators never issue arrest threats via messaging apps.",
+  "vip_or_tip_group_invite": "Invites you to secret VIP groups, Telegram channels, or operator tip groups promising insider trades.",
+  "urgency_pressure": "Uses high-pressure tactics and artificial urgency ('today only', 'last chance') to force quick payments without thinking.",
+  "secrecy_request": "Demands that you keep the investment secret from family, bank officials, or advisers.",
+  "suspicious_link": "Contains shortened links or risky domain names designed to disguise malicious websites.",
+  "unverified_registration_claim": "Claims to be SEBI registered or government certified, which requires independent verification.",
+  "registry_not_confirmed": "The claimed registration details could not be confirmed in our dated SEBI intermediary snapshot.",
+  "model_high_risk": "Statistical machine learning model identified strong text patterns commonly found in known investment fraud.",
+
+  "note_strong_red_flags": "Do not pay or share OTP/PIN. Check with an official source.",
+  "note_cannot_verify": "We cannot tell. Verify with SEBI or your bank before acting.",
+  "note_no_red_flags_found": "We found no known red-flag patterns. This does NOT mean it is safe.",
+  "note_out_of_scope": "Ruko checks whether a message looks like a scam. It does not give investment advice.",
+
+  "disclaimer": "Ruko is an automated educational tool for scam detection. It is not financial advice, legal advice, or a guarantee of safety. Always verify independently with official regulators such as SEBI."
+}

@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     LLM_API_KEY: str = ""
     LLM_MODEL: str = "gemini-2.0-flash"
     SARVAM_API_KEY: str = ""
+    SARVAM_STT_URL: str = "https://api.sarvam.ai/speech-to-text"
+    SARVAM_STT_MODEL: str = "saaras:v2"
+    SARVAM_TTS_URL: str = "https://api.sarvam.ai/text-to-speech"
+    SARVAM_TTS_MODEL: str = "bulbul:v1"
+    SARVAM_TTS_SPEAKER: str = "meera"
+    MAX_TTS_CHARS: int = 500
 
     # SEBI Snapshot / Verification URL
     SEBI_VERIFY_URL: str = "https://www.sebi.gov.in"
