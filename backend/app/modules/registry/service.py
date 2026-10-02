@@ -72,7 +72,7 @@ class RegistryService:
         try:
             with open(path, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
-                has_sample_records = False
+                sample_count = 0
                 for row in reader:
                     reg_no = normalize_reg_no(row.get("reg_no", ""))
                     if not reg_no:
@@ -80,7 +80,7 @@ class RegistryService:
 
                     is_sample_val = str(row.get("is_sample", "false")).lower() in ("true", "1", "yes")
                     if is_sample_val:
-                        has_sample_records = True
+                        sample_count += 1
 
                     record = RegistryRecord(
                         reg_no=reg_no,
@@ -95,7 +95,7 @@ class RegistryService:
                     self.reg_no_index[reg_no] = record
                     self.snapshot_date = record.snapshot_date
 
-                self.is_sample_data = has_sample_records
+                self.is_sample_data = (sample_count / max(len(self.records), 1)) > 0.5
                 self.is_available = True
                 logger.info(
                     "Loaded %d SEBI registry records from snapshot %s (sample_data=%s, snapshot_date=%s)",
@@ -212,7 +212,7 @@ class RegistryService:
                 status=status_val,
                 matches=matches,
                 snapshot_date=self.snapshot_date,
-                is_sample_data=self.is_sample_data,
+                is_sample_data=self.is_sample_data or any(m.get("is_sample") for m in matches),
                 verify_url=self.verify_url,
             ),
             degraded,
@@ -277,7 +277,7 @@ class RegistryService:
             "query": query,
             "matches": matches,
             "snapshot_date": self.snapshot_date,
-            "is_sample_data": self.is_sample_data,
+            "is_sample_data": self.is_sample_data or any(m.get("is_sample") for m in matches),
             "verify_url": self.verify_url,
         }
 

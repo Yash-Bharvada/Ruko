@@ -1,0 +1,1122 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Ruko Backend",
+    "description": "Multilingual investor-protection API for suspicious investment tips",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health",
+        "description": "Liveness check and module readiness status.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/check": {
+      "post": {
+        "tags": [
+          "Analysis"
+        ],
+        "summary": "Check Text",
+        "description": "Analyze suspicious investment message text and return an explainable verdict.",
+        "operationId": "check_text_v1_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/registry/lookup": {
+      "get": {
+        "tags": [
+          "Registry & Info"
+        ],
+        "summary": "Registry Lookup",
+        "description": "Offline dated SEBI intermediary snapshot lookup.\n\nHONEST DISCLOSURE:\n- Queries a dated, local offline snapshot, not live SEBI systems.\n- If not found, status is 'not_found_in_snapshot' ('could not confirm in our snapshot'), never 'fake'.",
+        "operationId": "registry_lookup_v1_registry_lookup_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Registration number or entity name to look up",
+              "title": "Q"
+            },
+            "description": "Registration number or entity name to look up"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Registry Lookup V1 Registry Lookup Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/speak": {
+      "post": {
+        "tags": [
+          "Registry & Info"
+        ],
+        "summary": "Speak Verdict",
+        "description": "Read verdict aloud in the user's language.\n\nSECURITY & INTEGRITY:\n- Speaks ONLY safe templated sentences from verified i18n files.\n- Rejects any free-text fields with HTTP 422.\n- Falls back to browser Web Speech API payload on any provider failure or timeout.",
+        "operationId": "speak_verdict_v1_speak_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpeakRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Speak Verdict V1 Speak Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/privacy": {
+      "get": {
+        "tags": [
+          "Registry & Info"
+        ],
+        "summary": "Get Privacy",
+        "description": "Retrieve privacy policies, data retention guarantees, and third-party AI processor disclosures.\n\nRuko guarantees zero persistence of user content and never logs message bodies.",
+        "operationId": "get_privacy_v1_privacy_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Get Privacy V1 Privacy Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/check/image": {
+      "post": {
+        "tags": [
+          "Media Ingest"
+        ],
+        "summary": "Check Image",
+        "description": "Ingest an image/screenshot, extract text via vision OCR in-memory, and return full CheckResult.",
+        "operationId": "check_image_v1_check_image_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_check_image_v1_check_image_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/check/audio": {
+      "post": {
+        "tags": [
+          "Media Ingest"
+        ],
+        "summary": "Check Audio",
+        "description": "Ingest an audio voice note, transcribe text via Sarvam STT in-memory, and return full CheckResult.",
+        "operationId": "check_audio_v1_check_audio_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_check_audio_v1_check_audio_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/check/media": {
+      "post": {
+        "tags": [
+          "Media Ingest"
+        ],
+        "summary": "Check Media",
+        "description": "Unified multimodal ingestion endpoint: sniffs magic bytes and routes to text, OCR, STT, or video pipeline.",
+        "operationId": "check_media_v1_check_media_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_check_media_v1_check_media_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pause/plan": {
+      "post": {
+        "tags": [
+          "Pause & Recovery"
+        ],
+        "summary": "Create Pause Plan",
+        "description": "Generate a cooling-off pause plan before money moves.\n\nFeatures:\n- 3 localized decision reflection questions.\n- 24-hour cooling-off calendar reminder (.ics text + data URI).\n- WhatsApp family share link.\n- Pure arithmetic of loss vs monthly living expenses.",
+        "operationId": "create_pause_plan_v1_pause_plan_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PausePlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PausePlan"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/resources/already-paid": {
+      "get": {
+        "tags": [
+          "Pause & Recovery"
+        ],
+        "summary": "Get Recovery Resources",
+        "description": "Retrieve verified recovery checklist for users who already paid money to a scam.\n\nIncludes National Cyber Crime Helpline (1930), Cybercrime portal, and SEBI SCORES portal.",
+        "operationId": "get_recovery_resources_v1_resources_already_paid_get",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Language code (en, hi, gu)",
+              "default": "en",
+              "title": "Lang"
+            },
+            "description": "Language code (en, hi, gu)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Get Recovery Resources V1 Resources Already Paid Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_check_audio_v1_check_audio_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File",
+            "description": "Audio voice-note file"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "description": "Optional language hint (hi, gu, en)"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount",
+            "description": "Optional investment amount mentioned"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_check_audio_v1_check_audio_post"
+      },
+      "Body_check_image_v1_check_image_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File",
+            "description": "Screenshot or photo of suspicious message"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "description": "Optional language hint (gu, hi, en)"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount",
+            "description": "Optional investment amount mentioned"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_check_image_v1_check_image_post"
+      },
+      "Body_check_media_v1_check_media_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File",
+            "description": "Multipart file: text (.txt), image, audio, or video reel"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "description": "Optional language hint (gu, hi, en)"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount",
+            "description": "Optional investment amount mentioned"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_check_media_v1_check_media_post"
+      },
+      "CheckRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Text",
+            "description": "Raw suspicious message text"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "description": "Optional language hint (gu, hi, en, etc.)"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount",
+            "description": "Optional investment amount mentioned"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "CheckRequest",
+        "description": "Incoming request to check investment text."
+      },
+      "CheckResult": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Unique request UUID"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Detected or requested language (gu, hi, en, unknown)"
+          },
+          "verdict": {
+            "type": "string",
+            "title": "Verdict",
+            "description": "strong_red_flags | cannot_verify | no_red_flags_found | out_of_scope"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score",
+            "description": "Combined composite score from 0.0 to 1.0"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/Reason"
+            },
+            "type": "array",
+            "title": "Reasons",
+            "description": "Ordered reasons for verdict"
+          },
+          "registry": {
+            "$ref": "#/components/schemas/RegistryInfo",
+            "description": "Registry snapshot lookup information"
+          },
+          "model": {
+            "$ref": "#/components/schemas/ModelInfo",
+            "description": "ML model output details"
+          },
+          "claims": {
+            "type": "object",
+            "title": "Claims",
+            "description": "Extracted claims"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "description": "Localized honest summary note"
+          },
+          "degraded": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Degraded",
+            "description": "List of degraded or unavailable modules"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "description": "Localized legal/educational disclaimer"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text",
+            "description": "Extracted message text (for media OCR/STT/video)"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source",
+            "description": "Input source (ocr | stt | text | video)"
+          },
+          "input_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Source",
+            "description": "Normalized input source: text | ocr | stt | video",
+            "default": "text"
+          },
+          "speech_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speech Text",
+            "description": "Transcribed audio speech from video"
+          },
+          "on_screen_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "On Screen Text",
+            "description": "Extracted on-screen text from video frames"
+          },
+          "hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hint",
+            "description": "Contextual user guidance hint, e.g. for Instagram links"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "language",
+          "verdict",
+          "score",
+          "registry",
+          "model",
+          "note",
+          "disclaimer"
+        ],
+        "title": "CheckResult",
+        "description": "Unified verdict and explainable report returned by Ruko."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Overall health status",
+            "default": "ok"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Application version"
+          },
+          "modules": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Modules",
+            "description": "Module availability map (active|degraded|disabled)"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model",
+            "description": "Direct model status (active|degraded|disabled)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version",
+          "modules"
+        ],
+        "title": "HealthResponse",
+        "description": "Liveness and module status response."
+      },
+      "LossArithmetic": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "title": "Amount",
+            "description": "Proposed investment amount"
+          },
+          "months_of_expenses": {
+            "type": "number",
+            "title": "Months Of Expenses",
+            "description": "Amount divided by monthly expenses (1 decimal)"
+          },
+          "sentence": {
+            "type": "string",
+            "title": "Sentence",
+            "description": "Localized factual sentence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount",
+          "months_of_expenses",
+          "sentence"
+        ],
+        "title": "LossArithmetic",
+        "description": "Pure arithmetic comparison of proposed amount vs monthly expenses.\n\nNO predictions, NO return projections, NO statistics."
+      },
+      "ModelInfo": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available",
+            "description": "Whether model inference was available"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score",
+            "description": "Model scam risk probability (0.0 to 1.0)"
+          },
+          "top_words": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Top Words",
+            "description": "Words that increased scam risk score"
+          },
+          "calming_words": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Calming Words",
+            "description": "Words that decreased scam risk score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "available"
+        ],
+        "title": "ModelInfo",
+        "description": "Machine learning model prediction details."
+      },
+      "PausePlan": {
+        "properties": {
+          "decision_questions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Decision Questions",
+            "description": "Exactly 3 localized self-reflection questions"
+          },
+          "cooling_off_hours": {
+            "type": "integer",
+            "title": "Cooling Off Hours",
+            "description": "Recommended cooling-off hours before moving money",
+            "default": 24
+          },
+          "loss_arithmetic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LossArithmetic"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Pure arithmetic of expenses if provided"
+          },
+          "calendar_ics": {
+            "type": "string",
+            "title": "Calendar Ics",
+            "description": "RFC 5545 calendar event text for 24h reminder"
+          },
+          "calendar_data_uri": {
+            "type": "string",
+            "title": "Calendar Data Uri",
+            "description": "Data URI for downloading the .ics calendar file"
+          },
+          "share_link": {
+            "type": "string",
+            "title": "Share Link",
+            "description": "WhatsApp share link to discuss with family before paying"
+          },
+          "share_text": {
+            "type": "string",
+            "title": "Share Text",
+            "description": "Unencoded templated text for sharing"
+          }
+        },
+        "type": "object",
+        "required": [
+          "decision_questions",
+          "calendar_ics",
+          "calendar_data_uri",
+          "share_link",
+          "share_text"
+        ],
+        "title": "PausePlan",
+        "description": "Full pause and cooling-off plan returned to user."
+      },
+      "PausePlanRequest": {
+        "properties": {
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "strong_red_flags",
+              "cannot_verify",
+              "no_red_flags_found",
+              "out_of_scope"
+            ],
+            "title": "Verdict",
+            "description": "Verdict for contextualizing the pause plan"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "description": "Target language (gu, hi, en)",
+            "default": "en"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount",
+            "description": "Optional investment amount mentioned"
+          },
+          "monthly_expenses": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monthly Expenses",
+            "description": "Optional monthly household living expenses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "verdict"
+        ],
+        "title": "PausePlanRequest",
+        "description": "Request payload to construct a pause decision plan."
+      },
+      "Reason": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Unique machine-readable reason code"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity",
+            "description": "high | medium | low | info"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "Localized explanation sentence"
+          },
+          "evidence": {
+            "type": "string",
+            "title": "Evidence",
+            "description": "Exact quoted phrase from the message"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "rule | model | registry"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "severity",
+          "text",
+          "evidence",
+          "source"
+        ],
+        "title": "Reason",
+        "description": "Detailed reason for a red flag or finding."
+      },
+      "RegistryInfo": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "found_in_snapshot | possible_match | not_found_in_snapshot | not_checked"
+          },
+          "matches": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Matches",
+            "description": "Matching records from snapshot"
+          },
+          "snapshot_date": {
+            "type": "string",
+            "title": "Snapshot Date",
+            "description": "Date of local registry snapshot",
+            "default": "2026-03-01"
+          },
+          "is_sample_data": {
+            "type": "boolean",
+            "title": "Is Sample Data",
+            "description": "True if sample/demo data is used",
+            "default": true
+          },
+          "verify_url": {
+            "type": "string",
+            "title": "Verify Url",
+            "description": "Official verification URL"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "verify_url"
+        ],
+        "title": "RegistryInfo",
+        "description": "Snapshot verification outcome for claimed registration numbers/names."
+      },
+      "SpeakRequest": {
+        "properties": {
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "strong_red_flags",
+              "cannot_verify",
+              "no_red_flags_found",
+              "out_of_scope"
+            ],
+            "title": "Verdict",
+            "description": "Verdict code for spoken summary note"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reason Codes",
+            "description": "List of reason codes to read aloud (max 3 spoken)"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "description": "Target language (gu, hi, en)",
+            "default": "en"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "verdict"
+        ],
+        "title": "SpeakRequest",
+        "description": "Request to synthesize spoken explanation.\n\nSECURITY MANDATE:\nAccepts ONLY structured reason codes and verdict. Free-text inputs are strictly\nforbidden to ensure the backend only speaks validated, safe templated phrases."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

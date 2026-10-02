@@ -93,6 +93,7 @@ def decide_verdict(
     lang: str = "en",
     settings: Optional[Settings] = None,
     is_out_of_scope: bool = False,
+    input_source: str = "text",
 ) -> VerdictOutcome:
     """Combine rules, model predictions, and registry verification into a final explainable verdict.
 
@@ -218,6 +219,8 @@ def decide_verdict(
         or (high_rule_count >= 1 and has_medium_model)
     )
 
+    transcribed_downgraded = False
+
     if is_strong:
         verdict = "strong_red_flags"
         if model_score is not None:
@@ -226,18 +229,27 @@ def decide_verdict(
             composite_score = 0.85 + (0.05 * min(high_rule_count, 3))
     # Rule 2: no_red_flags_found
     # - model is available AND score <= 0.20 AND zero rule flags (AND registry not unconfirmed)
+    # - EXCEPTION: TRANSCRIBED_NEVER_CLEAR rule for STT or Video input -> downgrades to cannot_verify
     elif (
         model_output.available
         and model_score is not None
         and model_score <= low_band
         and total_effective_flags == 0
     ):
-        verdict = "no_red_flags_found"
-        composite_score = min(model_score, 0.15)
+        transcribed_never_clear = getattr(conf, "TRANSCRIBED_NEVER_CLEAR", True)
+        if transcribed_never_clear and input_source.lower() in ("stt", "video"):
+            verdict = "cannot_verify"
+            composite_score = min(model_score, 0.35)
+            transcribed_downgraded = True
+        else:
+            verdict = "no_red_flags_found"
+            composite_score = min(model_score, 0.15)
+            transcribed_downgraded = False
     # Rule 3 & 4: cannot_verify
     # (Including whenever model is unavailable and no strong red flags)
     else:
         verdict = "cannot_verify"
+        transcribed_downgraded = False
         if model_score is not None:
             composite_score = model_score
         else:
@@ -256,7 +268,11 @@ def decide_verdict(
     reasons = reasons[:6]
 
     # 5. Localized note and disclaimer
-    note = get_verdict_note(verdict, lang)
+    transcribed_never_clear = getattr(conf, "TRANSCRIBED_NEVER_CLEAR", True)
+    if transcribed_never_clear and input_source.lower() in ("stt", "video") and verdict == "cannot_verify":
+        note = t("note_transcribed_uncertainty", lang)
+    else:
+        note = get_verdict_note(verdict, lang)
     disclaimer = get_disclaimer(lang)
 
     # Final safety sweep for advice

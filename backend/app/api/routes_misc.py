@@ -46,3 +46,15 @@ async def speak_verdict(req: SpeakRequest) -> Dict[str, Any]:
     )
     return result.model_dump()
 
+
+@router.get("/privacy")
+async def get_privacy() -> Dict[str, Any]:
+    """Retrieve privacy policies, data retention guarantees, and third-party AI processor disclosures.
+
+    Ruko guarantees zero persistence of user content and never logs message bodies.
+    """
+    from app.modules.guardrails.privacy import get_privacy_disclosure
+
+    settings = get_settings()
+    return get_privacy_disclosure(settings)
+

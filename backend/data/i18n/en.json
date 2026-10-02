@@ -18,6 +18,8 @@
   "note_cannot_verify": "We cannot tell. Verify with SEBI or your bank before acting.",
   "note_no_red_flags_found": "We found no known red-flag patterns. This does NOT mean it is safe.",
   "note_out_of_scope": "Ruko checks whether a message looks like a scam. It does not give investment advice.",
+  "note_transcribed_uncertainty": "Audio or video transcripts may contain transcription errors. Verify independently with official sources before acting.",
+  "hint_instagram_link": "Ruko cannot open Instagram links. Upload a screen recording or screenshot, or paste the caption.",
 
   "disclaimer": "Ruko is an automated educational tool for scam detection. It is not financial advice, legal advice, or a guarantee of safety. Always verify independently with official regulators such as SEBI."
 }

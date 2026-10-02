@@ -1,0 +1,116 @@
+{
+  "en": {
+    "title": "Immediate Recovery Steps If You Already Paid",
+    "note": "Act immediately. Reporting fraudulent transactions within the first 1-2 hours ('golden hour') significantly increases the chance of freezing the funds.",
+    "checklist": [
+      {
+        "step": 1,
+        "priority": "immediate",
+        "action": "Call National Cyber Crime Helpline 1930",
+        "description": "Dial 1930 immediately to report financial fraud. Provide transaction ID, date, time, your bank details, and the recipient's UPI/account details.",
+        "contact": "1930",
+        "verify": true
+      },
+      {
+        "step": 2,
+        "priority": "immediate",
+        "action": "Notify Your Bank and Request Transaction Recall",
+        "description": "Call your bank's fraud helpline immediately. Ask them to initiate a chargeback or recall request and notify the destination bank to freeze the recipient account.",
+        "contact": "Your bank customer care / fraud cell",
+        "verify": true
+      },
+      {
+        "step": 3,
+        "priority": "within_24h",
+        "action": "File Formal Complaint on National Cyber Crime Portal",
+        "description": "Submit a detailed complaint with screenshots, bank transaction statements, and chat transcripts on the official Government of India portal.",
+        "contact": "https://cybercrime.gov.in",
+        "verify": true
+      },
+      {
+        "step": 4,
+        "priority": "if_sebi_claimed",
+        "action": "File Grievance on SEBI SCORES Portal",
+        "description": "If the scammer impersonated or claimed to be a SEBI registered entity, register a formal complaint on the SEBI Complaints Redress System.",
+        "contact": "https://scores.sebi.gov.in",
+        "verify": true
+      }
+    ]
+  },
+  "hi": {
+    "title": "यदि आप पहले ही पैसे भेज चुके हैं तो तुरंत ये कदम उठाएं",
+    "note": "तुरंत कार्रवाई करें। पहले 1-2 घंटे ('गोल्डन ऑवर') में शिकायत दर्ज कराने से धोखाधड़ी वाले खाते में पैसे फ्रीज होने की संभावना बहुत बढ़ जाती है।",
+    "checklist": [
+      {
+        "step": 1,
+        "priority": "immediate",
+        "action": "राष्ट्रीय साइबर क्राइम हेल्पलाइन 1930 पर तुरंत कॉल करें",
+        "description": "1930 पर कॉल करके वित्तीय साइबर धोखाधड़ी की रिपोर्ट करें। ट्रांजेक्शन आईडी, समय और लाभार्थी की यूपीआई/खाता संख्या बताएं।",
+        "contact": "1930",
+        "verify": true
+      },
+      {
+        "step": 2,
+        "priority": "immediate",
+        "action": "अपने बैंक को तुरंत सूचित करें और भुगतान रोकने का अनुरोध करें",
+        "description": "अपने बैंक की हेल्पलाइन पर कॉल करें और अनधिकृत/धोखाधड़ी लेनदेन की शिकायत दर्ज कराएं ताकि वे दूसरे बैंक को खाता फ्रीज करने के लिए सूचित कर सकें।",
+        "contact": "आपके बैंक का कस्टमर केयर / फ्रॉड सेल",
+        "verify": true
+      },
+      {
+        "step": 3,
+        "priority": "within_24h",
+        "action": "राष्ट्रीय साइबर क्राइम पोर्टल पर ऑनलाइन शिकायत दर्ज करें",
+        "description": "स्क्रीनशॉट, बैंक स्टेटमेंट और चैट के सबूतों के साथ आधिकारिक सरकारी पोर्टल पर लिखित शिकायत दर्ज करें।",
+        "contact": "https://cybercrime.gov.in",
+        "verify": true
+      },
+      {
+        "step": 4,
+        "priority": "if_sebi_claimed",
+        "action": "सेबी स्कोर्स (SEBI SCORES) पोर्टल पर शिकायत करें",
+        "description": "यदि ठग ने सेबी रजिस्टर्ड होने का दावा किया था, तो सेबी के आधिकारिक निवारण पोर्टल पर शिकायत दर्ज कराएं।",
+        "contact": "https://scores.sebi.gov.in",
+        "verify": true
+      }
+    ]
+  },
+  "gu": {
+    "title": "જો તમે પહેલેથી જ પૈસા ચૂકવી દીધા હોય તો તાત્કાલિક લેવાના પગલાં",
+    "note": "તાત્કાલિક પગલાં ભરો. પ્રથમ 1-2 કલાક ('ગોલ્ડન અવર') માં ફરિયાદ નોંધાવવાથી પૈસા ફ્રીઝ થવાની શક્યતા ઘણી વધારે રહે છે.",
+    "checklist": [
+      {
+        "step": 1,
+        "priority": "immediate",
+        "action": "નેશનલ સાયબર ક્રાઈમ હેલ્પલાઈન 1930 પર તાત્કાલિક કોલ કરો",
+        "description": "1930 પર કોલ કરીને નાણાકીય છેતરપિંડીની જાણ કરો. ટ્રાન્ઝેક્શન આઈડી, સમય, બેંક વિગતો અને સામાવાળાની યુપીઆઈ વિગતો આપો.",
+        "contact": "1930",
+        "verify": true
+      },
+      {
+        "step": 2,
+        "priority": "immediate",
+        "action": "તમારી બેંકને તાત્કાલિક જાણ કરો અને વ્યવહાર રોકવા વિનંતી કરો",
+        "description": "તમારી બેંકની છેતરપિંડી હેલ્પલાઈન પર કોલ કરો અને સામેની બેંકમાં ખાતું ફ્રીઝ કરાવવા વિનંતી કરો.",
+        "contact": "તમારી બેંક કસ્ટમર કેર / ફ્રોડ સેલ",
+        "verify": true
+      },
+      {
+        "step": 3,
+        "priority": "within_24h",
+        "action": "નેશનલ સાયબર ક્રાઈમ પોર્ટલ પર ઓનલાઇન ફરિયાદ નોંધાવો",
+        "description": "સ્ક્રીનશોટ, બેંક સ્ટેટમેન્ટ અને ચેટના પુરાવા સાથે સત્તાવાર સરકારી પોર્ટલ પર ફરિયાદ નોંધાવો.",
+        "contact": "https://cybercrime.gov.in",
+        "verify": true
+      },
+      {
+        "step": 4,
+        "priority": "if_sebi_claimed",
+        "action": "સેબી સ્કોર્સ (SEBI SCORES) પોર્ટલ પર ફરિયાદ કરો",
+        "description": "જો છેતરપિંડી કરનારે સેબી રજીસ્ટર્ડ હોવાનો દાવો કર્યો હોય, તો સેબી સ્કોર્સ પોર્ટલ પર ઔપચારિક ફરિયાદ નોંધાવો.",
+        "contact": "https://scores.sebi.gov.in",
+        "verify": true
+      }
+    ]
+  }
+}

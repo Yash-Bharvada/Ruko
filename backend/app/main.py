@@ -37,8 +37,8 @@ class RequestIdAndAuditMiddleware(BaseHTTPMiddleware):
             try:
                 length_val = int(content_length)
                 settings = get_settings()
-                # 10MB absolute maximum for media, 1MB for standard json
-                max_bytes = max(settings.MAX_AUDIO_MB, settings.MAX_IMAGE_MB) * 1024 * 1024
+                # Maximum allowed payload across media types
+                max_bytes = max(settings.MAX_AUDIO_MB, settings.MAX_IMAGE_MB, getattr(settings, "MAX_VIDEO_MB", 25)) * 1024 * 1024
                 if length_val > max_bytes:
                     return build_error_response(
                         status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
@@ -121,6 +121,24 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     else:
         voice_status = "degraded"
 
+    # Initialize Pause Layer (M8)
+    pause_status = "active"
+
+    # Initialize Guardrails Layer (M9)
+    guardrails_status = "active"
+
+    # Initialize Video Tools (M11)
+    import shutil
+    import subprocess
+    video_status = "degraded"
+    if shutil.which("ffmpeg") and shutil.which("ffprobe"):
+        try:
+            subprocess.run(["ffmpeg", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+            subprocess.run(["ffprobe", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+            video_status = "active"
+        except Exception:
+            video_status = "degraded"
+
     model_status = "degraded" if degraded else "active"
     app.state.modules = {
         "model_adapter": model_status,
@@ -130,8 +148,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         "ingest": ingest_status,
         "verdict": verdict_status,
         "voice": voice_status,
-        "pause": "disabled",
-        "guardrails": "disabled",
+        "pause": pause_status,
+        "guardrails": guardrails_status,
+        "video": video_status,
     }
     yield
     logger.info("Shutting down Ruko Backend")
@@ -165,10 +184,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # 3. Security Headers Middleware
     app.add_middleware(SecurityHeadersMiddleware)
 
-    # 4. Request ID & Body Limit Middleware
+    # 4. Rate Limiting Middleware (30 req/min limit per client IP)
+    from app.core.security import RateLimitMiddleware
+    app.add_middleware(RateLimitMiddleware)
+
+    # 5. Request ID & Body Limit Middleware
     app.add_middleware(RequestIdAndAuditMiddleware)
 
-    # 5. Core Liveness & Health Endpoint
+    # 6. Core Liveness & Health Endpoint
     @app.get("/health", response_model=HealthResponse, tags=["Health"])
     async def health() -> Dict[str, object]:
         """Liveness check and module readiness status."""
@@ -185,6 +208,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "voice": "disabled",
                 "pause": "disabled",
                 "guardrails": "disabled",
+                "video": "disabled",
             },
         )
         model_status = current_modules.get("model_adapter", "disabled")
@@ -195,11 +219,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "model": model_status,
         }
 
-    # 6. Mount API routers
+    # 7. Mount API routers
+    from app.api.routes_check import router as check_router
     from app.api.routes_misc import router as misc_router
     from app.api.routes_media import router as media_router
+    from app.api.routes_pause import router as pause_router
+    app.include_router(check_router)
     app.include_router(misc_router)
     app.include_router(media_router)
+    app.include_router(pause_router)
 
     return app
 

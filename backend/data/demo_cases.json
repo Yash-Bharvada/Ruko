@@ -1,0 +1,102 @@
+[
+  {
+    "id": "gujarati_scam_telegram",
+    "title": "Gujarati Fixed Return Telegram Scam",
+    "category": "guaranteed_returns",
+    "language": "gu",
+    "text": "રોજ ૨૫% નફો પાકો ગેરંટી સાથે. ૧૦૦% રિસ્ક ફ્રી રોકાણ. પૈસા આ UPI પર મોકલો: vip@ybl. ગ્રુપ: t.me/vip_invest",
+    "amount": 5000.0,
+    "expected_verdict": "strong_red_flags",
+    "expected_reasons": ["guaranteed_returns", "unauthorized_channel", "personal_upi_payment"]
+  },
+  {
+    "id": "hindi_scam_double_money",
+    "title": "Hindi Double Money Scheme",
+    "category": "unrealistic_returns",
+    "language": "hi",
+    "text": "पैसा डबल सिर्फ 7 दिनों में! 100% पक्का रिटर्न बिना किसी जोखिम के। रजिस्ट्रेशन फीस 2000 रुपये भेजें upi पर: profit@oksbi",
+    "amount": 2000.0,
+    "expected_verdict": "strong_red_flags",
+    "expected_reasons": ["unrealistic_return_claim", "guaranteed_returns", "personal_upi_payment", "upfront_payment_request"]
+  },
+  {
+    "id": "english_scam_vip_insider",
+    "title": "English VIP Insider Tip Group",
+    "category": "unauthorized_channel",
+    "language": "en",
+    "text": "Guaranteed 35% monthly returns! 100% risk free. Join VIP insider group t.me/insider_stock. Send 10,000 to profit@oksbi right now!",
+    "amount": 10000.0,
+    "expected_verdict": "strong_red_flags",
+    "expected_reasons": ["guaranteed_returns", "unrealistic_return_claim", "unauthorized_channel", "personal_upi_payment"]
+  },
+  {
+    "id": "roman_hindi_scam",
+    "title": "Hinglish Fast Return Scam",
+    "category": "multilingual_roman",
+    "language": "en",
+    "text": "Paisa double sirf 10 din me! Zero risk guaranteed return. Join t.me/super_tips and send 5000 to trade@ybl.",
+    "amount": 5000.0,
+    "expected_verdict": "strong_red_flags",
+    "expected_reasons": ["guaranteed_returns", "unrealistic_return_claim", "unauthorized_channel", "personal_upi_payment"]
+  },
+  {
+    "id": "roman_gujarati_scam",
+    "title": "Gujlish High Yield Scam",
+    "category": "multilingual_roman",
+    "language": "en",
+    "text": "Roj 15% nafo guaranteed che. Koi jokham nathi. Paisa aaje j deposit karo upi par: invest@okaxis.",
+    "amount": 5000.0,
+    "expected_verdict": "strong_red_flags",
+    "expected_reasons": ["guaranteed_returns", "unrealistic_return_claim", "personal_upi_payment"]
+  },
+  {
+    "id": "unconfirmed_sebi_reg",
+    "title": "Unconfirmed SEBI Registration Claim",
+    "category": "fake_credentials",
+    "language": "en",
+    "text": "SEBI Registered Adviser Reg No INA000099999. Guaranteed 40% annual returns. Pay registration fees Rs 3,000 to secure your slot.",
+    "amount": 3000.0,
+    "expected_verdict": "strong_red_flags",
+    "expected_reasons": ["guaranteed_returns", "upfront_payment_request", "registry_not_confirmed"]
+  },
+  {
+    "id": "authority_impersonation_threat",
+    "title": "Digital Arrest & Regulator Impersonation",
+    "category": "authority_threat",
+    "language": "en",
+    "text": "Urgent notice from Delhi Police and SEBI Enforcement. Illegal trading detected in your account. Digital arrest warrant issued. Pay fine Rs 25,000 immediately to police@ybl to clear your name.",
+    "amount": 25000.0,
+    "expected_verdict": "strong_red_flags",
+    "expected_reasons": ["authority_impersonation", "urgency_pressure", "personal_upi_payment"]
+  },
+  {
+    "id": "remote_apk_fraud",
+    "title": "Malicious APK & Remote Access Fraud",
+    "category": "malware",
+    "language": "en",
+    "text": "Install our exclusive trading app from link http://bit.ly/trade-app.apk and install AnyDesk to get free jackpot share recommendations. Transfer 1000 registration fee to trade@ybl.",
+    "amount": 1000.0,
+    "expected_verdict": "strong_red_flags",
+    "expected_reasons": ["apk_or_remote_app", "personal_upi_payment", "suspicious_link"]
+  },
+  {
+    "id": "genuine_bank_credit_sms",
+    "title": "Genuine Bank Transaction Notification",
+    "category": "benign",
+    "language": "en",
+    "text": "Dear Customer, your bank account ending in 4321 has been credited with INR 2,500 on 01-Mar-2026. Available balance is INR 18,200. Do not share OTP.",
+    "amount": 2500.0,
+    "expected_verdict": "cannot_verify",
+    "expected_reasons": []
+  },
+  {
+    "id": "stock_advice_request",
+    "title": "Investment Stock Tip Request",
+    "category": "out_of_scope",
+    "language": "en",
+    "text": "Which stock should I buy for 10x returns tomorrow? Please suggest a multibagger share.",
+    "amount": null,
+    "expected_verdict": "out_of_scope",
+    "expected_reasons": []
+  }
+]

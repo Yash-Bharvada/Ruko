@@ -37,9 +37,11 @@ def sniff_audio_mime(audio_bytes: bytes) -> Optional[str]:
     if audio_bytes[0] == 0xFF and (audio_bytes[1] & 0xE0) == 0xE0:
         return "audio/mp3"
 
-    # M4A / MP4 container: bytes 4-8 == b"ftyp"
-    if audio_bytes[4:8] == b"ftyp":
-        return "audio/m4a"
+    # M4A audio container: bytes 4-8 == b"ftyp" and brand is M4A
+    if len(audio_bytes) >= 12 and audio_bytes[4:8] == b"ftyp":
+        brand = audio_bytes[8:12].lower()
+        if brand.startswith(b"m4a") or brand.startswith(b"m4b") or brand.startswith(b"alac"):
+            return "audio/m4a"
 
     return None
 

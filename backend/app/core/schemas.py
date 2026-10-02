@@ -68,6 +68,12 @@ class CheckResult(BaseModel):
     note: str = Field(..., description="Localized honest summary note")
     degraded: List[str] = Field(default_factory=list, description="List of degraded or unavailable modules")
     disclaimer: str = Field(..., description="Localized legal/educational disclaimer")
+    text: Optional[str] = Field(None, description="Extracted message text (for media OCR/STT/video)")
+    source: Optional[str] = Field(None, description="Input source (ocr | stt | text | video)")
+    input_source: Optional[str] = Field("text", description="Normalized input source: text | ocr | stt | video")
+    speech_text: Optional[str] = Field(None, description="Transcribed audio speech from video")
+    on_screen_text: Optional[str] = Field(None, description="Extracted on-screen text from video frames")
+    hint: Optional[str] = Field(None, description="Contextual user guidance hint, e.g. for Instagram links")
 
 
 class ErrorDetail(BaseModel):

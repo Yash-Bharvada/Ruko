@@ -16,14 +16,21 @@ class Settings(BaseSettings):
     MAX_TEXT_CHARS: int = 4000
     MAX_IMAGE_MB: int = 5
     MAX_AUDIO_MB: int = 10
+    MAX_VIDEO_MB: int = 25
+    MAX_VIDEO_SECONDS: int = 60
+    MAX_FRAMES: int = 8
+    FRAME_INTERVAL_SECONDS: int = 3
     RATE_LIMIT_PER_MIN: int = 30
 
     # Feature Flags and Paths
+    DEMO_MODE: bool = False
     ENABLE_THIRD_PARTY_AI: bool = True
+    TRANSCRIBED_NEVER_CLEAR: bool = True
     MODEL_DIR: str = "model_store"
     MODEL_REQUIRED: bool = False
     HIGH_BAND: float = 0.80
     LOW_BAND: float = 0.20
+    SARVAM_STT_MAX_SECONDS: int = 60
 
     # Third Party Provider Placeholders
     LLM_PROVIDER: str = "gemini"

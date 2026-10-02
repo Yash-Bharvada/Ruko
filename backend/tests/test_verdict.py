@@ -347,3 +347,28 @@ def test_reasons_ordering_and_model_high_risk() -> None:
     assert severities[0] == "high"
     assert "model_high_risk" in [r.code for r in outcome.reasons]
     assert "registry_not_confirmed" in [r.code for r in outcome.reasons]
+
+
+def test_transcribed_never_clear_rule() -> None:
+    """Acceptance check: when input_source is stt or video, clean text downgrades from no_red_flags_found to cannot_verify."""
+    clean_model = make_model(available=True, score=0.10)
+    clean_reg = make_registry("found_in_snapshot")
+
+    # 1. Text input -> no_red_flags_found
+    res_text = decide_verdict([], clean_model, clean_reg, input_source="text")
+    assert res_text.verdict == "no_red_flags_found"
+
+    # 2. STT input -> cannot_verify with transcribed uncertainty note
+    res_stt = decide_verdict([], clean_model, clean_reg, input_source="stt")
+    assert res_stt.verdict == "cannot_verify"
+    assert "transcription" in res_stt.note.lower()
+
+    # 3. Video input -> cannot_verify with transcribed uncertainty note
+    res_video = decide_verdict([], clean_model, clean_reg, input_source="video")
+    assert res_video.verdict == "cannot_verify"
+    assert "transcription" in res_video.note.lower()
+
+    # 4. If strong red flags are present, video/stt STILL returns strong_red_flags!
+    scam_flags = [flag("guaranteed_returns", "high"), flag("personal_upi_payment", "high")]
+    res_scam_video = decide_verdict(scam_flags, clean_model, clean_reg, input_source="video")
+    assert res_scam_video.verdict == "strong_red_flags"
