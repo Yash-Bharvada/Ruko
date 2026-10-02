@@ -1,0 +1,53 @@
+"""Application configuration loaded from environment variables."""
+
+from functools import lru_cache
+from typing import List
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Configuration settings for Ruko backend."""
+
+    ENV: str = "development"
+    VERSION: str = "0.1.0"
+    CORS_ORIGINS: str = "*"
+
+    # Limits and Thresholds
+    MAX_TEXT_CHARS: int = 4000
+    MAX_IMAGE_MB: int = 5
+    MAX_AUDIO_MB: int = 10
+    RATE_LIMIT_PER_MIN: int = 30
+
+    # Feature Flags and Paths
+    ENABLE_THIRD_PARTY_AI: bool = True
+    MODEL_DIR: str = "model_store"
+    MODEL_REQUIRED: bool = False
+    HIGH_BAND: float = 0.80
+    LOW_BAND: float = 0.20
+
+    # Third Party Provider Placeholders
+    LLM_PROVIDER: str = "gemini"
+    LLM_API_KEY: str = ""
+    LLM_MODEL: str = "gemini-2.0-flash"
+    SARVAM_API_KEY: str = ""
+
+    # SEBI Snapshot / Verification URL
+    SEBI_VERIFY_URL: str = "https://www.sebi.gov.in"
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    def get_cors_origins(self) -> List[str]:
+        """Parse comma-separated CORS origins into a list."""
+        if not self.CORS_ORIGINS or self.CORS_ORIGINS.strip() == "*":
+            return ["*"]
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+
+
+@lru_cache()
+def get_settings() -> Settings:
+    """Cached settings singleton."""
+    return Settings()

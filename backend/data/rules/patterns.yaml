@@ -1,0 +1,470 @@
+# Ruko Red Flag Rules Configuration
+# Severities: high | medium | low | info
+
+rules:
+  - code: "guaranteed_returns"
+    severity: "high"
+    description: "Promises guaranteed, risk-free, or fixed returns on investments."
+    phrases:
+      en:
+        - "guaranteed return"
+        - "guaranteed returns"
+        - "guaranteed profit"
+        - "guarantee return"
+        - "guarantee profit"
+        - "guaranteed"
+        - "guarantee"
+        - "risk free"
+        - "risk-free"
+        - "fixed return"
+        - "fixed returns"
+        - "100% sure-shot"
+        - "100% sure shot"
+        - "100% safe return"
+        - "assured return"
+        - "assured returns"
+        - "zero risk"
+        - "no risk"
+        - "capital protection guaranteed"
+      hi:
+        - "गारंटी"
+        - "गारंटीड"
+        - "जोखिम नहीं"
+        - "बिना जोखिम"
+        - "निश्चित रिटर्न"
+        - "100% पक्का"
+        - "जीरो रिस्क"
+        - "पक्का मुनाफा"
+        - "पक्का रिटर्न"
+      gu:
+        - "ગેરંટી"
+        - "ગેરંટીડ"
+        - "ખાતરીપૂર્વક"
+        - "જોખમ નહીં"
+        - "કોઈ જોખમ નથી"
+        - "ચોક્કસ વળતર"
+        - "પાક્કો નફો"
+        - "100% ખાતરી"
+        - "100% ગેરંટીડ"
+      gu_roman:
+        - "guarantee"
+        - "guaranteed"
+        - "koi jokham nathi"
+        - "jokham nathi"
+        - "pakko nafo"
+        - "chokkas valtar"
+        - "100% khatri"
+      hi_roman:
+        - "koi risk nahi"
+        - "bina risk"
+        - "pakka munafa"
+        - "guaranteed return"
+        - "fixed return"
+        - "zero risk"
+    negations:
+      en:
+        - "never guaranteed"
+        - "not guaranteed"
+        - "no guarantee"
+        - "cannot guarantee"
+        - "can not guarantee"
+        - "never guarantee"
+        - "no one can guarantee"
+        - "are not guaranteed"
+        - "isn't guaranteed"
+        - "is not guaranteed"
+      hi:
+        - "गारंटी नहीं"
+        - "कोई गारंटी नहीं"
+        - "गारंटी नहीं है"
+        - "गारंटी कभी नहीं"
+      gu:
+        - "ગેરંટી નથી"
+        - "કોઈ ગેરંટી નથી"
+        - "ખાતરી આપતું નથી"
+        - "ગેરંટી ક્યારેય નહીં"
+      gu_roman:
+        - "guarantee nathi"
+        - "koi guarantee nathi"
+        - "guaranteed nathi"
+      hi_roman:
+        - "guarantee nahi"
+        - "koi guarantee nahi"
+        - "kabhi guarantee nahi"
+    regex:
+      - "(?i)100%\\s*(?:guarantee[d]?|safe|sure[- ]?shot|risk[- ]?free)"
+      - "(?i)(?:zero|no)\\s*risk"
+
+  - code: "unrealistic_return_claim"
+    severity: "high"
+    description: "Claims unrealistically high returns: >=5% daily, >=15% weekly, >=20% monthly, or doubling money."
+    phrases:
+      en:
+        - "double your money"
+        - "triple your money"
+        - "2x return"
+        - "10x return"
+      hi:
+        - "पैसे डबल"
+        - "पैसा डबल"
+        - "दोगुना पैसा"
+      gu:
+        - "પૈસા ડબલ"
+        - "રૂપિયા ડબલ"
+        - "બે ગણો નફો"
+      gu_roman:
+        - "paisa double"
+        - "paise double"
+        - "double nafo"
+      hi_roman:
+        - "paise double"
+        - "doguna munafa"
+        - "paisa double"
+    regex:
+      # Daily >= 5%
+      - "(?i)(?:roj|daily|per\\s*day|darroj)\\s*(?:of\\s*)?([5-9]|\\d{2,})\\s*%(?:\\s*(?:return|nafo|profit|munafa))?"
+      - "(?i)([5-9]|\\d{2,})\\s*%\\s*(?:daily|per\\s*day|roj|darroj)"
+      # Weekly >= 15%
+      - "(?i)(?:weekly|per\\s*week|athwadiye|hafte)\\s*(?:of\\s*)?(1[5-9]|[2-9]\\d|\\d{3,})\\s*%(?:\\s*(?:return|nafo|profit|munafa))?"
+      - "(?i)(1[5-9]|[2-9]\\d|\\d{3,})\\s*%\\s*(?:weekly|per\\s*week|hafte|athwadiye)"
+      # Monthly >= 20%
+      - "(?i)(?:monthly|per\\s*month|mahine|mahino)\\s*(?:of\\s*)?(2\\d|[3-9]\\d|\\d{3,})\\s*%(?:\\s*(?:return|nafo|profit|munafa))?"
+      - "(?i)(2\\d|[3-9]\\d|\\d{3,})\\s*%\\s*(?:monthly|per\\s*month|mahine|mahino(?:\\s*nafo)?)"
+      # Double in days/months
+      - "(?i)(?:double|2x|doguna|be\\s*gana)\\s*(?:in\\s*)?\\d+\\s*(?:days|din|divas|mahine|months)"
+      - "(?i)(?:double|doguna|be\\s*gana)\\s*(?:your\\s*)?(?:money|investment|capital|paisa|paise|rupees|rakam)"
+
+  - code: "upfront_payment_request"
+    severity: "high"
+    description: "Asks for upfront registration fee, processing fee, security deposit, or direct payment."
+    phrases:
+      en:
+        - "registration fee"
+        - "processing fee"
+        - "security deposit"
+        - "joining fee"
+        - "activation fee"
+        - "account opening charges"
+        - "pay registration fee"
+      hi:
+        - "रजिस्ट्रेशन फीस"
+        - "प्रोसेसिंग फीस"
+        - "सिक्योरिटी डिपॉजिट"
+        - "ज्वाइनिंग फीस"
+      gu:
+        - "રજીસ્ટ્રેશન ફી"
+        - "પ્રોસેસિંગ ફી"
+        - "સિક્યોરિટી ડિપોઝિટ"
+        - "જોઇનિંગ ફી"
+      gu_roman:
+        - "registration fee"
+        - "processing fee"
+      hi_roman:
+        - "registration fees"
+        - "processing fees"
+    regex:
+      - "(?i)(?:pay|send|transfer|deposit|jama\\s*karo|moklo)\\s*(?:rs\\.?|inr|₹)?\\s*(\\d+(?:,\\d+)*(?:\\.\\d+)?)\\s*(?:as\\s*)?(?:registration|processing|security|joining|activation|entry)?\\s*(?:fee|fees|deposit|charge|charges)?"
+      - "(?i)(?:registration|processing|security|joining|activation)\\s*(?:fee|fees|charges)\\s*(?:of\\s*)?(?:rs\\.?|inr|₹)?\\s*(\\d+(?:,\\d+)*)"
+
+  - code: "personal_upi_payment"
+    severity: "high"
+    description: "Requests payment to a personal or third-party UPI VPA address."
+    phrases:
+      en:
+        - "send to upi"
+        - "pay on upi"
+        - "transfer to upi"
+        - "gpay on"
+        - "phonepe on"
+      hi:
+        - "यूपीआई पर भेजें"
+        - "गूगल पे करें"
+        - "फोनपे करें"
+      gu:
+        - "યુપીઆઈ પર મોકલો"
+        - "ગૂગલ પે કરો"
+        - "ફોનપે કરો"
+      gu_roman:
+        - "upi par moklo"
+        - "gpay karo"
+      hi_roman:
+        - "upi par bhejo"
+        - "gpay karo"
+    regex:
+      - "(?i)(?:pay|send|transfer|bhejo|moklo|transfer|deposit|deposit\\s*to)?\\s*(?:rs\\.?\\s*\\d+\\s*(?:to\\s*)?)?([a-zA-Z0-9.\\-_]{2,49}@(oksbi|okhdfcbank|okicici|okaxis|ybl|paytm|upi|apl|ibl|axl|postbank|ptsbi|ptaxis|pthdfc|fam|airtel|fbl|idfcbank))"
+      - "(?i)(?:pay|send|transfer|to)\\s+([a-zA-Z0-9.\\-_]{2,49}@[a-zA-Z]{3,})"
+
+  - code: "otp_pin_request"
+    severity: "high"
+    description: "Requests OTP, ATM PIN, CVV, or banking password."
+    phrases:
+      en:
+        - "share otp"
+        - "send otp"
+        - "tell otp"
+        - "enter pin"
+        - "share pin"
+        - "share your pin"
+        - "cvv number"
+        - "atm pin"
+        - "net banking password"
+        - "forward otp"
+      hi:
+        - "ओटीपी बताएं"
+        - "ओटीपी शेयर करें"
+        - "ओटीपी भेजें"
+        - "पिन बताएं"
+        - "सीवीवी बताएं"
+      gu:
+        - "ઓટીપી આપો"
+        - "ઓટીપી શેર કરો"
+        - "ઓટીપી મોકલો"
+        - "પિન આપો"
+        - "સીવીવી આપો"
+      gu_roman:
+        - "otp aapo"
+        - "otp share karo"
+        - "pin aapo"
+      hi_roman:
+        - "otp batao"
+        - "otp share karo"
+        - "pin batao"
+    regex:
+      - "(?i)(?:share|send|tell|give|enter|forward|batao|aapo|moklo|bolo)\\s*(?:your|the)?\\s*(?:otp|pin|cvv|password|passcode)"
+      - "(?i)(?:otp|pin|cvv)\\s*(?:share|send|batao|aapo|moklo)"
+
+  - code: "apk_or_remote_app"
+    severity: "high"
+    description: "Instructs installing an APK file or remote access software (AnyDesk, TeamViewer)."
+    phrases:
+      en:
+        - "anydesk"
+        - "teamviewer"
+        - "quicksupport"
+        - "rustdesk"
+        - ".apk"
+        - "install apk"
+        - "download apk"
+        - "install app from link"
+        - "install our application"
+      hi:
+        - "एनीडेस्क"
+        - "टीमव्यूअर"
+        - "ऐप डाउनलोड करें"
+        - "एपीके इंस्टॉल करें"
+      gu:
+        - "એનીડેસ્ક"
+        - "ટીમવ્યૂઅર"
+        - "એપ ડાઉનલોડ કરો"
+        - "એપીકે ઇન્સ્ટોલ કરો"
+      gu_roman:
+        - "anydesk"
+        - "teamviewer"
+        - "apk install"
+      hi_roman:
+        - "anydesk"
+        - "teamviewer"
+        - "apk download"
+    regex:
+      - "(?i)\\.apk\\b"
+      - "(?i)(?:install|download)\\s*(?:our|this)?\\s*(?:apk|app)\\s*(?:from|via)?"
+      - "(?i)(?:anydesk|teamviewer|quicksupport|rustdesk)"
+
+  - code: "authority_impersonation"
+    severity: "high"
+    description: "Impersonates police, cyber crime cell, CBI, ED, or threatens digital arrest."
+    phrases:
+      en:
+        - "digital arrest"
+        - "cyber crime police"
+        - "cyber crime branch"
+        - "cbi investigation"
+        - "arrest warrant"
+        - "police department"
+        - "customs department"
+        - "illegal parcel"
+        - "narcotics bureau"
+        - "court summons"
+      hi:
+        - "डिजिटल अरेस्ट"
+        - "पुलिस अरेस्ट"
+        - "सीबीआई जांच"
+        - "साइबर क्राइम पुलिस"
+        - "अरेस्ट वारंट"
+      gu:
+        - "ડિજિટલ અરેસ્ટ"
+        - "પોલીસ ધરપકડ"
+        - "સીબીઆઈ તપાસ"
+        - "સાયબર ક્રાઈમ બ્રાન્ચ"
+        - "વોરંટ"
+      gu_roman:
+        - "digital arrest"
+        - "police arrest"
+        - "cbi"
+      hi_roman:
+        - "digital arrest"
+        - "police arrest"
+        - "cyber crime"
+    regex:
+      - "(?i)digital\\s*arrest"
+      - "(?i)(?:cyber\\s*crime|cbi|ed|police)\\s*(?:arrest|investigation|officer|warrant)"
+
+  - code: "vip_or_tip_group_invite"
+    severity: "medium"
+    description: "Invites to WhatsApp/Telegram VIP groups, insider tips, operator calls, or pre-IPO channels."
+    phrases:
+      en:
+        - "vip group"
+        - "premium group"
+        - "vip channel"
+        - "insider tips"
+        - "operator call"
+        - "sure shot call"
+        - "pre-ipo shares"
+        - "pre-ipo"
+        - "jackpot call"
+        - "whatsapp group"
+        - "telegram channel"
+        - "free telegram"
+      hi:
+        - "वीआईपी ग्रुप"
+        - "प्रीमियम ग्रुप"
+        - "व्हाट्सएप ग्रुप"
+        - "टेलीग्राम चैनल"
+        - "जैकपॉट कॉल"
+      gu:
+        - "વીઆઈપી ગ્રુપ"
+        - "પ્રીમિયમ ગ્રુપ"
+        - "વોટ્સએપ ગ્રુપ"
+        - "ટેલિગ્રામ ચેનલ"
+        - "જેકપોટ કોલ"
+      gu_roman:
+        - "vip group"
+        - "premium group"
+        - "whatsapp group"
+      hi_roman:
+        - "vip group"
+        - "premium group"
+        - "whatsapp group"
+    regex:
+      - "(?i)(?:t\\.me|telegram\\.me)/[a-zA-Z0-9_]+"
+      - "(?i)chat\\.whatsapp\\.com/[a-zA-Z0-9]+"
+      - "(?i)(?:vip|premium|exclusive|operator)\\s*(?:group|channel|tips?|calls?)"
+
+  - code: "urgency_pressure"
+    severity: "medium"
+    description: "Creates artificial urgency, limited time windows, or fear of missing out."
+    phrases:
+      en:
+        - "today only"
+        - "limited seats"
+        - "last chance"
+        - "hurry up"
+        - "valid today only"
+        - "offer ends today"
+        - "offer ends soon"
+        - "deadline"
+        - "act now"
+        - "few seats left"
+      hi:
+        - "आज ही"
+        - "आखिरी मौका"
+        - "सीमित सीटें"
+        - "जल्दी करें"
+        - "केवल आज के लिए"
+      gu:
+        - "આજે જ"
+        - "છેલ્લી તક"
+        - "મર્યાદિત સીટો"
+        - "આજે જ જોડાઓ"
+        - "જલ્દી કરો"
+      gu_roman:
+        - "aaje j"
+        - "aaje j jodavo"
+        - "chhelli tak"
+      hi_roman:
+        - "aaj hi"
+        - "aaj hi jude"
+        - "aakhiri mauka"
+    regex:
+      - "(?i)(?:only|valid)\\s*(?:for\\s*)?(?:today|24\\s*hours|1\\s*hour|few\\s*hours)"
+      - "(?i)(?:last|final)\\s*(?:chance|call|reminder)"
+      - "(?i)limited\\s*(?:seats?|slots?|spots?)"
+
+  - code: "secrecy_request"
+    severity: "medium"
+    description: "Demands secrecy or hiding the investment from family, bank, or friends."
+    phrases:
+      en:
+        - "don't tell anyone"
+        - "do not tell anyone"
+        - "keep it confidential"
+        - "keep it secret"
+        - "private deal"
+        - "secret scheme"
+        - "secret investment"
+        - "don't inform your bank"
+      hi:
+        - "किसी को मत बताना"
+        - "सीक्रेट रखें"
+        - "गुप्त रखें"
+        - "बैंक को मत बताना"
+      gu:
+        - "કોઈને કહેશો નહીં"
+        - "ગુપ્ત રાખો"
+        - "ફેમિલીને ન કહેશો"
+        - "બેંકને ન જણાવશો"
+      gu_roman:
+        - "koine na kahesho"
+        - "kisi ko mat batana"
+        - "secret"
+      hi_roman:
+        - "kisi ko mat batana"
+        - "secret rakhe"
+    regex:
+      - "(?i)(?:don't|do\\s*not|never)\\s*(?:tell|inform|share\\s*with)\\s*(?:anyone|family|bank|friends)"
+      - "(?i)(?:keep|strictly)\\s*(?:it\\s*)?(?:confidential|secret)"
+
+  - code: "suspicious_link"
+    severity: "medium"
+    description: "Contains URL shorteners or high-risk domain extensions."
+    phrases:
+      en: []
+      hi: []
+      gu: []
+      gu_roman: []
+      hi_roman: []
+    regex:
+      - "(?i)https?://(?:www\\.)?(?:bit\\.ly|tinyurl\\.com|is\\.gd|cutt\\.ly|rb\\.gy|t\\.ly|v\\.gd|shorturl\\.at)/[a-zA-Z0-9_\\-]+"
+      - "(?i)https?://[a-zA-Z0-9_\\-\\.]+\\.(?:xyz|top|site|online|link|buzz|icu|fun|click|live|club|pw|work|trade)/[^\\s]*"
+
+  - code: "unverified_registration_claim"
+    severity: "info"
+    description: "Claims official registration (e.g. SEBI registered) or cites a registration number."
+    phrases:
+      en:
+        - "sebi registered"
+        - "sebi certified"
+        - "sebi approved"
+        - "sebi authorized"
+        - "government certified"
+        - "govt registered"
+        - "rbi approved"
+      hi:
+        - "सेबी रजिस्टर्ड"
+        - "सेबी अप्रूव्ड"
+        - "सरकारी रजिस्टर्ड"
+      gu:
+        - "સેબી રજીસ્ટર્ડ"
+        - "સેબી માન્ય"
+        - "સરકારી રજીસ્ટર્ડ"
+      gu_roman:
+        - "sebi registered"
+        - "govt registered"
+      hi_roman:
+        - "sebi registered"
+        - "govt registered"
+    regex:
+      - "(?i)\\b(?:INA|INH|INZ|INP|INF|INR|INM)\\d{6,12}\\b"
+      - "(?i)\\bSEBI[ /\\-_]?(?:REG[A-Z0-9\\-_]*|NO)?[:\\s]*([A-Z0-9\\-_]{6,16})\\b"
+      - "(?i)sebi\\s*(?:registered|approved|certified|authorized|licen[sc]ed)"

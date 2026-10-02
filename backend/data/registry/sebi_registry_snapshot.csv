@@ -1,0 +1,5 @@
+reg_no,name,category,status,source_url,snapshot_date,is_sample
+INA000000001,SAMPLE ADVISORY ONE (DEMO),Investment Adviser,Active,https://www.sebi.gov.in,2026-03-01,true
+INH000000002,SAMPLE RESEARCH SERVICES (DEMO),Research Analyst,Active,https://www.sebi.gov.in,2026-03-01,true
+INZ000000003,SAMPLE BROKING HOUSE (DEMO),Stock Broker,Active,https://www.sebi.gov.in,2026-03-01,true
+INP000000004,SAMPLE PORTFOLIO MANAGERS (DEMO),Portfolio Manager,Active,https://www.sebi.gov.in,2026-03-01,true

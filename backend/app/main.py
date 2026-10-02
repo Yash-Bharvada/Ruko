@@ -1,0 +1,172 @@
+"""FastAPI application factory, middleware, and core endpoints."""
+
+import time
+import uuid
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator, Dict
+from fastapi import FastAPI, Request, Response, status
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from app.core.config import Settings, get_settings
+from app.core.errors import (
+    AppException,
+    PayloadTooLargeError,
+    build_error_response,
+    register_error_handlers,
+)
+from app.core.logging import logger
+from app.core.schemas import HealthResponse
+from app.core.security import SecurityHeadersMiddleware
+
+
+from app.modules.model_adapter.loader import load_model
+
+
+class RequestIdAndAuditMiddleware(BaseHTTPMiddleware):
+    """Assigns X-Request-ID and tracks request lifecycle without logging request body."""
+
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+        # Check client request ID or generate a new one
+        request_id = request.headers.get("x-request-id") or str(uuid.uuid4())
+        request.state.request_id = request_id
+        start_time = time.perf_counter()
+
+        # Enforce maximum payload size via Content-Length if present
+        content_length = request.headers.get("content-length")
+        if content_length:
+            try:
+                length_val = int(content_length)
+                settings = get_settings()
+                # 10MB absolute maximum for media, 1MB for standard json
+                max_bytes = max(settings.MAX_AUDIO_MB, settings.MAX_IMAGE_MB) * 1024 * 1024
+                if length_val > max_bytes:
+                    return build_error_response(
+                        status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                        code="payload_too_large",
+                        message=f"Request body size ({length_val} bytes) exceeds limit of {max_bytes} bytes",
+                        request_id=request_id,
+                    )
+            except ValueError:
+                pass
+
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = request_id
+
+        # Calculate latency
+        duration_ms = (time.perf_counter() - start_time) * 1000.0
+        response.headers["X-Response-Time-Ms"] = f"{duration_ms:.2f}"
+        return response
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """Lifespan context manager for application startup and shutdown."""
+    settings = get_settings()
+    logger.info("Starting Ruko Backend (env=%s, version=%s)", settings.ENV, settings.VERSION)
+
+    # Initialize Model Adapter (M1)
+    scorer, degraded = load_model(settings)
+    app.state.model = scorer
+    app.state.model_degraded = degraded
+
+    # Initialize Rules Engine (M2)
+    try:
+        from app.modules.rules.engine import get_rule_engine
+        app.state.rule_engine = get_rule_engine()
+        rules_status = "active"
+    except Exception as exc:
+        logger.warning("Failed to initialize rule engine: %s", exc)
+        rules_status = "degraded"
+
+    # Initialize Registry Service (M3)
+    try:
+        from app.modules.registry.service import get_registry_service
+        reg_svc = get_registry_service()
+        app.state.registry_service = reg_svc
+        registry_status = "active" if reg_svc.is_available else "degraded"
+    except Exception as exc:
+        logger.warning("Failed to initialize registry service: %s", exc)
+        registry_status = "degraded"
+
+    model_status = "degraded" if degraded else "active"
+    app.state.modules = {
+        "model_adapter": model_status,
+        "rules": rules_status,
+        "registry": registry_status,
+        "extractor": "disabled",
+        "ingest": "disabled",
+        "verdict": "disabled",
+        "voice": "disabled",
+        "pause": "disabled",
+        "guardrails": "disabled",
+    }
+    yield
+    logger.info("Shutting down Ruko Backend")
+
+
+def create_app(settings: Settings | None = None) -> FastAPI:
+    """Create and configure the FastAPI application."""
+    if settings is None:
+        settings = get_settings()
+
+    app = FastAPI(
+        title="Ruko Backend",
+        description="Multilingual investor-protection API for suspicious investment tips",
+        version=settings.VERSION,
+        lifespan=lifespan,
+    )
+
+    # 1. Uniform Error Handlers
+    register_error_handlers(app)
+
+    # 2. CORS Middleware
+    origins = settings.get_cors_origins()
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # 3. Security Headers Middleware
+    app.add_middleware(SecurityHeadersMiddleware)
+
+    # 4. Request ID & Body Limit Middleware
+    app.add_middleware(RequestIdAndAuditMiddleware)
+
+    # 5. Core Liveness & Health Endpoint
+    @app.get("/health", response_model=HealthResponse, tags=["Health"])
+    async def health() -> Dict[str, object]:
+        """Liveness check and module readiness status."""
+        current_modules = getattr(
+            app.state,
+            "modules",
+            {
+                "model_adapter": "disabled",
+                "rules": "disabled",
+                "registry": "disabled",
+                "extractor": "disabled",
+                "ingest": "disabled",
+                "verdict": "disabled",
+                "voice": "disabled",
+                "pause": "disabled",
+                "guardrails": "disabled",
+            },
+        )
+        model_status = current_modules.get("model_adapter", "disabled")
+        return {
+            "status": "ok",
+            "version": settings.VERSION,
+            "modules": current_modules,
+            "model": model_status,
+        }
+
+    # 6. Mount API routers
+    from app.api.routes_misc import router as misc_router
+    app.include_router(misc_router)
+
+    return app
+
+
+app = create_app()
