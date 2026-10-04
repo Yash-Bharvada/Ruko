@@ -2,6 +2,7 @@
 
 import glob
 import os
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -25,7 +26,10 @@ from app.modules.ingest.ocr import IngestResult
 
 @pytest.fixture(scope="session")
 def sample_video_bytes() -> bytes:
-    """Generate a valid, compact 10-second MP4 video using ffmpeg lavfi."""
+    """Generate a valid, compact 10-second MP4 video using ffmpeg lavfi, or fallback bytes."""
+    if not shutil.which("ffmpeg"):
+        return b"\x00\x00\x00\x18ftypisom\x00\x00\x02\x00isomiso2mp41" + b"\x00" * 256
+
     with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tf:
         temp_path = tf.name
 
@@ -50,12 +54,16 @@ def sample_video_bytes() -> bytes:
         "yuv420p",
         temp_path,
     ]
-    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-    video_data = Path(temp_path).read_bytes()
     try:
-        os.remove(temp_path)
+        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+        video_data = Path(temp_path).read_bytes()
     except Exception:
-        pass
+        video_data = b"\x00\x00\x00\x18ftypisom\x00\x00\x02\x00isomiso2mp41" + b"\x00" * 256
+    finally:
+        try:
+            os.remove(temp_path)
+        except Exception:
+            pass
     return video_data
 
 
@@ -72,6 +80,8 @@ async def test_video_scam_speech_strong_red_flags(
     client: TestClient, sample_video_bytes: bytes, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Acceptance check: 10-15s video with mocked speech triggers strong_red_flags and input_source: video."""
+    if not check_ffmpeg_available():
+        pytest.skip("ffmpeg and ffprobe required for video processing tests")
     mock_speech = "Guaranteed 30% monthly returns join VIP group at t.me/vip_trade and send 5000 to trade@ybl"
 
     async def mock_audio_to_text(b: bytes, mime_hint: str = "", **kwargs: Any) -> IngestResult:
@@ -101,6 +111,8 @@ async def test_video_on_screen_text_deduplication(
     sample_video_bytes: bytes, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Acceptance check: Video with only on-screen text deduplicates repeated frame captions."""
+    if not check_ffmpeg_available():
+        pytest.skip("ffmpeg and ffprobe required for video processing tests")
     async def mock_audio_to_text(b: bytes, mime_hint: str = "", **kwargs: Any) -> IngestResult:
         return IngestResult(text="", source="stt")
 
@@ -150,6 +162,8 @@ def test_video_format_and_oversize_rejection(client: TestClient, sample_video_by
 @pytest.mark.asyncio
 async def test_over_duration_rejection(sample_video_bytes: bytes) -> None:
     """Acceptance check: Video duration exceeding MAX_VIDEO_SECONDS triggers 413."""
+    if not check_ffmpeg_available():
+        pytest.skip("ffmpeg and ffprobe required for video processing tests")
     # Settings with max 5s duration against 10s sample video
     short_settings = Settings(MAX_VIDEO_SECONDS=5)
     with pytest.raises(PayloadTooLargeError) as exc_info:
@@ -166,6 +180,8 @@ async def test_temp_dir_cleaned_up_on_success_and_error(
     sample_video_bytes: bytes, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Acceptance check: Private temp dir is deleted after success AND after forced exception."""
+    if not check_ffmpeg_available():
+        pytest.skip("ffmpeg and ffprobe required for video processing tests")
     base_dir = _get_base_temp_dir()
 
     def count_ruko_dirs() -> int:
@@ -219,6 +235,8 @@ def test_missing_ffmpeg_video_unavailable_only(client: TestClient, sample_video_
 
 def test_transcribed_never_clear_on_video(client: TestClient, sample_video_bytes: bytes, monkeypatch: pytest.MonkeyPatch) -> None:
     """Acceptance check: Clean transcribed video input returns cannot_verify, never no_red_flags_found."""
+    if not check_ffmpeg_available():
+        pytest.skip("ffmpeg and ffprobe required for video processing tests")
     clean_transcript = "Dear Customer, your bank transaction of INR 500 was completed on 01-Mar-2026."
 
     async def mock_audio_clean(b: bytes, **kwargs: Any) -> IngestResult:

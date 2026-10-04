@@ -133,7 +133,7 @@ async def run_check(
         if not scorer.is_available:
             return ModelOutput(available=False, score=None, top_words=[], calming_words=[]), ["model_unavailable"]
         try:
-            output = await asyncio.to_thread(scorer.score, cleaned_text)
+            output = await scorer.score(cleaned_text)
             deg = [] if output.available else ["model_unavailable"]
             return output, deg
         except Exception as exc:

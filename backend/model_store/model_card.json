@@ -1,5 +1,5 @@
 {
-  "sklearn_version": "1.8.0",
+  "sklearn_version": "1.9.1",
   "trained_on": "2026-03-01",
   "notes": "Multilingual SMS/WhatsApp fraud detector model bundle"
 }

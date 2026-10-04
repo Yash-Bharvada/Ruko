@@ -18,12 +18,19 @@ class RukoModel:
 
     def __init__(self, path=None):
         if path is None:
-            if os.path.exists(os.path.join("artifacts", "model.joblib")):
-                path = os.path.join("artifacts", "model.joblib")
-            elif os.path.exists("model.joblib"):
-                path = "model.joblib"
-            else:
-                path = os.path.join("artifacts", "model.joblib")
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            candidates = [
+                os.path.join(base_dir, "artifacts", "model.joblib"),
+                os.path.join(base_dir, "model.joblib"),
+                os.path.join("artifacts", "model.joblib"),
+                "model.joblib",
+            ]
+            for c in candidates:
+                if os.path.exists(c):
+                    path = c
+                    break
+            if path is None:
+                path = os.path.join(base_dir, "artifacts", "model.joblib")
         if not os.path.exists(path):
             raise FileNotFoundError(f"{path} not found. Run train_model.py first.")
         b = joblib.load(path)

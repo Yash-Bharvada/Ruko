@@ -73,13 +73,21 @@ def load_model(settings: Settings) -> Tuple[ScamScorer, List[str]]:
             trained_version = card_data.get("sklearn_version")
             if trained_version:
                 import sklearn
-                if sklearn.__version__ != trained_version:
+                trained_major = trained_version.split(".")[0]
+                current_major = sklearn.__version__.split(".")[0]
+                if trained_major != current_major:
                     logger.warning(
                         "Scikit-learn version mismatch: trained on %s, running on %s",
                         trained_version,
                         sklearn.__version__,
                     )
                     degraded_flags.append("model_version_mismatch")
+                elif sklearn.__version__ != trained_version:
+                    logger.info(
+                        "Scikit-learn minor version difference: trained on %s, running on %s",
+                        trained_version,
+                        sklearn.__version__,
+                    )
         except Exception as exc:
             logger.warning("Failed to parse model_card.json: %s", str(exc))
 

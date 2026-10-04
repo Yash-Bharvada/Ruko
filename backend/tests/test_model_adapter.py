@@ -212,10 +212,12 @@ def test_loader_version_mismatch_warning(tmp_path: Path, monkeypatch: pytest.Mon
     assert any("Scikit-learn version mismatch" in rec.message for rec in caplog.records)
 
 
-def test_health_with_no_model_files() -> None:
+def test_health_with_no_model_files(tmp_path: Path) -> None:
     """Acceptance check: With NO files in model_store, /health reports degraded model status."""
     # Create test app with empty model_store
-    settings = Settings(MODEL_DIR="model_store", MODEL_REQUIRED=False)
+    empty_dir = tmp_path / "empty_model_store"
+    empty_dir.mkdir()
+    settings = Settings(MODEL_DIR=str(empty_dir), MODEL_REQUIRED=False)
     test_app = create_app(settings)
 
     with TestClient(test_app) as client:
@@ -224,3 +226,16 @@ def test_health_with_no_model_files() -> None:
         data = response.json()
         assert data["modules"]["model_adapter"] == "degraded"
         assert data["model"] == "degraded"
+
+
+def test_health_with_active_model_files() -> None:
+    """Acceptance check: With active model in model_store, /health reports active model status."""
+    settings = Settings(MODEL_DIR="model_store", MODEL_REQUIRED=False)
+    test_app = create_app(settings)
+
+    with TestClient(test_app) as client:
+        response = client.get("/health")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["modules"]["model_adapter"] == "active"
+        assert data["model"] == "active"

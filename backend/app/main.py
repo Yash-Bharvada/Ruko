@@ -61,7 +61,7 @@ class RequestIdAndAuditMiddleware(BaseHTTPMiddleware):
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Lifespan context manager for application startup and shutdown."""
-    settings = get_settings()
+    settings = getattr(app.state, "settings", None) or get_settings()
     logger.info("Starting Ruko Backend (env=%s, version=%s)", settings.ENV, settings.VERSION)
 
     # Initialize Model Adapter (M1)
@@ -167,6 +167,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         version=settings.VERSION,
         lifespan=lifespan,
     )
+    app.state.settings = settings
 
     # 1. Uniform Error Handlers
     register_error_handlers(app)
