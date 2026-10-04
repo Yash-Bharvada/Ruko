@@ -8,8 +8,12 @@ Import use:
     from predict import RukoModel; RukoModel().check("text")
 """
 import argparse, os, sys, warnings, numpy as np, joblib
-warnings.filterwarnings("ignore")
 from scipy.sparse import hstack
+warnings.filterwarnings("ignore")
+_d = os.path.dirname(os.path.abspath(__file__))
+if _d not in sys.path:
+    sys.path.insert(0, _d)
+import common
 from common import preprocess
 
 class RukoModel:
