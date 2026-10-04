@@ -222,144 +222,72 @@ export const ScamThreatCarousel: FC<ScamThreatCarouselProps> = ({ onSelectSample
             }}
           />
 
-          <div className="grid gap-8 lg:grid-cols-12 items-start relative z-10">
-            {/* Left Column: Threat Details */}
-            <div className="lg:col-span-7 flex flex-col justify-between h-full">
-              <div>
-                <div className="flex flex-wrap items-center gap-2.5 mb-4">
-                  <span className="label-mono px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-secondary border border-border text-foreground">
-                    {current.category}
-                  </span>
-                  <span className={`label-mono px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider border ${
-                    current.riskScore > 50 
-                      ? "border-red-500/40 bg-red-500/10 text-red-400"
-                      : "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
-                  }`}>
-                    {current.tag}
-                  </span>
-                  <span className="label-mono text-xs text-muted-foreground ml-auto">
-                    LANG: {current.language}
-                  </span>
-                </div>
-
-                <h4 className="text-xl md:text-3xl font-semibold text-foreground tracking-tight mb-4">
-                  {current.title}
-                </h4>
-
-                {/* The verbatim scam message box */}
-                <div className="relative rounded-xl border border-border bg-background/90 p-4 md:p-5 mb-6 font-mono text-xs md:text-sm text-foreground/90 leading-relaxed shadow-inner">
-                  <div className="absolute top-2 right-3 label-mono text-[10px] text-muted-foreground uppercase">
-                    Raw Intercepted Text
-                  </div>
-                  <p className="mt-2 italic">
-                    "{current.sampleText}"
-                  </p>
-                </div>
-
-                {/* Detected Red Flags list */}
-                <div className="space-y-2 mb-6">
-                  <div className="label-mono text-xs text-muted-foreground font-semibold uppercase tracking-wider">
-                    Extracted AI Red Flags:
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-2">
-                    {current.redFlags.map((flag, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs md:text-sm text-muted-foreground">
-                        <span className={`font-mono mt-0.5 ${current.riskScore > 50 ? "text-red-400" : "text-emerald-400"}`}>
-                          {current.riskScore > 50 ? "✖" : "✔"}
-                        </span>
-                        <span>{flag}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+          <div className="relative z-10 flex flex-col justify-between">
+            <div>
+              <div className="flex flex-wrap items-center gap-2.5 mb-4">
+                <span className="label-mono px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-secondary border border-border text-foreground">
+                  {current.category}
+                </span>
+                <span className={`label-mono px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider border ${
+                  current.riskScore > 50 
+                    ? "border-red-500/40 bg-red-500/10 text-red-400"
+                    : "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
+                }`}>
+                  {current.tag}
+                </span>
+                <span className="label-mono text-xs text-muted-foreground ml-auto">
+                  LANGUAGE: {current.language}
+                </span>
               </div>
 
-              {/* Action row */}
-              <div className="pt-4 border-t border-border flex flex-wrap items-center justify-between gap-4">
-                <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                  <Flame className="w-4 h-4 text-amber-400" />
-                  <span>{current.victimImpact}</span>
-                </div>
+              <h4 className="text-xl md:text-3xl font-semibold text-foreground tracking-tight mb-4">
+                {current.title}
+              </h4>
 
-                {onSelectSample && (
-                  <button
-                    onClick={() => onSelectSample(current.sampleText)}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-cyan-500 text-slate-950 font-semibold text-xs label-mono hover:bg-cyan-400 active:scale-95 transition-all shadow-lg shadow-cyan-500/20"
-                  >
-                    <span>Test This In Checker</span>
-                    <ArrowUpRight className="w-4 h-4" />
-                  </button>
-                )}
+              {/* The verbatim scam message box */}
+              <div className="relative rounded-xl border border-border bg-background/90 p-4 md:p-6 mb-6 font-mono text-xs md:text-sm text-foreground/90 leading-relaxed shadow-inner">
+                <div className="absolute top-2 right-3 label-mono text-[10px] text-muted-foreground uppercase">
+                  Raw Intercepted Scam Text
+                </div>
+                <p className="mt-2 italic font-sans text-sm md:text-base text-foreground">
+                  &ldquo;{current.sampleText}&rdquo;
+                </p>
+              </div>
+
+              {/* Detected Red Flags list */}
+              <div className="space-y-2 mb-6">
+                <div className="label-mono text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                  Extracted Danger Signals:
+                </div>
+                <div className="grid sm:grid-cols-3 gap-3">
+                  {current.redFlags.map((flag, idx) => (
+                    <div key={idx} className="flex items-start gap-2 text-xs md:text-sm text-muted-foreground bg-secondary/50 p-2.5 rounded-lg border border-border">
+                      <span className={`font-mono mt-0.5 font-bold ${current.riskScore > 50 ? "text-red-400" : "text-emerald-400"}`}>
+                        {current.riskScore > 50 ? "✖" : "✔"}
+                      </span>
+                      <span>{flag}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Right Column: AI Risk Meter & Diagnostics Card */}
-            <div className="lg:col-span-5 flex flex-col justify-center">
-              <div className={`rounded-xl p-6 border transition-all duration-300 ${
-                current.riskScore > 50 
-                  ? "border-red-500/30 bg-red-950/20" 
-                  : "border-emerald-500/30 bg-emerald-950/20"
-              }`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    {current.riskScore > 50 ? (
-                      <ShieldAlert className="w-6 h-6 text-red-400 animate-pulse" />
-                    ) : (
-                      <ShieldCheck className="w-6 h-6 text-emerald-400" />
-                    )}
-                    <span className="font-mono text-sm font-semibold tracking-wider text-foreground">
-                      {current.riskScore > 50 ? "SCAM CONFIDENCE" : "LEGITIMATE VERIFIED"}
-                    </span>
-                  </div>
-                  <span className="label-mono text-xs text-muted-foreground">
-                    MODEL v0.1
-                  </span>
-                </div>
-
-                {/* Score Number Display */}
-                <div className="my-4 flex items-baseline gap-2">
-                  <span className={`text-5xl md:text-6xl font-bold font-mono tracking-tighter ${
-                    current.riskScore > 50 ? "text-red-400" : "text-emerald-400"
-                  }`}>
-                    {current.riskScore}%
-                  </span>
-                  <span className="text-sm text-muted-foreground font-mono">
-                    / 100 Risk Score
-                  </span>
-                </div>
-
-                {/* Dynamic Progress Bar */}
-                <div className="w-full bg-background rounded-full h-3 overflow-hidden border border-border p-0.5 mb-5">
-                  <div
-                    className={`h-full rounded-full transition-all duration-700 ease-out ${
-                      current.riskScore > 50 
-                        ? "bg-gradient-to-r from-amber-500 via-rose-500 to-red-500" 
-                        : "bg-gradient-to-r from-teal-500 to-emerald-500"
-                    }`}
-                    style={{ width: `${current.riskScore}%` }}
-                  />
-                </div>
-
-                {/* Diagnosis Details */}
-                <div className="space-y-3 pt-3 border-t border-border/60 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Threshold Target:</span>
-                    <span className="font-mono text-foreground font-semibold">0.410 (Calibrated)</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Verdict Engine:</span>
-                    <span className="font-mono text-foreground font-semibold uppercase">
-                      {current.verdict.replace(/_/g, " ")}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Cooling-Off Action:</span>
-                    <span className={`font-mono font-semibold ${current.riskScore > 50 ? "text-amber-400" : "text-emerald-400"}`}>
-                      {current.riskScore > 50 ? "Enforce 24-hr Pause" : "No Pause Required"}
-                    </span>
-                  </div>
-                </div>
+            {/* Action row */}
+            <div className="pt-4 border-t border-border flex flex-wrap items-center justify-between gap-4">
+              <div className="text-xs text-muted-foreground flex items-center gap-1.5 font-mono">
+                <Flame className="w-4 h-4 text-amber-400" />
+                <span>{current.victimImpact}</span>
               </div>
+
+              {onSelectSample && (
+                <button
+                  onClick={() => onSelectSample(current.sampleText)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-slate-950 font-semibold text-xs label-mono hover:bg-cyan-400 active:scale-95 transition-all shadow-lg shadow-cyan-500/20"
+                >
+                  <span>Test This In Checker</span>
+                  <ArrowUpRight className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
 

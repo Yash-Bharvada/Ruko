@@ -110,11 +110,17 @@ export interface SpeakResponse {
 /**
  * Check plain text offer or message using the real ML model and rule engine
  */
-export async function checkText(text: string, languageHint?: string): Promise<CheckResult> {
+export async function checkText(text: string, language?: string, amount?: number): Promise<CheckResult> {
+  const payload: Record<string, any> = { text };
+  if (language) payload.language = language;
+  if (amount !== undefined && amount !== null && !isNaN(amount) && amount > 0) {
+    payload.amount = amount;
+  }
+
   const res = await fetch(`${API_BASE}/v1/check`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, language_hint: languageHint }),
+    body: JSON.stringify(payload),
   });
 
   const data = await res.json();
@@ -128,11 +134,15 @@ export async function checkText(text: string, languageHint?: string): Promise<Ch
 /**
  * Check uploaded file (screenshot, voice note, video reel)
  */
-export async function checkMedia(file: File, languageHint?: string): Promise<CheckResult> {
+export async function checkMedia(file: File, language?: string, amount?: number): Promise<CheckResult> {
   const formData = new FormData();
   formData.append("file", file);
-  if (languageHint) {
-    formData.append("language_hint", languageHint);
+  if (language) {
+    formData.append("language", language);
+    formData.append("language_hint", language);
+  }
+  if (amount !== undefined && amount !== null && !isNaN(amount) && amount > 0) {
+    formData.append("amount", String(amount));
   }
 
   const res = await fetch(`${API_BASE}/v1/check/media`, {
