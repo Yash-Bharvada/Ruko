@@ -2,6 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { RukoLogo } from "../components/RukoLogo";
 import { ThemeToggle } from "../components/ThemeToggle";
+import { ChatBot } from "../components/ChatBot";
+import { InsightCharts } from "../components/InsightCharts";
+import { VoiceInput } from "../components/VoiceInput";
 import {
   checkText,
   checkMedia,
@@ -338,6 +341,7 @@ function Check({
   const [fileType, setFileType] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [ocrProgress, setOcrProgress] = useState<number | null>(null);
 
   useEffect(() => {
     if (injectedText) {
@@ -349,9 +353,9 @@ function Check({
   }, [injectedText]);
 
   const ups = [
-    { k: "image", label: "Screenshot", accept: "image/png,image/jpeg,image/webp", hint: "PNG, JPG" },
-    { k: "voice", label: "Voice note", accept: "audio/mp3,audio/wav,audio/m4a,audio/ogg", hint: "MP3, M4A" },
-    { k: "video", label: "Video Reel", accept: "video/mp4,video/quicktime,video/webm", hint: "MP4, MOV" },
+    { k: "image", label: "Screenshot", accept: "image/png,image/jpeg,image/webp", hint: "PNG, JPG — OCR scanned locally" },
+    { k: "voice", label: "Voice note", accept: "audio/mp3,audio/wav,audio/m4a,audio/ogg", hint: "MP3, M4A, WAV, OGG" },
+    { k: "video", label: "Video Reel", accept: "video/mp4,video/quicktime,video/webm", hint: "MP4, MOV, WEBM" },
   ];
 
   const hasContent = text.trim().length > 0 || selectedFile !== null;
@@ -361,23 +365,26 @@ function Check({
     setSelectedFile(file);
     setFileType(key);
     setErrorMsg(null);
+    setOcrProgress(null);
   };
 
   const handleRunCheck = async () => {
     if (!hasContent || loading) return;
     setLoading(true);
     setErrorMsg(null);
+    setOcrProgress(null);
 
     const parsedAmt = amount.trim() ? parseFloat(amount) : undefined;
 
     try {
       let result: CheckResult;
       if (selectedFile) {
-        result = await checkMedia(selectedFile, lang, parsedAmt);
+        result = await checkMedia(selectedFile, lang, parsedAmt, (p) => setOcrProgress(p));
       } else {
         result = await checkText(text.trim(), lang, parsedAmt);
       }
       onResult(result);
+      setOcrProgress(null);
       const resEl = document.getElementById("result");
       if (resEl) {
         resEl.scrollIntoView({ behavior: "smooth" });
@@ -390,8 +397,18 @@ function Check({
       );
     } finally {
       setLoading(false);
+      setOcrProgress(null);
     }
   };
+
+  const loadingLabel =
+    ocrProgress !== null
+      ? `Reading image text… ${ocrProgress}%`
+      : loading && selectedFile
+      ? "Analyzing File…"
+      : loading
+      ? "Analyzing Message…"
+      : "Scan Message for Fraud";
 
   return (
     <section className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
@@ -411,18 +428,24 @@ function Check({
       <div className="mt-12 grid border border-border bg-card rounded-2xl overflow-hidden shadow-lg md:grid-cols-12">
         <div className="border-b border-border p-6 md:col-span-7 md:border-b-0 md:border-r md:p-8 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <label htmlFor="msg" className="label-mono text-xs text-muted-foreground uppercase tracking-wider font-semibold">
                 // 001 · Suspicious message, SMS, or Telegram tip
               </label>
-              {text && (
-                <button
-                  onClick={() => setText("")}
-                  className="label-mono text-xs text-muted-foreground hover:text-foreground"
-                >
-                  Clear
-                </button>
-              )}
+              <div className="flex items-center gap-2">
+                <VoiceInput
+                  lang={lang}
+                  onTranscript={(t) => { setText(t); setErrorMsg(null); }}
+                />
+                {text && (
+                  <button
+                    onClick={() => setText("")}
+                    className="label-mono text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
             </div>
 
             <textarea
@@ -518,13 +541,28 @@ function Check({
           ))}
 
           <div className="p-6 mt-auto">
+            {/* Live OCR progress bar — visible only while scanning image text */}
+            {ocrProgress !== null && (
+              <div className="mb-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="label-mono text-[10px] text-cyan-400">OCR · Extracting text from image</span>
+                  <span className="label-mono text-[10px] text-cyan-400 font-bold">{ocrProgress}%</span>
+                </div>
+                <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
+                    style={{ width: `${ocrProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
             <button
               disabled={!hasContent || loading}
               onClick={handleRunCheck}
               className={`${btnDark} w-full rounded-lg justify-center shadow-lg shadow-cyan-500/10`}
             >
               <span>
-                {loading ? "Analyzing Message..." : "Scan Message for Fraud"}
+                {loadingLabel}
                 {loading && <span className="blink">_</span>}
               </span>
               <Arrow />
@@ -638,7 +676,8 @@ function Result({
             )}
           </div>
         ) : (
-          <div key={result.request_id} className="mt-12 grid gap-10 lg:grid-cols-12 items-start">
+          <>
+            <div key={result.request_id} className="mt-12 grid gap-10 lg:grid-cols-12 items-start">
             {/* Left Column: Verdict, Risk Score, Guidance */}
             <div className="lg:col-span-5 rounded-2xl border border-border bg-background p-6 md:p-8 shadow-xl">
               <div className="flex items-center justify-between pb-4 border-b border-border">
@@ -830,7 +869,11 @@ function Result({
               </p>
             </div>
           </div>
-        )}
+
+          {/* AI Insight Charts — full-width below the two-column layout */}
+          <InsightCharts result={result} />
+        </>
+      )}
       </div>
     </section>
   );
@@ -1333,23 +1376,28 @@ function Index() {
   useReveal();
 
   return (
-    <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
-      <Nav lang={lang} onLangChange={setLang} />
-      <Hero />
-      <Check lang={lang} onResult={setCheckResult} injectedText={injectedText} />
-      <Result
-        result={checkResult}
-        lang={lang}
-        onRunSample={(sample) => {
-          setInjectedText(sample);
-          const checkEl = document.getElementById("check");
-          if (checkEl) checkEl.scrollIntoView({ behavior: "smooth" });
-        }}
-      />
-      <Sebi />
-      <Pause verdict={checkResult?.verdict || "strong_red_flags"} lang={lang} />
-      <Recovery lang={lang} />
-      <Footer />
-    </main>
+    <>
+      <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
+        <Nav lang={lang} onLangChange={setLang} />
+        <Hero />
+        <Check lang={lang} onResult={setCheckResult} injectedText={injectedText} />
+        <Result
+          result={checkResult}
+          lang={lang}
+          onRunSample={(sample) => {
+            setInjectedText(sample);
+            const checkEl = document.getElementById("check");
+            if (checkEl) checkEl.scrollIntoView({ behavior: "smooth" });
+          }}
+        />
+        <Sebi />
+        <Pause verdict={checkResult?.verdict || "strong_red_flags"} lang={lang} />
+        <Recovery lang={lang} />
+        <Footer />
+      </main>
+      {/* Floating AI Chat — always accessible, context-aware after scan */}
+      <ChatBot scanResult={checkResult} />
+    </>
   );
 }
+

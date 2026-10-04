@@ -29,18 +29,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
     const body = document.body;
-    if (t === "dark") {
-      root.classList.add("dark");
+    const isDark = t === "dark";
+
+    if (isDark) {
       root.classList.remove("light");
+      root.classList.add("dark");
       root.setAttribute("data-theme", "dark");
+      root.style.colorScheme = "dark";
       if (body) {
-        body.classList.add("dark");
         body.classList.remove("light");
+        body.classList.add("dark");
       }
     } else {
       root.classList.remove("dark");
       root.classList.add("light");
       root.setAttribute("data-theme", "light");
+      root.style.colorScheme = "light";
       if (body) {
         body.classList.remove("dark");
         body.classList.add("light");

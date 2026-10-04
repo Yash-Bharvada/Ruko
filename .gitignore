@@ -177,3 +177,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Tesseract
+*.traineddata

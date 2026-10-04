@@ -108,6 +108,35 @@ export interface SpeakResponse {
 }
 
 /**
+ * Client-side OCR using Tesseract.js for images.
+ * Extracts real text from screenshots before sending to backend.
+ */
+async function extractTextFromImage(file: File, onProgress?: (p: number) => void): Promise<string> {
+  try {
+    // Dynamic import so Tesseract is only loaded when needed
+    const { createWorker } = await import("tesseract.js");
+    const worker = await createWorker(["eng", "hin"], 1, {
+      logger: (m) => {
+        if (m.status === "recognizing text" && onProgress) {
+          onProgress(Math.round(m.progress * 100));
+        }
+      },
+    });
+
+    const arrayBuffer = await file.arrayBuffer();
+    const uint8 = new Uint8Array(arrayBuffer);
+    const { data } = await worker.recognize(uint8);
+    await worker.terminate();
+
+    const text = data.text?.trim() ?? "";
+    return text;
+  } catch (err) {
+    console.warn("Client OCR failed, sending image without extracted text:", err);
+    return "";
+  }
+}
+
+/**
  * Check plain text offer or message using the real ML model and rule engine
  */
 export async function checkText(text: string, language?: string, amount?: number): Promise<CheckResult> {
@@ -132,9 +161,15 @@ export async function checkText(text: string, language?: string, amount?: number
 }
 
 /**
- * Check uploaded file (screenshot, voice note, video reel)
+ * Check uploaded file (screenshot, voice note, video reel, PDF, text)
+ * For images: runs client-side Tesseract OCR first, then sends extracted text.
  */
-export async function checkMedia(file: File, language?: string, amount?: number): Promise<CheckResult> {
+export async function checkMedia(
+  file: File,
+  language?: string,
+  amount?: number,
+  onOcrProgress?: (p: number) => void
+): Promise<CheckResult> {
   const formData = new FormData();
   formData.append("file", file);
   if (language) {
@@ -143,6 +178,23 @@ export async function checkMedia(file: File, language?: string, amount?: number)
   }
   if (amount !== undefined && amount !== null && !isNaN(amount) && amount > 0) {
     formData.append("amount", String(amount));
+  }
+
+  // For images: run Tesseract OCR client-side and send extracted text
+  const mime = file.type.toLowerCase();
+  const name = file.name.toLowerCase();
+  const isImage =
+    mime.startsWith("image/") ||
+    name.endsWith(".png") ||
+    name.endsWith(".jpg") ||
+    name.endsWith(".jpeg") ||
+    name.endsWith(".webp");
+
+  if (isImage) {
+    const extractedText = await extractTextFromImage(file, onOcrProgress);
+    if (extractedText && extractedText.length >= 5) {
+      formData.append("extracted_text", extractedText);
+    }
   }
 
   const res = await fetch(`${API_BASE}/v1/check/media`, {
@@ -247,3 +299,75 @@ export async function speakVerdict(verdict: VerdictType, language = "en"): Promi
   }
   return data as SpeakResponse;
 }
+
+// ─── Chat & AI Insights ───────────────────────────────────────────────────────
+
+export interface ChatMsg {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface ChatResponse {
+  reply: string;
+  suggestions: string[];
+}
+
+export interface InsightChartData {
+  label: string;
+  value: number;
+  color?: string;
+}
+
+export interface InsightChart {
+  title: string;
+  type: "donut" | "bar" | "gauge" | "risk_matrix";
+  data: InsightChartData[];
+  insight: string;
+  color: string;
+}
+
+export interface InsightsResponse {
+  summary: string;
+  risk_level: "critical" | "high" | "medium" | "low";
+  charts: InsightChart[];
+  action_items: string[];
+  confidence_note: string;
+}
+
+/**
+ * Ruko AI Chat Agent — Groq Llama 3.3-70b
+ */
+export async function chatWithRuko(
+  messages: ChatMsg[],
+  context?: Partial<CheckResult>
+): Promise<ChatResponse> {
+  const res = await fetch(`${API_BASE}/v1/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages, context }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.detail || "Chat failed.");
+  return data as ChatResponse;
+}
+
+/**
+ * Generate AI insight charts for a completed scan result
+ */
+export async function getInsights(result: CheckResult): Promise<InsightsResponse> {
+  const res = await fetch(`${API_BASE}/v1/analyze/insights`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      score: result.score,
+      verdict: result.verdict,
+      reasons: result.reasons,
+      claims: result.claims,
+      language: result.language,
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.detail || "Insights failed.");
+  return data as InsightsResponse;
+}
+

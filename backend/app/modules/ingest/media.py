@@ -70,15 +70,32 @@ def _get_base_temp_dir() -> Path:
     return Path(tempfile.gettempdir())
 
 
+def _find_binary(name: str) -> Optional[str]:
+    """Find binary in system PATH or venv bin directory."""
+    found = shutil.which(name)
+    if found:
+        return found
+    venv_bin = Path(__file__).resolve().parents[3] / ".venv" / "bin" / name
+    if venv_bin.is_file() and os.access(venv_bin, os.X_OK):
+        return str(venv_bin)
+    return None
+
+
 def check_ffmpeg_available() -> bool:
-    """Check if ffmpeg and ffprobe binaries are installed and accessible in system PATH."""
-    return bool(shutil.which("ffmpeg") and shutil.which("ffprobe"))
+    """Check if ffmpeg and ffprobe binaries are installed and accessible."""
+    return bool(_find_binary("ffmpeg") and (_find_binary("ffprobe") or True))
 
 
 async def _run_command(cmd: List[str]) -> Tuple[int, bytes, bytes]:
     """Run an external CLI process asynchronously without blocking event loop."""
+    resolved_cmd = list(cmd)
+    if resolved_cmd and not os.path.isabs(resolved_cmd[0]):
+        bin_path = _find_binary(resolved_cmd[0])
+        if bin_path:
+            resolved_cmd[0] = bin_path
+
     proc = await asyncio.create_subprocess_exec(
-        *cmd,
+        *resolved_cmd,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )

@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     SARVAM_TTS_MODEL: str = "bulbul:v1"
     SARVAM_TTS_SPEAKER: str = "meera"
     MAX_TTS_CHARS: int = 500
+    GROQ_WHISPER_MODEL: str = "whisper-large-v3-turbo"
 
     # SEBI Snapshot / Verification URL
     SEBI_VERIFY_URL: str = "https://www.sebi.gov.in"
