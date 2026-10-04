@@ -2,8 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { RukoLogo } from "../components/RukoLogo";
 import { ThemeToggle } from "../components/ThemeToggle";
-import { ScamThreatCarousel } from "../components/ScamThreatCarousel";
-import { ContinuousThreatStream } from "../components/ContinuousThreatStream";
 import {
   checkText,
   checkMedia,
@@ -132,8 +130,8 @@ function Nav({
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled ? "bg-background/85 backdrop-blur-md border-b border-border shadow-lg" : "bg-transparent"
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 border-b border-border/70 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 ${
+        scrolled ? "shadow-lg shadow-black/10 dark:shadow-cyan-950/20 bg-background/90" : "shadow-sm"
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 text-foreground md:px-8">
@@ -153,7 +151,7 @@ function Nav({
           ))}
           <Link
             to="/model-stats"
-            className="ml-2 inline-flex items-center gap-1.5 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 label-mono text-xs text-cyan-400 transition-all hover:bg-cyan-500 hover:text-slate-950 font-semibold shadow-sm"
+            className="ml-2 inline-flex items-center gap-1.5 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 label-mono text-xs text-cyan-600 dark:text-cyan-400 transition-all hover:bg-cyan-500 hover:text-slate-950 font-semibold shadow-sm"
           >
             <span>Model & Stats</span>
             <span className="text-[10px] font-mono px-1 py-0.2 bg-cyan-400/20 rounded">0.410</span>
@@ -217,7 +215,7 @@ function Nav({
           <Link
             to="/model-stats"
             onClick={() => setOpen(false)}
-            className="border-b border-border/60 py-3 text-base font-medium text-cyan-400 flex items-center justify-between"
+            className="border-b border-border/60 py-3 text-base font-medium text-cyan-600 dark:text-cyan-400 flex items-center justify-between"
           >
             <span>Model Thresholds & Stats</span>
             <span className="label-mono text-xs px-2 py-0.5 rounded bg-cyan-500/20 font-mono">0.410</span>
@@ -260,9 +258,9 @@ function Hero() {
   const cells = [12, 13, 20, 21, 22, 27, 28, 29, 30, 35, 36, 37, 44, 45, 52];
 
   return (
-    <section id="top" className="relative overflow-hidden bg-ink text-ink-foreground">
-      <div className="absolute inset-0 bg-glow" />
-      <div className="absolute inset-0 grid-lines opacity-60" />
+    <section id="top" className="relative overflow-hidden bg-background text-foreground transition-colors duration-300">
+      <div className="absolute inset-0 bg-glow pointer-events-none opacity-70" />
+      <div className="absolute inset-0 grid-lines opacity-20 dark:opacity-40 pointer-events-none" />
       <div
         ref={ref}
         className="pointer-events-none absolute right-0 top-24 hidden grid-cols-8 md:grid"
@@ -279,17 +277,17 @@ function Hero() {
       <div className="relative mx-auto max-w-7xl px-5 pb-10 pt-36 md:px-8 md:pt-44">
         <div className="grid gap-10 md:grid-cols-2">
           <R>
-            <p className="max-w-md text-lg leading-snug text-ink-muted md:text-xl">
+            <p className="max-w-md text-lg leading-snug text-muted-foreground md:text-xl">
               Got an investment tip, WhatsApp message, or high-yield offer? Paste it or upload it.
               Ruko scores the scam risk with machine learning and verifies registration against 6,583+
               SEBI entities before your money moves.
             </p>
-            <a href="#check" className={`${btnLight} mt-8`}>
+            <a href="#check" className={`${btnDark} mt-8`}>
               ■ Check an offer <Arrow />
             </a>
           </R>
           <R d={200} className="hidden md:flex md:justify-end md:pt-10">
-            <p className="label-mono leading-relaxed text-ink-muted">
+            <p className="label-mono leading-relaxed text-muted-foreground">
               ✦ Pause.
               <br />
               &nbsp;&nbsp;&nbsp;&nbsp;Verify.
@@ -300,10 +298,10 @@ function Hero() {
         </div>
 
         <div className="mt-20 flex flex-wrap items-end gap-x-6 md:mt-28">
-          <h1 className="font-pixel text-[24vw] font-bold leading-[0.78] tracking-tight md:text-[18vw] lg:text-[15rem]">
+          <h1 className="font-pixel text-[24vw] font-bold leading-[0.78] tracking-tight md:text-[18vw] lg:text-[15rem] text-foreground">
             RUKO<span className="blink text-accent">_</span>
           </h1>
-          <p className="pb-2 text-4xl font-light tracking-tight md:text-6xl">
+          <p className="pb-2 text-4xl font-light tracking-tight md:text-6xl text-foreground">
             Stop. Check.
             <br />
             Stay safe.
@@ -311,8 +309,8 @@ function Hero() {
         </div>
       </div>
 
-      <div className="relative overflow-hidden border-t border-ink-border py-2.5">
-        <div className="marquee flex w-max gap-12 label-mono text-ink-muted">
+      <div className="relative overflow-hidden border-t border-border py-2.5">
+        <div className="marquee flex w-max gap-12 label-mono text-muted-foreground">
           {Array.from({ length: 8 }).map((_, i) => (
             <span key={i}>
               <span className="text-accent">✦</span> Guaranteed returns are illegal · Verify SEBI
@@ -1311,7 +1309,7 @@ function Footer() {
             </a>
           </div>
         </div>
-        <p className="font-pixel text-[24vw] font-bold leading-[0.75] md:text-[14rem] text-muted/30 select-none">
+        <p className="font-pixel text-[24vw] font-bold leading-[0.75] md:text-[14rem] text-foreground/20 dark:text-cyan-400/25 select-none tracking-wider transition-colors duration-300">
           RUKO
         </p>
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border/80 pt-6 label-mono text-muted-foreground text-xs">
@@ -1338,14 +1336,6 @@ function Index() {
     <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <Nav lang={lang} onLangChange={setLang} />
       <Hero />
-      <ContinuousThreatStream />
-      <ScamThreatCarousel
-        onSelectSample={(sample) => {
-          setInjectedText(sample);
-          const checkEl = document.getElementById("check");
-          if (checkEl) checkEl.scrollIntoView({ behavior: "smooth" });
-        }}
-      />
       <Check lang={lang} onResult={setCheckResult} injectedText={injectedText} />
       <Result
         result={checkResult}

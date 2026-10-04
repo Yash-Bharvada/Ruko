@@ -87,12 +87,12 @@ export function ModelStatsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-50 border-b border-border/80 bg-background/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-border/70 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
           <div className="flex items-center gap-4">
             <Link
               to="/"
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card/60 px-3 py-1.5 label-mono text-xs text-foreground transition-all hover:border-cyan-500/50 hover:text-cyan-400 active:scale-95"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card/60 px-3 py-1.5 label-mono text-xs text-foreground transition-all hover:border-cyan-500/50 hover:text-cyan-600 dark:hover:text-cyan-400 active:scale-95"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>Back to Checker</span>
@@ -102,7 +102,7 @@ export function ModelStatsPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-mono text-emerald-400 sm:inline-flex">
+            <div className="hidden items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-mono text-emerald-600 dark:text-emerald-400 sm:inline-flex">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>PIPELINE ONLINE (PORT 8000)</span>
             </div>
@@ -116,12 +116,12 @@ export function ModelStatsPage() {
         {/* Background glow effects */}
         <div className="pointer-events-none absolute -left-20 top-1/4 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
         <div className="pointer-events-none absolute -right-20 top-1/3 h-96 w-96 rounded-full bg-indigo-500/10 blur-3xl" />
-        <div className="pointer-events-none absolute inset-0 grid-lines opacity-40" />
+        <div className="pointer-events-none absolute inset-0 grid-lines opacity-20 dark:opacity-40" />
 
         <div className="relative mx-auto max-w-7xl px-5 md:px-8">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 label-mono text-xs text-cyan-400 mb-4">
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 label-mono text-xs text-cyan-600 dark:text-cyan-400 mb-4">
                 <Sparkles className="h-3.5 w-3.5" />
                 <span>MODEL STORE & ENGINE DIAGNOSTICS</span>
               </div>
