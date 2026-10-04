@@ -1,5 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { RukoLogo } from "../components/RukoLogo";
+import { ThemeToggle } from "../components/ThemeToggle";
+import { ScamThreatCarousel } from "../components/ScamThreatCarousel";
+import { ContinuousThreatStream } from "../components/ContinuousThreatStream";
 import {
   checkText,
   checkMedia,
@@ -146,50 +150,57 @@ function Nav({
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled ? "bg-ink/90 backdrop-blur-md border-b border-ink-border" : ""
+        scrolled ? "bg-background/85 backdrop-blur-md border-b border-border shadow-lg" : "bg-transparent"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 text-ink-foreground md:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 text-foreground md:px-8">
         <a href="#top" className="flex items-center gap-2.5">
-          <Logo />
-          <span className="text-2xl font-bold tracking-tight">Ruko</span>
-          <sup className="label-mono text-accent">AI</sup>
+          <RukoLogo size={32} />
         </a>
 
-        <nav className="hidden gap-1 lg:flex">
+        <nav className="hidden gap-1 lg:flex items-center">
           {links.map(([l, h]) => (
             <a
               key={l}
               href={h}
-              className="px-3 py-1.5 label-mono text-ink-muted transition-colors hover:bg-ink-foreground hover:text-ink"
+              className="px-3 py-1.5 label-mono text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary rounded"
             >
               {l}
             </a>
           ))}
+          <Link
+            to="/model-stats"
+            className="ml-2 inline-flex items-center gap-1.5 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 label-mono text-xs text-cyan-400 transition-all hover:bg-cyan-500 hover:text-slate-950 font-semibold shadow-sm"
+          >
+            <span>Model & Stats</span>
+            <span className="text-[10px] font-mono px-1 py-0.2 bg-cyan-400/20 rounded">0.410</span>
+          </Link>
         </nav>
 
         <div className="flex items-center gap-3">
+          <ThemeToggle />
+
           <div className="relative hidden sm:block">
             <select
               aria-label="Language"
               value={lang}
               onChange={(e) => onLangChange(e.target.value)}
-              className="appearance-none border border-ink-border bg-transparent px-3 py-2 pr-7 label-mono text-ink-foreground outline-none focus:border-accent"
+              className="appearance-none border border-border bg-card/80 px-3 py-2 pr-7 label-mono text-foreground outline-none focus:border-cyan-400 rounded-md text-xs"
             >
               {LANG_OPTIONS.map((o) => (
-                <option key={o.code} value={o.code} className="text-ink">
+                <option key={o.code} value={o.code} className="bg-card text-foreground">
                   {o.label}
                 </option>
               ))}
             </select>
-            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-ink-muted">
+            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
               ▼
             </span>
           </div>
 
           <a
             href="#sebi"
-            className="hidden bg-ink-foreground px-4 py-2 label-mono text-ink transition-colors hover:bg-accent hover:text-accent-foreground sm:inline-flex"
+            className="hidden bg-primary px-4 py-2 label-mono text-xs text-primary-foreground transition-all hover:opacity-90 active:scale-95 sm:inline-flex rounded-md"
           >
             ↗ Verify SEBI
           </a>
@@ -197,7 +208,7 @@ function Nav({
           <button
             aria-label="Menu"
             onClick={() => setOpen(!open)}
-            className="border border-ink-border px-3 py-2 label-mono lg:hidden text-ink-foreground"
+            className="border border-border px-3 py-1.5 label-mono lg:hidden text-foreground rounded-md text-xs"
           >
             {open ? "Close" : "Menu"}
           </button>
@@ -205,21 +216,29 @@ function Nav({
       </div>
 
       <div
-        className={`overflow-hidden bg-ink transition-[max-height] duration-500 lg:hidden ${
+        className={`overflow-hidden bg-background/95 backdrop-blur-xl border-b border-border transition-[max-height] duration-500 lg:hidden ${
           open ? "max-h-96" : "max-h-0"
         }`}
       >
-        <div className="flex flex-col gap-1 px-5 pb-5 text-ink-foreground border-b border-ink-border">
+        <div className="flex flex-col gap-1 px-5 pb-5 text-foreground">
           {links.map(([l, h]) => (
             <a
               key={l}
               href={h}
               onClick={() => setOpen(false)}
-              className="border-b border-ink-border py-3 text-lg"
+              className="border-b border-border/60 py-3 text-base font-medium"
             >
               {l}
             </a>
           ))}
+          <Link
+            to="/model-stats"
+            onClick={() => setOpen(false)}
+            className="border-b border-border/60 py-3 text-base font-medium text-cyan-400 flex items-center justify-between"
+          >
+            <span>Model Thresholds & Stats</span>
+            <span className="label-mono text-xs px-2 py-0.5 rounded bg-cyan-500/20 font-mono">0.410</span>
+          </Link>
           <div className="flex gap-2 pt-3">
             {LANG_OPTIONS.map((o) => (
               <button
@@ -228,8 +247,8 @@ function Nav({
                   onLangChange(o.code);
                   setOpen(false);
                 }}
-                className={`border px-3 py-1.5 label-mono ${
-                  lang === o.code ? "bg-ink-foreground text-ink" : "border-ink-border"
+                className={`border px-3 py-1.5 label-mono rounded text-xs ${
+                  lang === o.code ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground"
                 }`}
               >
                 {o.label.split(" ")[0]}
@@ -326,15 +345,26 @@ function Hero() {
 function Check({
   lang,
   onResult,
+  injectedText,
 }: {
   lang: string;
   onResult: (r: CheckResult) => void;
+  injectedText?: string;
 }) {
   const [text, setText] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (injectedText) {
+      setText(injectedText);
+      setSelectedFile(null);
+      setFileType(null);
+      setErrorMsg(null);
+    }
+  }, [injectedText]);
 
   const ups = [
     { k: "image", label: "Screenshot", accept: "image/png,image/jpeg,image/webp", hint: "PNG, JPG" },
@@ -1181,16 +1211,35 @@ function Recovery({ lang }: { lang: string }) {
 
 function Footer() {
   return (
-    <footer className="relative overflow-hidden bg-ink text-ink-foreground border-t border-ink-border">
-      <div className="absolute inset-0 grid-lines opacity-40" />
-      <div className="relative mx-auto flex max-w-7xl flex-col gap-10 px-5 pb-8 pt-20 md:px-8">
-        <p className="font-pixel text-[28vw] font-bold leading-[0.75] md:text-[16rem]">RUKO</p>
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-ink-border pt-6 label-mono text-ink-muted">
+    <footer className="relative overflow-hidden bg-card/60 text-foreground border-t border-border">
+      <div className="absolute inset-0 grid-lines opacity-20" />
+      <div className="relative mx-auto flex max-w-7xl flex-col gap-10 px-5 pb-8 pt-16 md:px-8">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-b border-border pb-8">
+          <RukoLogo size={36} />
+          <div className="flex flex-wrap items-center gap-6 label-mono text-xs text-muted-foreground">
+            <Link to="/" className="hover:text-foreground transition-colors">
+              Checker
+            </Link>
+            <Link to="/model-stats" className="hover:text-cyan-400 text-cyan-500 font-semibold transition-colors">
+              Model Thresholds & Diagnostics
+            </Link>
+            <a href="#sebi" className="hover:text-foreground transition-colors">
+              SEBI Registry
+            </a>
+            <a href="#recovery" className="hover:text-foreground transition-colors">
+              Recovery 1930
+            </a>
+          </div>
+        </div>
+        <p className="font-pixel text-[24vw] font-bold leading-[0.75] md:text-[14rem] text-muted/30 select-none">
+          RUKO
+        </p>
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border/80 pt-6 label-mono text-muted-foreground text-xs">
           <span className="flex items-center gap-2">
-            <Logo /> © 2026 Ruko · Retail Investor Protection Architecture
+            © 2026 Ruko AI · Retail Investor Protection Architecture
           </span>
-          <span className="text-xs">
-            Integrated with Real ML Classifier & 6,583+ Live SEBI Registry
+          <span>
+            Calibrated Model Threshold 0.410 · 6,583+ Offline SEBI Registry Intermediaries
           </span>
         </div>
       </div>
@@ -1201,14 +1250,23 @@ function Footer() {
 function Index() {
   const [lang, setLang] = useState("en");
   const [checkResult, setCheckResult] = useState<CheckResult | null>(null);
+  const [injectedText, setInjectedText] = useState<string>("");
 
   useReveal();
 
   return (
-    <main>
+    <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <Nav lang={lang} onLangChange={setLang} />
       <Hero />
-      <Check lang={lang} onResult={setCheckResult} />
+      <ContinuousThreatStream />
+      <ScamThreatCarousel
+        onSelectSample={(sample) => {
+          setInjectedText(sample);
+          const checkEl = document.getElementById("check");
+          if (checkEl) checkEl.scrollIntoView({ behavior: "smooth" });
+        }}
+      />
+      <Check lang={lang} onResult={setCheckResult} injectedText={injectedText} />
       <Result result={checkResult} lang={lang} />
       <Sebi />
       <Pause verdict={checkResult?.verdict || "strong_red_flags"} lang={lang} />
