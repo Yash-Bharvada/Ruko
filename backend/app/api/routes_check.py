@@ -24,6 +24,11 @@ from app.modules.registry.service import get_registry_service
 from app.modules.rules.engine import RuleFlag, get_rule_engine
 from app.modules.verdict.engine import assert_no_advice, decide_verdict, sanitize_advice_string
 from app.modules.verdict.i18n import get_disclaimer, get_verdict_note, t
+from app.modules.ingest.url_media import (
+    download_and_extract_url_video,
+    extract_video_url_from_text,
+    is_video_url,
+)
 
 router = APIRouter(prefix="/v1", tags=["Analysis"])
 
@@ -114,8 +119,43 @@ async def run_check(
             hint=None,
         )
 
-    # Phase 3: Instagram link guardrail
-    instagram_hint = detect_instagram_link_hint(cleaned_text, detected_lang)
+    # Phase 3: Instagram / Reel Video Link Ingestion & Analysis
+    instagram_hint = None
+    if (
+        resolved_source != "video"
+        and getattr(conf, "ENABLE_URL_VIDEO_INGEST", True)
+        and is_video_url(cleaned_text)
+    ):
+        extracted_url = extract_video_url_from_text(cleaned_text)
+        if extracted_url:
+            try:
+                video_result = await download_and_extract_url_video(
+                    extracted_url,
+                    settings=conf,
+                    language_hint=language_hint or detected_lang,
+                )
+                residual = INSTAGRAM_LINK_PATTERN.sub("", cleaned_text).strip()
+                combined_text = (
+                    f"{residual}\n{video_result.text}".strip()
+                    if residual
+                    else video_result.text
+                )
+                return await run_check(
+                    text=combined_text,
+                    language_hint=language_hint or detected_lang,
+                    amount=amount,
+                    request_id=req_id,
+                    source="video",
+                    input_source="video",
+                    speech_text=video_result.speech_text,
+                    on_screen_text=video_result.on_screen_text,
+                    settings=conf,
+                )
+            except Exception as exc:
+                logger.warning("Instagram Reel video download/extraction failed: %r", exc, exc_info=True)
+                instagram_hint = detect_instagram_link_hint(cleaned_text, detected_lang)
+    else:
+        instagram_hint = detect_instagram_link_hint(cleaned_text, detected_lang)
 
     # Phase 4: Concurrent execution of Rules, Model, and Claims Extractor
     rule_engine = get_rule_engine()
