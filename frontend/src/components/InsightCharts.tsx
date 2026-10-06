@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef, type FC } from "react";
-import { getInsights, type InsightChart, type InsightsResponse, type CheckResult } from "../lib/api";
+import {
+  getInsights,
+  type InsightChart,
+  type InsightsResponse,
+  type CheckResult,
+} from "../lib/api";
 
 interface Props {
   result: CheckResult;
@@ -26,8 +31,20 @@ const DonutChart: FC<{ chart: InsightChart; visible: boolean }> = ({ chart, visi
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="relative">
-        <svg width={size} height={size} className={`transition-all duration-700 ${visible ? "opacity-100" : "opacity-0"}`}>
-          <circle cx={cx} cy={cy} r={r} fill="none" stroke="currentColor" strokeWidth="10" className="text-secondary/60" />
+        <svg
+          width={size}
+          height={size}
+          className={`transition-all duration-700 ${visible ? "opacity-100" : "opacity-0"}`}
+        >
+          <circle
+            cx={cx}
+            cy={cy}
+            r={r}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="10"
+            className="text-secondary/60"
+          />
           {segments.map((seg, i) => (
             <circle
               key={i}
@@ -43,15 +60,26 @@ const DonutChart: FC<{ chart: InsightChart; visible: boolean }> = ({ chart, visi
               style={{ transition: `stroke-dasharray 0.8s ease ${i * 150}ms` }}
             />
           ))}
-          <text x={cx} y={cy + 5} textAnchor="middle" className="fill-foreground font-mono text-xs font-bold">
+          <text
+            x={cx}
+            y={cy + 5}
+            textAnchor="middle"
+            className="fill-foreground font-mono text-xs font-bold"
+          >
             {Math.round(segments[0]?.pct * 100 || 0)}%
           </text>
         </svg>
       </div>
       <div className="flex flex-wrap justify-center gap-x-3 gap-y-1">
         {chart.data.map((d, i) => (
-          <span key={i} className="flex items-center gap-1 label-mono text-[10px] text-muted-foreground">
-            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: d.color || chart.color }} />
+          <span
+            key={i}
+            className="flex items-center gap-1 label-mono text-[10px] text-muted-foreground"
+          >
+            <span
+              className="w-2 h-2 rounded-full shrink-0"
+              style={{ backgroundColor: d.color || chart.color }}
+            />
             {d.label}
           </span>
         ))}
@@ -67,8 +95,12 @@ const BarChart: FC<{ chart: InsightChart; visible: boolean }> = ({ chart, visibl
       {chart.data.map((d, i) => (
         <div key={i} className="space-y-1">
           <div className="flex justify-between items-baseline">
-            <span className="label-mono text-[10px] text-muted-foreground truncate max-w-[70%]">{d.label}</span>
-            <span className="label-mono text-[10px] font-bold" style={{ color: chart.color }}>{d.value}%</span>
+            <span className="label-mono text-[10px] text-muted-foreground truncate max-w-[70%]">
+              {d.label}
+            </span>
+            <span className="label-mono text-[10px] font-bold" style={{ color: chart.color }}>
+              {d.value}%
+            </span>
           </div>
           <div className="h-2 w-full rounded-full bg-secondary/60 overflow-hidden">
             <div
@@ -94,8 +126,10 @@ const GaugeChart: FC<{ chart: InsightChart; visible: boolean }> = ({ chart, visi
   const arcPath = (start: number, end: number, r: number, w: number) => {
     const a1 = ((start - 90) * Math.PI) / 180;
     const a2 = ((end - 90) * Math.PI) / 180;
-    const x1 = 60 + r * Math.cos(a1), y1 = 60 + r * Math.sin(a1);
-    const x2 = 60 + r * Math.cos(a2), y2 = 60 + r * Math.sin(a2);
+    const x1 = 60 + r * Math.cos(a1),
+      y1 = 60 + r * Math.sin(a1);
+    const x2 = 60 + r * Math.cos(a2),
+      y2 = 60 + r * Math.sin(a2);
     const large = end - start > 180 ? 1 : 0;
     return `M${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2}`;
   };
@@ -103,7 +137,14 @@ const GaugeChart: FC<{ chart: InsightChart; visible: boolean }> = ({ chart, visi
   return (
     <div className="flex flex-col items-center gap-1">
       <svg width="120" height="72" viewBox="0 0 120 75">
-        <path d={arcPath(-135, 135, 44, 10)} fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round" className="text-secondary/60" />
+        <path
+          d={arcPath(-135, 135, 44, 10)}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="10"
+          strokeLinecap="round"
+          className="text-secondary/60"
+        />
         <path
           d={arcPath(-135, -135 + (visible ? val : 0) * 2.7, 44, 10)}
           fill="none"
@@ -112,16 +153,34 @@ const GaugeChart: FC<{ chart: InsightChart; visible: boolean }> = ({ chart, visi
           strokeLinecap="round"
           style={{ transition: "d 1s ease" }}
         />
-        <g transform={`translate(60,60) rotate(${angle})`} style={{ transition: "transform 1s ease" }}>
-          <line x1="0" y1="0" x2="0" y2="-32" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
+        <g
+          transform={`translate(60,60) rotate(${angle})`}
+          style={{ transition: "transform 1s ease" }}
+        >
+          <line
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="-32"
+            stroke={color}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
           <circle cx="0" cy="0" r="4" fill={color} />
         </g>
-        <text x="60" y="68" textAnchor="middle" className="fill-foreground font-mono font-bold text-lg">
+        <text
+          x="60"
+          y="68"
+          textAnchor="middle"
+          className="fill-foreground font-mono font-bold text-lg"
+        >
           {val}%
         </text>
       </svg>
       <div className="flex justify-between w-full px-2 label-mono text-[10px] text-muted-foreground">
-        <span>0%</span><span>Safe</span><span>100%</span>
+        <span>0%</span>
+        <span>Safe</span>
+        <span>100%</span>
       </div>
     </div>
   );
@@ -144,8 +203,13 @@ const ChartCard: FC<{ chart: InsightChart; delay: number }> = ({ chart, delay })
       style={{ transitionDelay: `${delay}ms` }}
     >
       <div className="flex items-center justify-between mb-4">
-        <h4 className="label-mono text-xs font-semibold text-foreground uppercase tracking-wider">{chart.title}</h4>
-        <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: chart.color }} />
+        <h4 className="label-mono text-xs font-semibold text-foreground uppercase tracking-wider">
+          {chart.title}
+        </h4>
+        <span
+          className="w-2 h-2 rounded-full animate-pulse"
+          style={{ backgroundColor: chart.color }}
+        />
       </div>
 
       <div className="flex justify-center mb-4">
@@ -164,10 +228,30 @@ const ChartCard: FC<{ chart: InsightChart; delay: number }> = ({ chart, delay })
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 const riskColors = {
-  critical: { bg: "bg-red-500/10", border: "border-red-500/40", text: "text-red-400", dot: "#ef4444" },
-  high: { bg: "bg-orange-500/10", border: "border-orange-500/40", text: "text-orange-400", dot: "#f97316" },
-  medium: { bg: "bg-amber-500/10", border: "border-amber-500/40", text: "text-amber-400", dot: "#eab308" },
-  low: { bg: "bg-emerald-500/10", border: "border-emerald-500/40", text: "text-emerald-400", dot: "#22c55e" },
+  critical: {
+    bg: "bg-red-500/10",
+    border: "border-red-500/40",
+    text: "text-red-400",
+    dot: "#ef4444",
+  },
+  high: {
+    bg: "bg-orange-500/10",
+    border: "border-orange-500/40",
+    text: "text-orange-400",
+    dot: "#f97316",
+  },
+  medium: {
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/40",
+    text: "text-amber-400",
+    dot: "#eab308",
+  },
+  low: {
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/40",
+    text: "text-emerald-400",
+    dot: "#22c55e",
+  },
 };
 
 export const InsightCharts: FC<Props> = ({ result }) => {
@@ -181,10 +265,22 @@ export const InsightCharts: FC<Props> = ({ result }) => {
     setError(false);
 
     getInsights(result)
-      .then((data) => { if (!cancelled) { setInsights(data); setLoading(false); } })
-      .catch(() => { if (!cancelled) { setError(true); setLoading(false); } });
+      .then((data) => {
+        if (!cancelled) {
+          setInsights(data);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError(true);
+          setLoading(false);
+        }
+      });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [result.request_id]);
 
   const rc = riskColors[insights?.risk_level ?? "high"];
@@ -198,11 +294,18 @@ export const InsightCharts: FC<Props> = ({ result }) => {
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
             AI · Groq Llama 3.3-70b Analysis
           </div>
-          <h3 className="text-xl font-bold text-foreground tracking-tight">Suggestive Insight Charts</h3>
+          <h3 className="text-xl font-bold text-foreground tracking-tight">
+            Suggestive Insight Charts
+          </h3>
         </div>
         {insights && (
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${rc.bg} ${rc.border}`}>
-            <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: rc.dot }} />
+          <div
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${rc.bg} ${rc.border}`}
+          >
+            <span
+              className="w-2 h-2 rounded-full animate-pulse"
+              style={{ backgroundColor: rc.dot }}
+            />
             <span className={`label-mono text-xs font-bold uppercase ${rc.text}`}>
               {insights.risk_level} risk
             </span>
@@ -215,11 +318,17 @@ export const InsightCharts: FC<Props> = ({ result }) => {
         <div className="mt-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="h-4 w-4 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin" />
-            <span className="label-mono text-xs text-muted-foreground">Generating AI insights with Groq…</span>
+            <span className="label-mono text-xs text-muted-foreground">
+              Generating AI insights with Groq…
+            </span>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="rounded-2xl border border-border/60 bg-background/50 p-5 animate-pulse" style={{ height: "220px" }}>
+              <div
+                key={i}
+                className="rounded-2xl border border-border/60 bg-background/50 p-5 animate-pulse"
+                style={{ height: "220px" }}
+              >
                 <div className="h-3 w-24 bg-secondary rounded mb-4" />
                 <div className="h-24 w-24 rounded-full bg-secondary/60 mx-auto mb-4" />
                 <div className="h-2 w-full bg-secondary/40 rounded" />
@@ -232,7 +341,9 @@ export const InsightCharts: FC<Props> = ({ result }) => {
       {/* Error */}
       {error && !loading && (
         <div className="mt-6 rounded-xl border border-border/60 bg-secondary/30 p-6 text-center">
-          <span className="label-mono text-xs text-muted-foreground">AI insights temporarily unavailable. Core scan results are above.</span>
+          <span className="label-mono text-xs text-muted-foreground">
+            AI insights temporarily unavailable. Core scan results are above.
+          </span>
         </div>
       )}
 

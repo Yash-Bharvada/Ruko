@@ -6,7 +6,8 @@
 
 const API_BASE = ""; // Relative path automatically proxies to http://localhost:8000 in dev via vite proxy
 
-export type VerdictType = "strong_red_flags" | "cannot_verify" | "no_red_flags_found" | "out_of_scope";
+export type VerdictType =
+  "strong_red_flags" | "cannot_verify" | "no_red_flags_found" | "out_of_scope";
 export type SeverityType = "high" | "medium" | "low" | "info";
 
 export interface Reason {
@@ -139,7 +140,11 @@ async function extractTextFromImage(file: File, onProgress?: (p: number) => void
 /**
  * Check plain text offer or message using the real ML model and rule engine
  */
-export async function checkText(text: string, language?: string, amount?: number): Promise<CheckResult> {
+export async function checkText(
+  text: string,
+  language?: string,
+  amount?: number,
+): Promise<CheckResult> {
   const payload: Record<string, any> = { text };
   if (language) payload.language = language;
   if (amount !== undefined && amount !== null && !isNaN(amount) && amount > 0) {
@@ -168,7 +173,7 @@ export async function checkMedia(
   file: File,
   language?: string,
   amount?: number,
-  onOcrProgress?: (p: number) => void
+  onOcrProgress?: (p: number) => void,
 ): Promise<CheckResult> {
   const formData = new FormData();
   formData.append("file", file);
@@ -266,7 +271,9 @@ export async function getPausePlan(params: {
  * Retrieve verified emergency recovery resources & cyber helpline numbers
  */
 export async function getRecoveryResources(language = "en"): Promise<RecoveryResourcesResponse> {
-  const res = await fetch(`${API_BASE}/v1/resources/already-paid?lang=${encodeURIComponent(language)}`);
+  const res = await fetch(
+    `${API_BASE}/v1/resources/already-paid?lang=${encodeURIComponent(language)}`,
+  );
   const data = await res.json();
   if (!res.ok) {
     const errorMsg = data?.error?.message || "Failed to load recovery resources.";
@@ -339,7 +346,7 @@ export interface InsightsResponse {
  */
 export async function chatWithRuko(
   messages: ChatMsg[],
-  context?: Partial<CheckResult>
+  context?: Partial<CheckResult>,
 ): Promise<ChatResponse> {
   const res = await fetch(`${API_BASE}/v1/chat`, {
     method: "POST",
@@ -371,3 +378,157 @@ export async function getInsights(result: CheckResult): Promise<InsightsResponse
   return data as InsightsResponse;
 }
 
+// ─── Explain a Document (DocExplain) ──────────────────────────────────────────
+
+export interface GlossaryItem {
+  term: string;
+  meaning: string;
+  evidence: string;
+}
+
+export interface KeyPoint {
+  id: string;
+  category: "obligation" | "fee" | "deadline" | "risk" | "right" | "other" | string;
+  text: string;
+  evidence: string;
+}
+
+export interface Step {
+  order: number;
+  title: string;
+  text: string;
+  evidence: string;
+}
+
+export interface GraphNode {
+  id: string;
+  label: string;
+  kind: "start" | "step" | "decision" | "end" | "money" | "party" | "loop";
+}
+
+export interface GraphEdge {
+  source: string;
+  target: string;
+  label?: string | null;
+}
+
+export interface FlowGraph {
+  title: string;
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}
+
+export interface TimelineItem {
+  label: string;
+  date_text: string;
+  evidence: string;
+}
+
+export interface Diagrams {
+  flowchart?: FlowGraph | null;
+  money_flow?: FlowGraph | null;
+  timeline?: TimelineItem[];
+}
+
+export interface SceneVisual {
+  type: "title" | "bullets" | "flowchart" | "timeline" | "money_flow";
+  ref?: string | null;
+}
+
+export interface Scene {
+  scene_id: string;
+  narration: string;
+  caption: string;
+  visual: SceneVisual;
+  issued_at: number;
+  speak_token: string;
+}
+
+export interface DocExplanation {
+  request_id: string;
+  language: string;
+  input_source: string;
+  doc_type_guess: string;
+  document_type?: string;
+  summary: string;
+  glossary: GlossaryItem[];
+  key_points: KeyPoint[];
+  steps: Step[];
+  diagrams: Diagrams;
+  storyboard: Scene[];
+  ruko_flags: Reason[];
+  registry?: RegistryInfo | null;
+  ocr_quality: "good" | "low" | "n/a";
+  confidence_notes: string[];
+  disclaimer: string;
+  degraded: string[];
+}
+
+export interface ExplainSpeakRequest {
+  request_id: string;
+  scene_id: string;
+  language: string;
+  narration: string;
+  issued_at: number;
+  speak_token: string;
+}
+
+export interface ExplainSpeakResponse {
+  source: "sarvam" | "browser_speech";
+  audio_base64?: string;
+  mime?: string;
+  text?: string;
+  lang_code?: string;
+}
+
+/**
+ * Submit document or pasted text to /v1/explain with 90s timeout
+ */
+export async function explainDocument(formData: FormData): Promise<DocExplanation> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 90000);
+
+  try {
+    const res = await fetch(`${API_BASE}/v1/explain`, {
+      method: "POST",
+      body: formData,
+      signal: controller.signal,
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      const errorMsg = data?.error?.message || data?.detail || "Failed to explain document.";
+      throw new Error(errorMsg);
+    }
+    return data as DocExplanation;
+  } catch (err: any) {
+    if (err.name === "AbortError") {
+      throw new Error(
+        "Document explanation timed out after 90 seconds. Please try a shorter excerpt or paste the text directly.",
+      );
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
+ * Synthesize speech for a verified storyboard scene with HMAC signature token
+ */
+export async function speakExplainScene(
+  payload: ExplainSpeakRequest,
+): Promise<ExplainSpeakResponse> {
+  const res = await fetch(`${API_BASE}/v1/explain/speak`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    const errorMsg = data?.error?.message || data?.detail || "Audio synthesis failed for scene.";
+    throw new Error(errorMsg);
+  }
+  return data as ExplainSpeakResponse;
+}
