@@ -76,21 +76,17 @@ export function VideoIntroSection({ onScrollDown }: VideoIntroSectionProps) {
           onClick={toggleTheme}
           aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
           title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          className={`flex items-center gap-2 rounded-full border px-4 py-2 font-mono text-xs backdrop-blur-md transition-all duration-300 active:scale-95 ${
-            isDark
-              ? "border-cyan-500/40 bg-slate-950/80 text-cyan-300 hover:border-cyan-400 hover:bg-slate-900 shadow-xl shadow-cyan-950/50"
-              : "border-slate-300/90 bg-white/90 text-slate-800 hover:border-slate-400 hover:bg-white shadow-lg shadow-slate-300/40"
-          }`}
+          className="flex items-center gap-2 rounded-full border border-border/60 bg-background/60 backdrop-blur-md px-3.5 py-1.5 font-mono text-xs text-foreground/80 hover:text-foreground hover:border-border hover:bg-background/90 transition-all duration-200 active:scale-95 shadow-sm"
         >
           {isDark ? (
             <>
-              <Sun className="h-3.5 w-3.5 text-amber-400 animate-spin-slow" />
-              <span className="font-semibold">LIGHT MODE</span>
+              <Sun className="h-3.5 w-3.5 text-foreground/70" />
+              <span className="text-[11px] tracking-wider uppercase font-medium">Light</span>
             </>
           ) : (
             <>
-              <Moon className="h-3.5 w-3.5 text-indigo-600" />
-              <span className="font-semibold">DARK MODE</span>
+              <Moon className="h-3.5 w-3.5 text-foreground/70" />
+              <span className="text-[11px] tracking-wider uppercase font-medium">Dark</span>
             </>
           )}
         </button>

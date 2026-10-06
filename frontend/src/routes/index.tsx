@@ -728,61 +728,52 @@ function Result({
           <span className="h-px flex-1 bg-border" />
         </div>
 
-        {/* If no check has been performed yet, show stunning interactive diagnostic sandbox */}
+        {/* If no check has been performed yet, show minimal diagnostic sandbox */}
         {!result ? (
-          <div className="mt-12 overflow-hidden rounded-3xl border border-cyan-500/20 bg-background/80 shadow-2xl backdrop-blur-xl transition-all duration-300">
-            {/* Top Cyber Telemetry Header */}
-            <div className="flex flex-wrap items-center justify-between border-b border-border/80 bg-secondary/40 px-6 py-3 text-xs">
-              <div className="flex items-center gap-2.5">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                </span>
-                <span className="font-mono font-semibold tracking-wider text-cyan-500 dark:text-cyan-400 uppercase text-[11px]">
-                  DIAGNOSTIC ENGINE ARMED & READY
+          <div className="mt-12 overflow-hidden rounded-2xl border border-border bg-card/30 backdrop-blur-md shadow-sm transition-all duration-300">
+            {/* Top Minimal Telemetry Header */}
+            <div className="flex flex-wrap items-center justify-between border-b border-border bg-secondary/30 px-6 py-3 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-foreground/40" />
+                <span className="label-mono text-[11px] text-muted-foreground font-medium tracking-wider uppercase">
+                  DIAGNOSTIC ENGINE READY
                 </span>
               </div>
-              <div className="flex items-center gap-4 font-mono text-[11px] text-muted-foreground">
-                <span className="hidden sm:inline">SEBI INDEX: 6,583+ ENTITIES</span>
+              <div className="flex items-center gap-3 label-mono text-[11px] text-muted-foreground">
+                <span className="hidden sm:inline">SEBI INDEX: 6,583+</span>
                 <span className="hidden sm:inline">·</span>
-                <span>MODEL THRESHOLD: 0.410</span>
+                <span>THRESHOLD: 0.410</span>
               </div>
             </div>
 
             {/* Center Core Scanner Graphic */}
-            <div className="relative px-6 py-12 md:px-12 md:py-16 text-center">
-              {/* Subtle background glow */}
-              <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
-
-              <div className="relative mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-500/10 shadow-lg shadow-cyan-500/10 backdrop-blur-md">
-                <Scan className="h-10 w-10 text-cyan-400 animate-pulse" />
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[9px] font-bold text-slate-950 font-mono">
-                  AI
-                </span>
+            <div className="relative px-6 py-10 md:px-10 md:py-14 text-center">
+              <div className="relative mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-border bg-secondary/40 text-foreground/70 shadow-sm">
+                <Scan className="h-6 w-6 stroke-[1.5]" />
               </div>
 
-              <h3 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+              <h3 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
                 Ready to Analyze Threat Signals
               </h3>
-              <p className="mt-3 text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              <p className="mt-2 text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed font-sans">
                 Paste any suspicious WhatsApp tip, stock market advisory, digital arrest threat, or
                 upload screenshots above. Ruko calculates fraud probability, cross-checks official
                 SEBI registration, and isolates payment requests.
               </p>
 
-              {/* 3 Rich Interactive Sample Cards */}
+              {/* 3 Minimal Interactive Sample Cards */}
               {onRunSample && (
-                <div className="mt-12 text-left">
-                  <div className="flex items-center justify-between mb-4 px-1">
-                    <p className="label-mono text-xs text-muted-foreground uppercase tracking-wider font-semibold">
-                      // Select an interactive sample to test instant AI analysis:
-                    </p>
-                    <span className="label-mono text-[10px] text-cyan-500 dark:text-cyan-400 hidden sm:inline">
-                      1-CLICK SIMULATION
+                <div className="mt-10 text-left">
+                  <div className="flex items-center justify-between mb-3 px-0.5">
+                    <span className="label-mono text-[11px] text-muted-foreground uppercase tracking-wider">
+                      Example Test Scenarios
+                    </span>
+                    <span className="label-mono text-[10px] text-muted-foreground hidden sm:inline">
+                      1-CLICK TEST
                     </span>
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-3">
+                  <div className="grid gap-3.5 md:grid-cols-3">
                     {/* Card 1: BankNifty Scam */}
                     <div
                       onClick={() =>
@@ -790,30 +781,28 @@ function Result({
                           "Guaranteed 400% profit in 15 days on BankNifty jackpot. Transfer ₹5000 to trade@ybl now",
                         )
                       }
-                      className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-rose-500/50 hover:shadow-xl hover:shadow-rose-950/20 cursor-pointer"
+                      className="group relative flex flex-col justify-between rounded-xl border border-border bg-background/50 p-4 transition-all duration-200 hover:border-foreground/30 hover:bg-background/90 active:scale-[0.99] cursor-pointer"
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2">
-                          <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/30 bg-rose-500/10 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-rose-500 dark:text-rose-400">
-                            <AlertTriangle className="h-3 w-3" />
+                          <span className="label-mono text-[10px] px-2 py-0.5 rounded border border-border bg-secondary/50 text-muted-foreground font-mono">
                             WHATSAPP SCAM
                           </span>
-                          <span className="font-mono text-[10px] text-rose-500 font-bold">
+                          <span className="font-mono text-[10px] text-muted-foreground font-medium">
                             98% RISK
                           </span>
                         </div>
-                        <h4 className="mt-3 text-base font-semibold text-foreground group-hover:text-rose-400 transition-colors">
+                        <h4 className="mt-2.5 text-sm font-medium text-foreground group-hover:text-foreground transition-colors">
                           BankNifty 400% Guaranteed Jackpot
                         </h4>
-                        <p className="mt-2 text-xs text-muted-foreground leading-relaxed font-sans line-clamp-2">
-                          "Guaranteed 400% profit in 15 days on BankNifty jackpot. Transfer ₹5000 to
-                          trade@ybl now"
+                        <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed font-mono line-clamp-2">
+                          &ldquo;Guaranteed 400% profit in 15 days on BankNifty jackpot. Transfer ₹5000 to trade@ybl now&rdquo;
                         </p>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between label-mono text-xs text-rose-500 dark:text-rose-400 font-semibold">
+                      <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between label-mono text-[11px] text-muted-foreground group-hover:text-foreground transition-colors">
                         <span>Test this sample</span>
-                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                       </div>
                     </div>
 
@@ -824,30 +813,28 @@ function Result({
                           "CRITICAL: Mumbai Police Cyber Cell. 150g MDMA was seized in your parcel. Connect on Skype id: police_mumbai within 2 hours",
                         )
                       }
-                      className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-950/20 cursor-pointer"
+                      className="group relative flex flex-col justify-between rounded-xl border border-border bg-background/50 p-4 transition-all duration-200 hover:border-foreground/30 hover:bg-background/90 active:scale-[0.99] cursor-pointer"
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2">
-                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-amber-500 dark:text-amber-400">
-                            <ShieldAlert className="h-3 w-3" />
+                          <span className="label-mono text-[10px] px-2 py-0.5 rounded border border-border bg-secondary/50 text-muted-foreground font-mono">
                             EXTORTION FRAUD
                           </span>
-                          <span className="font-mono text-[10px] text-amber-500 font-bold">
+                          <span className="font-mono text-[10px] text-muted-foreground font-medium">
                             94% RISK
                           </span>
                         </div>
-                        <h4 className="mt-3 text-base font-semibold text-foreground group-hover:text-amber-400 transition-colors">
+                        <h4 className="mt-2.5 text-sm font-medium text-foreground group-hover:text-foreground transition-colors">
                           Fake Cyber Police Narcotics Notice
                         </h4>
-                        <p className="mt-2 text-xs text-muted-foreground leading-relaxed font-sans line-clamp-2">
-                          "CRITICAL: Mumbai Police Cyber Cell. 150g MDMA was seized in your parcel.
-                          Connect on Skype..."
+                        <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed font-mono line-clamp-2">
+                          &ldquo;CRITICAL: Mumbai Police Cyber Cell. 150g MDMA was seized in your parcel. Connect on Skype...&rdquo;
                         </p>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between label-mono text-xs text-amber-500 dark:text-amber-400 font-semibold">
+                      <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between label-mono text-[11px] text-muted-foreground group-hover:text-foreground transition-colors">
                         <span>Test this sample</span>
-                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                       </div>
                     </div>
 
@@ -858,30 +845,28 @@ function Result({
                           "Parag Parikh Flexi Cap Fund monthly SIP of INR 5,000 processed via HDFC Bank on 03-Oct. NAV allotment 82.410",
                         )
                       }
-                      className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-950/20 cursor-pointer"
+                      className="group relative flex flex-col justify-between rounded-xl border border-border bg-background/50 p-4 transition-all duration-200 hover:border-foreground/30 hover:bg-background/90 active:scale-[0.99] cursor-pointer"
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2">
-                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-500 dark:text-emerald-400">
-                            <ShieldCheck className="h-3 w-3" />
+                          <span className="label-mono text-[10px] px-2 py-0.5 rounded border border-border bg-secondary/50 text-muted-foreground font-mono">
                             SEBI VERIFIED
                           </span>
-                          <span className="font-mono text-[10px] text-emerald-500 font-bold">
-                            2% SAFE
+                          <span className="font-mono text-[10px] text-muted-foreground font-medium">
+                            VERIFIED SAFE
                           </span>
                         </div>
-                        <h4 className="mt-3 text-base font-semibold text-foreground group-hover:text-emerald-400 transition-colors">
+                        <h4 className="mt-2.5 text-sm font-medium text-foreground group-hover:text-foreground transition-colors">
                           Parag Parikh Flexi Cap SIP
                         </h4>
-                        <p className="mt-2 text-xs text-muted-foreground leading-relaxed font-sans line-clamp-2">
-                          "Parag Parikh Flexi Cap Fund monthly SIP of INR 5,000 processed via HDFC
-                          Bank on 03-Oct..."
+                        <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed font-mono line-clamp-2">
+                          &ldquo;Parag Parikh Flexi Cap Fund monthly SIP of INR 5,000 processed via HDFC Bank on 03-Oct...&rdquo;
                         </p>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between label-mono text-xs text-emerald-500 dark:text-emerald-400 font-semibold">
+                      <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between label-mono text-[11px] text-muted-foreground group-hover:text-foreground transition-colors">
                         <span>Test this sample</span>
-                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                       </div>
                     </div>
                   </div>
@@ -889,16 +874,12 @@ function Result({
               )}
             </div>
 
-            {/* Bottom Engine Specs Bar */}
-            <div className="border-t border-border/80 bg-secondary/30 px-6 py-4">
-              <div className="flex flex-wrap items-center justify-between gap-4 label-mono text-xs text-muted-foreground">
-                <span className="flex items-center gap-2">
-                  <Sparkles className="h-3.5 w-3.5 text-cyan-400" />
-                  <span>Real-time Indian Retail Scam Interception Pipeline</span>
-                </span>
-                <span className="text-[11px]">
-                  Emergency Helpline: <strong className="text-foreground">1930</strong> (National
-                  Cybercrime Reporting)
+            {/* Bottom Minimal Specs Bar */}
+            <div className="border-t border-border bg-secondary/20 px-6 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 label-mono text-[11px] text-muted-foreground">
+                <span>REAL-TIME SCAM INTERCEPTION PIPELINE</span>
+                <span>
+                  EMERGENCY HELPLINE: <strong className="text-foreground">1930</strong>
                 </span>
               </div>
             </div>
