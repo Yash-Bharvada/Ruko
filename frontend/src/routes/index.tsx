@@ -7,6 +7,18 @@ import { InsightCharts } from "../components/InsightCharts";
 import { VoiceInput } from "../components/VoiceInput";
 import { VideoIntroSection } from "../components/VideoIntroSection";
 import { SiteLoader } from "../components/SiteLoader";
+import { InteractivePixelGrid } from "../components/InteractivePixelGrid";
+import {
+  ShieldAlert,
+  ShieldCheck,
+  AlertTriangle,
+  Zap,
+  ArrowRight,
+  Sparkles,
+  Activity,
+  CheckCircle2,
+  Scan,
+} from "lucide-react";
 import {
   checkText,
   checkMedia,
@@ -251,6 +263,8 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
 
 function Hero() {
   const ref = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement | null>(null);
+  const [heroMouse, setHeroMouse] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const f = () => {
@@ -262,26 +276,46 @@ function Hero() {
     return () => window.removeEventListener("scroll", f);
   }, []);
 
-  const cells = [12, 13, 20, 21, 22, 27, 28, 29, 30, 35, 36, 37, 44, 45, 52];
+  const handleHeroMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (!heroRef.current) return;
+    const rect = heroRef.current.getBoundingClientRect();
+    setHeroMouse({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  const handleHeroMouseLeave = () => {
+    setHeroMouse(null);
+  };
 
   return (
     <section
       id="top"
+      ref={heroRef}
+      onMouseMove={handleHeroMouseMove}
+      onMouseLeave={handleHeroMouseLeave}
       className="relative overflow-hidden bg-background text-foreground transition-colors duration-300"
     >
       <div className="absolute inset-0 bg-glow pointer-events-none opacity-70" />
       <div className="absolute inset-0 grid-lines opacity-20 dark:opacity-40 pointer-events-none" />
+
+      {/* Interactive Cursor Spotlight Glow for Grid Background */}
+      {heroMouse && (
+        <div
+          className="pointer-events-none absolute inset-0 transition-opacity duration-300"
+          style={{
+            background: `radial-gradient(450px circle at ${heroMouse.x}px ${heroMouse.y}px, var(--color-accent-glow, rgba(6, 182, 212, 0.08)), transparent 80%)`,
+          }}
+        />
+      )}
+
+      {/* Interactive Pixel Mosaic ("cheques") responding smoothly to cursor */}
       <div
         ref={ref}
-        className="pointer-events-none absolute right-0 top-24 hidden grid-cols-8 md:grid"
+        className="absolute right-0 top-16 hidden md:flex items-center justify-end z-10 pr-6 lg:pr-12 pointer-events-auto"
       >
-        {Array.from({ length: 64 }).map((_, i) => (
-          <div
-            key={i}
-            className={`h-12 w-12 ${cells.includes(i) ? "pixel bg-accent" : ""}`}
-            style={{ animationDelay: `${(i % 7) * 400}ms` }}
-          />
-        ))}
+        <InteractivePixelGrid />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-5 pb-10 pt-28 md:px-8 md:pt-36">
@@ -705,58 +739,180 @@ function Result({
           <span className="h-px flex-1 bg-border" />
         </div>
 
-        {/* If no check has been performed yet, show clear ready state */}
+        {/* If no check has been performed yet, show stunning interactive diagnostic sandbox */}
         {!result ? (
-          <div className="mt-12 rounded-2xl border border-dashed border-border bg-background/50 p-8 md:p-14 text-center max-w-3xl mx-auto shadow-sm">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 mb-5">
-              <span className="text-2xl font-mono">✦</span>
-            </div>
-            <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              Awaiting Message Scan
-            </h3>
-            <p className="mt-3 text-sm md:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed">
-              Enter suspicious text, WhatsApp tip, or upload media above and click{" "}
-              <strong className="text-foreground">"Scan Message for Fraud"</strong>. Ruko will
-              evaluate red flags and extract payment requests.
-            </p>
-
-            {onRunSample && (
-              <div className="mt-8 pt-6 border-t border-border flex flex-wrap items-center justify-center gap-3">
-                <span className="label-mono text-xs text-muted-foreground">
-                  Quick Test Samples:
+          <div className="mt-12 overflow-hidden rounded-3xl border border-cyan-500/20 bg-background/80 shadow-2xl backdrop-blur-xl transition-all duration-300">
+            {/* Top Cyber Telemetry Header */}
+            <div className="flex flex-wrap items-center justify-between border-b border-border/80 bg-secondary/40 px-6 py-3 text-xs">
+              <div className="flex items-center gap-2.5">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
                 </span>
-                <button
-                  onClick={() =>
-                    onRunSample(
-                      "Guaranteed 400% profit in 15 days on BankNifty jackpot. Transfer ₹5000 to trade@ybl now",
-                    )
-                  }
-                  className="px-3 py-1.5 rounded-md border border-border bg-card hover:border-cyan-500/50 hover:text-cyan-400 text-xs label-mono transition-all"
-                >
-                  BankNifty Scam (₹5,000)
-                </button>
-                <button
-                  onClick={() =>
-                    onRunSample(
-                      "CRITICAL: Mumbai Police Cyber Cell. 150g MDMA was seized in your parcel. Connect on Skype id: police_mumbai within 2 hours",
-                    )
-                  }
-                  className="px-3 py-1.5 rounded-md border border-border bg-card hover:border-cyan-500/50 hover:text-cyan-400 text-xs label-mono transition-all"
-                >
-                  Digital Arrest Notice
-                </button>
-                <button
-                  onClick={() =>
-                    onRunSample(
-                      "Parag Parikh Flexi Cap Fund monthly SIP of INR 5,000 processed via HDFC Bank on 03-Oct. NAV allotment 82.410",
-                    )
-                  }
-                  className="px-3 py-1.5 rounded-md border border-border bg-card hover:border-emerald-500/50 hover:text-emerald-400 text-xs label-mono transition-all"
-                >
-                  Legitimate Mutual Fund SIP
-                </button>
+                <span className="font-mono font-semibold tracking-wider text-cyan-500 dark:text-cyan-400 uppercase text-[11px]">
+                  DIAGNOSTIC ENGINE ARMED & READY
+                </span>
               </div>
-            )}
+              <div className="flex items-center gap-4 font-mono text-[11px] text-muted-foreground">
+                <span className="hidden sm:inline">SEBI INDEX: 6,583+ ENTITIES</span>
+                <span className="hidden sm:inline">·</span>
+                <span>MODEL THRESHOLD: 0.410</span>
+              </div>
+            </div>
+
+            {/* Center Core Scanner Graphic */}
+            <div className="relative px-6 py-12 md:px-12 md:py-16 text-center">
+              {/* Subtle background glow */}
+              <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
+
+              <div className="relative mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-500/10 shadow-lg shadow-cyan-500/10 backdrop-blur-md">
+                <Scan className="h-10 w-10 text-cyan-400 animate-pulse" />
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[9px] font-bold text-slate-950 font-mono">
+                  AI
+                </span>
+              </div>
+
+              <h3 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+                Ready to Analyze Threat Signals
+              </h3>
+              <p className="mt-3 text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                Paste any suspicious WhatsApp tip, stock market advisory, digital arrest threat, or
+                upload screenshots above. Ruko calculates fraud probability, cross-checks official
+                SEBI registration, and isolates payment requests.
+              </p>
+
+              {/* 3 Rich Interactive Sample Cards */}
+              {onRunSample && (
+                <div className="mt-12 text-left">
+                  <div className="flex items-center justify-between mb-4 px-1">
+                    <p className="label-mono text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+                      // Select an interactive sample to test instant AI analysis:
+                    </p>
+                    <span className="label-mono text-[10px] text-cyan-500 dark:text-cyan-400 hidden sm:inline">
+                      1-CLICK SIMULATION
+                    </span>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-3">
+                    {/* Card 1: BankNifty Scam */}
+                    <div
+                      onClick={() =>
+                        onRunSample(
+                          "Guaranteed 400% profit in 15 days on BankNifty jackpot. Transfer ₹5000 to trade@ybl now",
+                        )
+                      }
+                      className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-rose-500/50 hover:shadow-xl hover:shadow-rose-950/20 cursor-pointer"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/30 bg-rose-500/10 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-rose-500 dark:text-rose-400">
+                            <AlertTriangle className="h-3 w-3" />
+                            WHATSAPP SCAM
+                          </span>
+                          <span className="font-mono text-[10px] text-rose-500 font-bold">
+                            98% RISK
+                          </span>
+                        </div>
+                        <h4 className="mt-3 text-base font-semibold text-foreground group-hover:text-rose-400 transition-colors">
+                          BankNifty 400% Guaranteed Jackpot
+                        </h4>
+                        <p className="mt-2 text-xs text-muted-foreground leading-relaxed font-sans line-clamp-2">
+                          "Guaranteed 400% profit in 15 days on BankNifty jackpot. Transfer ₹5000 to
+                          trade@ybl now"
+                        </p>
+                      </div>
+
+                      <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between label-mono text-xs text-rose-500 dark:text-rose-400 font-semibold">
+                        <span>Test this sample</span>
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                      </div>
+                    </div>
+
+                    {/* Card 2: Digital Arrest Extortion */}
+                    <div
+                      onClick={() =>
+                        onRunSample(
+                          "CRITICAL: Mumbai Police Cyber Cell. 150g MDMA was seized in your parcel. Connect on Skype id: police_mumbai within 2 hours",
+                        )
+                      }
+                      className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-950/20 cursor-pointer"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-amber-500 dark:text-amber-400">
+                            <ShieldAlert className="h-3 w-3" />
+                            EXTORTION FRAUD
+                          </span>
+                          <span className="font-mono text-[10px] text-amber-500 font-bold">
+                            94% RISK
+                          </span>
+                        </div>
+                        <h4 className="mt-3 text-base font-semibold text-foreground group-hover:text-amber-400 transition-colors">
+                          Fake Cyber Police Narcotics Notice
+                        </h4>
+                        <p className="mt-2 text-xs text-muted-foreground leading-relaxed font-sans line-clamp-2">
+                          "CRITICAL: Mumbai Police Cyber Cell. 150g MDMA was seized in your parcel.
+                          Connect on Skype..."
+                        </p>
+                      </div>
+
+                      <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between label-mono text-xs text-amber-500 dark:text-amber-400 font-semibold">
+                        <span>Test this sample</span>
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                      </div>
+                    </div>
+
+                    {/* Card 3: Legitimate SIP */}
+                    <div
+                      onClick={() =>
+                        onRunSample(
+                          "Parag Parikh Flexi Cap Fund monthly SIP of INR 5,000 processed via HDFC Bank on 03-Oct. NAV allotment 82.410",
+                        )
+                      }
+                      className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-950/20 cursor-pointer"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-500 dark:text-emerald-400">
+                            <ShieldCheck className="h-3 w-3" />
+                            SEBI VERIFIED
+                          </span>
+                          <span className="font-mono text-[10px] text-emerald-500 font-bold">
+                            2% SAFE
+                          </span>
+                        </div>
+                        <h4 className="mt-3 text-base font-semibold text-foreground group-hover:text-emerald-400 transition-colors">
+                          Parag Parikh Flexi Cap SIP
+                        </h4>
+                        <p className="mt-2 text-xs text-muted-foreground leading-relaxed font-sans line-clamp-2">
+                          "Parag Parikh Flexi Cap Fund monthly SIP of INR 5,000 processed via HDFC
+                          Bank on 03-Oct..."
+                        </p>
+                      </div>
+
+                      <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between label-mono text-xs text-emerald-500 dark:text-emerald-400 font-semibold">
+                        <span>Test this sample</span>
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Engine Specs Bar */}
+            <div className="border-t border-border/80 bg-secondary/30 px-6 py-4">
+              <div className="flex flex-wrap items-center justify-between gap-4 label-mono text-xs text-muted-foreground">
+                <span className="flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-cyan-400" />
+                  <span>Real-time Indian Retail Scam Interception Pipeline</span>
+                </span>
+                <span className="text-[11px]">
+                  Emergency Helpline: <strong className="text-foreground">1930</strong> (National
+                  Cybercrime Reporting)
+                </span>
+              </div>
+            </div>
           </div>
         ) : (
           <>
