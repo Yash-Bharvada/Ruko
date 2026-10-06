@@ -14,3 +14,4 @@ scipy==1.18.1
 pandas==3.0.6
 numpy==2.5.3
 icalendar==7.3.0
+yt-dlp>=2024.12.0

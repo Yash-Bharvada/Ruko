@@ -86,21 +86,29 @@ def check_ffmpeg_available() -> bool:
     return bool(_find_binary("ffmpeg") and (_find_binary("ffprobe") or True))
 
 
-async def _run_command(cmd: List[str]) -> Tuple[int, bytes, bytes]:
-    """Run an external CLI process asynchronously without blocking event loop."""
+def _run_command_sync(cmd: List[str]) -> Tuple[int, bytes, bytes]:
+    """Execute command synchronously in a worker thread."""
     resolved_cmd = list(cmd)
     if resolved_cmd and not os.path.isabs(resolved_cmd[0]):
         bin_path = _find_binary(resolved_cmd[0])
         if bin_path:
             resolved_cmd[0] = bin_path
 
-    proc = await asyncio.create_subprocess_exec(
-        *resolved_cmd,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
-    stdout, stderr = await proc.communicate()
-    return proc.returncode or 0, stdout, stderr
+    try:
+        proc = subprocess.run(
+            resolved_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        return proc.returncode or 0, proc.stdout, proc.stderr
+    except Exception as exc:
+        logger.warning("CLI execution failed for %s: %s", resolved_cmd[0], exc)
+        return 1, b"", str(exc).encode()
+
+
+async def _run_command(cmd: List[str]) -> Tuple[int, bytes, bytes]:
+    """Run an external CLI process asynchronously in a thread without blocking event loop or failing on Windows."""
+    return await asyncio.to_thread(_run_command_sync, cmd)
 
 
 async def video_to_text(
