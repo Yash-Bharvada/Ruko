@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Play, Pause, RotateCcw, Sparkles, ShieldCheck, Zap } from "lucide-react";
+import { frameCache } from "../lib/frameCache";
 
 interface VideoFramePlayerProps {
   totalFrames?: number;
@@ -19,13 +20,15 @@ export function VideoFramePlayer({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [currentFrame, setCurrentFrame] = useState(1);
-  const [loadedCount, setLoadedCount] = useState(0);
-  const [isReady, setIsReady] = useState(false);
+  const [loadedCount, setLoadedCount] = useState(() => frameCache.loadedCount || 0);
+  const [isReady, setIsReady] = useState(() => frameCache.isReady || frameCache.loadedCount >= 15);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
   const [isHovered, setIsHovered] = useState(false);
 
   // Store preloaded image instances
-  const imagesRef = useRef<HTMLImageElement[]>([]);
+  const imagesRef = useRef<HTMLImageElement[]>(
+    frameCache.images.length > 0 ? frameCache.images : [],
+  );
   const currentFrameRef = useRef(1);
   const isPlayingRef = useRef(autoPlay);
   const animFrameIdRef = useRef<number | null>(null);
@@ -44,13 +47,19 @@ export function VideoFramePlayer({
     [framePathPrefix],
   );
 
-  // Preload all frames progressively
+  // Preload frames if not already populated by SiteLoader
   useEffect(() => {
+    if (frameCache.images && frameCache.images.length >= totalFrames) {
+      imagesRef.current = frameCache.images;
+      setLoadedCount(frameCache.images.length);
+      setIsReady(true);
+      return;
+    }
+
     let isMounted = true;
     const images: HTMLImageElement[] = [];
     let loaded = 0;
 
-    // First load first 30 frames eagerly for instant playback start
     for (let i = 1; i <= totalFrames; i++) {
       const img = new Image();
       img.src = getFrameUrl(i);
@@ -58,7 +67,7 @@ export function VideoFramePlayer({
         if (!isMounted) return;
         loaded++;
         setLoadedCount(loaded);
-        if (loaded === 15) {
+        if (loaded === 15 || loaded === totalFrames) {
           setIsReady(true);
         }
       };
@@ -66,6 +75,7 @@ export function VideoFramePlayer({
     }
 
     imagesRef.current = images;
+    frameCache.images = images;
 
     return () => {
       isMounted = false;

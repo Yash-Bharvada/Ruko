@@ -5,7 +5,8 @@ import { ThemeToggle } from "../components/ThemeToggle";
 import { ChatBot } from "../components/ChatBot";
 import { InsightCharts } from "../components/InsightCharts";
 import { VoiceInput } from "../components/VoiceInput";
-import { VideoFramePlayer } from "../components/VideoFramePlayer";
+import { VideoIntroSection } from "../components/VideoIntroSection";
+import { SiteLoader } from "../components/SiteLoader";
 import {
   checkText,
   checkMedia,
@@ -115,8 +116,8 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const f = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", f);
+    const f = () => setScrolled(window.scrollY > 80);
+    window.addEventListener("scroll", f, { passive: true });
     return () => window.removeEventListener("scroll", f);
   }, []);
 
@@ -130,10 +131,10 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 border-b border-border/70 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 border-b border-border/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 ${
         scrolled
-          ? "shadow-lg shadow-black/10 dark:shadow-cyan-950/20 bg-background/90"
-          : "shadow-sm"
+          ? "translate-y-0 opacity-100 shadow-lg shadow-black/10 dark:shadow-cyan-950/20 bg-background/90"
+          : "-translate-y-full opacity-0 pointer-events-none"
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 text-foreground md:px-8">
@@ -283,70 +284,55 @@ function Hero() {
         ))}
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-5 pb-12 pt-32 md:px-8 md:pt-40">
-        <div className="grid items-center gap-10 lg:grid-cols-12">
-          {/* Left Column: Copy & Actions */}
-          <div className="lg:col-span-6 flex flex-col justify-center">
-            <R>
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1 text-xs label-mono text-cyan-400 mb-6 w-fit">
-                <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                AI-Powered Scam Interception Engine
-              </div>
-              <p className="max-w-xl text-lg leading-relaxed text-muted-foreground md:text-xl font-normal">
-                Got an investment tip, WhatsApp message, or high-yield offer? Paste it or upload it.
-                Ruko scores the scam risk with machine learning and verifies registration against{" "}
-                <span className="text-foreground font-medium">6,583+ SEBI entities</span> before
-                your money moves.
-              </p>
+      <div className="relative mx-auto max-w-7xl px-5 pb-10 pt-28 md:px-8 md:pt-36">
+        <div className="grid gap-10 md:grid-cols-2">
+          <R>
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1 text-xs label-mono text-cyan-400 mb-6 w-fit">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              AI-Powered Scam Interception Engine
+            </div>
+            <p className="max-w-md text-lg leading-snug text-muted-foreground md:text-xl">
+              Got an investment tip, WhatsApp message, or high-yield offer? Paste it or upload it.
+              Ruko scores the scam risk with machine learning and verifies registration against{" "}
+              <span className="text-foreground font-medium">6,583+ SEBI entities</span> before your
+              money moves.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <a href="#check" className={btnDark}>
+                ■ Check an offer <Arrow />
+              </a>
+              <a
+                href="#sebi"
+                className="inline-flex items-center gap-2 rounded-md border border-border bg-card/80 px-4 py-3 label-mono text-xs text-foreground transition-all hover:bg-secondary hover:border-cyan-400/40"
+              >
+                ↗ Search SEBI Registry
+              </a>
+            </div>
 
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                <a href="#check" className={btnDark}>
-                  ■ Check an offer <Arrow />
-                </a>
-                <a
-                  href="#sebi"
-                  className="inline-flex items-center gap-2 rounded-md border border-border bg-card/80 px-4 py-3 label-mono text-xs text-foreground transition-all hover:bg-secondary hover:border-cyan-400/40"
-                >
-                  ↗ Search SEBI Registry
-                </a>
+            <div className="mt-8 grid grid-cols-3 gap-4 border-t border-border/60 pt-6">
+              <div>
+                <p className="text-2xl font-bold text-foreground font-mono">6,583+</p>
+                <p className="text-[11px] text-muted-foreground label-mono">SEBI Entities</p>
               </div>
-
-              <div className="mt-8 grid grid-cols-3 gap-4 border-t border-border/60 pt-6">
-                <div>
-                  <p className="text-2xl font-bold text-foreground font-mono">6,583+</p>
-                  <p className="text-[11px] text-muted-foreground label-mono">
-                    SEBI Intermediaries
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-cyan-500 font-mono">0.410</p>
-                  <p className="text-[11px] text-muted-foreground label-mono">
-                    Calibrated Threshold
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-emerald-500 font-mono">24 FPS</p>
-                  <p className="text-[11px] text-muted-foreground label-mono">Live Visual AI</p>
-                </div>
+              <div>
+                <p className="text-2xl font-bold text-cyan-500 font-mono">0.410</p>
+                <p className="text-[11px] text-muted-foreground label-mono">ML Threshold</p>
               </div>
-            </R>
-          </div>
-
-          {/* Right Column: High-Performance Continuous Video Frame Player */}
-          <div className="lg:col-span-6">
-            <R d={150}>
-              <div className="relative">
-                {/* Decorative background glow */}
-                <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-cyan-500/20 via-indigo-500/20 to-purple-500/20 blur-xl opacity-75" />
-                <VideoFramePlayer
-                  totalFrames={240}
-                  fps={24}
-                  framePathPrefix="/frames/frame_"
-                  className="relative z-10"
-                />
+              <div>
+                <p className="text-2xl font-bold text-emerald-500 font-mono">&lt; 1.2s</p>
+                <p className="text-[11px] text-muted-foreground label-mono">Verdict Time</p>
               </div>
-            </R>
-          </div>
+            </div>
+          </R>
+          <R d={200} className="hidden md:flex md:justify-end md:pt-10">
+            <p className="label-mono leading-relaxed text-muted-foreground">
+              ✦ Pause.
+              <br />
+              &nbsp;&nbsp;&nbsp;&nbsp;Verify.
+              <br />
+              &nbsp;&nbsp;Then invest. +
+            </p>
+          </R>
         </div>
 
         <div className="mt-16 flex flex-wrap items-end gap-x-6 md:mt-24">
@@ -1494,24 +1480,46 @@ function Index() {
 
   return (
     <>
-      <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
-        <Nav lang={lang} onLangChange={setLang} />
-        <Hero />
-        <Check lang={lang} onResult={setCheckResult} injectedText={injectedText} />
-        <Result
-          result={checkResult}
-          lang={lang}
-          onRunSample={(sample) => {
-            setInjectedText(sample);
-            const checkEl = document.getElementById("check");
-            if (checkEl) checkEl.scrollIntoView({ behavior: "smooth" });
-          }}
-        />
-        <Sebi />
-        <Pause verdict={checkResult?.verdict || "strong_red_flags"} lang={lang} />
-        <Recovery lang={lang} />
-        <Footer />
-      </main>
+      {/* Preloader with Tetrominos & Frame Progress Bar */}
+      <SiteLoader totalFrames={240} />
+
+      {/* Screen 1: Pure Full-Screen Video Section - Only video playing continuously */}
+      <VideoIntroSection
+        totalFrames={240}
+        fps={24}
+        onScrollDown={() => {
+          const el = document.getElementById("landing-content");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        }}
+      />
+
+      {/* Sticky Header Navigation (slides in as user scrolls into landing page) */}
+      <Nav lang={lang} onLangChange={setLang} />
+
+      {/* Screen 2+: Landing Page Content */}
+      <div
+        id="landing-content"
+        className="relative z-10 min-h-screen bg-background text-foreground transition-colors duration-300 shadow-[0_-24px_60px_rgba(0,0,0,0.35)] rounded-t-[2.5rem] border-t border-border/50 backdrop-blur-sm -mt-6"
+      >
+        <main>
+          <Hero />
+          <Check lang={lang} onResult={setCheckResult} injectedText={injectedText} />
+          <Result
+            result={checkResult}
+            lang={lang}
+            onRunSample={(sample) => {
+              setInjectedText(sample);
+              const checkEl = document.getElementById("check");
+              if (checkEl) checkEl.scrollIntoView({ behavior: "smooth" });
+            }}
+          />
+          <Sebi />
+          <Pause verdict={checkResult?.verdict || "strong_red_flags"} lang={lang} />
+          <Recovery lang={lang} />
+          <Footer />
+        </main>
+      </div>
+
       {/* Floating AI Chat — always accessible, context-aware after scan */}
       <ChatBot scanResult={checkResult} />
     </>
