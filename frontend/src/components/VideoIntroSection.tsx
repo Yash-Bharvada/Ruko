@@ -5,6 +5,8 @@ import { ThemeSyncedVideo } from "./ThemeSyncedVideo";
 
 interface VideoIntroSectionProps {
   onScrollDown?: () => void;
+  totalFrames?: number;
+  fps?: number;
 }
 
 export function VideoIntroSection({ onScrollDown }: VideoIntroSectionProps) {

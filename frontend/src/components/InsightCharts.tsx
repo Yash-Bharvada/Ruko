@@ -66,7 +66,7 @@ const DonutChart: FC<{ chart: InsightChart; visible: boolean }> = ({ chart, visi
             textAnchor="middle"
             className="fill-foreground font-mono text-xs font-bold"
           >
-            {Math.round(segments[0]?.pct * 100 || 0)}%
+            {Math.round((segments[0]?.pct ?? 0) * 100)}%
           </text>
         </svg>
       </div>

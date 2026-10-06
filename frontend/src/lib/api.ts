@@ -42,6 +42,18 @@ export interface RegistryInfo {
   verify_url: string;
 }
 
+export interface PromisedReturn {
+  value: number | string;
+  period?: string;
+}
+
+export interface ClaimsInfo {
+  upi_ids?: string[];
+  promised_returns?: PromisedReturn[];
+  payment_requests?: string[];
+  [key: string]: any;
+}
+
 export interface CheckResult {
   request_id: string;
   language: string;
@@ -50,7 +62,7 @@ export interface CheckResult {
   reasons: Reason[];
   registry?: RegistryInfo;
   model?: ModelInfo;
-  claims?: Record<string, any>;
+  claims?: ClaimsInfo;
   note: string;
   disclaimer: string;
   text?: string;
@@ -124,9 +136,7 @@ async function extractTextFromImage(file: File, onProgress?: (p: number) => void
       },
     });
 
-    const arrayBuffer = await file.arrayBuffer();
-    const uint8 = new Uint8Array(arrayBuffer);
-    const { data } = await worker.recognize(uint8);
+    const { data } = await worker.recognize(file as any);
     await worker.terminate();
 
     const text = data.text?.trim() ?? "";

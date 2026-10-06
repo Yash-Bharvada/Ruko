@@ -1060,33 +1060,33 @@ function Result({
 
                 {/* Extracted Claims and Entities (UPI, Returns, Urgencies) */}
                 {result.claims &&
-                  (result.claims.upi_ids?.length > 0 ||
-                    result.claims.promised_returns?.length > 0 ||
-                    result.claims.payment_requests?.length > 0) && (
+                  ((result.claims.upi_ids?.length ?? 0) > 0 ||
+                    (result.claims.promised_returns?.length ?? 0) > 0 ||
+                    (result.claims.payment_requests?.length ?? 0) > 0) && (
                     <div className="rounded-2xl border border-border bg-background p-6 shadow-xl">
                       <div className="label-mono text-xs text-muted-foreground font-semibold uppercase pb-3 border-b border-border">
                         Extracted Financial Claims & Entities
                       </div>
                       <div className="mt-4 grid sm:grid-cols-2 gap-4 text-xs">
-                        {result.claims.upi_ids?.length > 0 && (
+                        {(result.claims.upi_ids?.length ?? 0) > 0 && (
                           <div className="p-3 rounded-lg bg-secondary/50 border border-border">
                             <span className="text-muted-foreground label-mono uppercase">
                               Detected UPI Address:
                             </span>
                             <div className="mt-1 font-mono font-bold text-cyan-400 truncate">
-                              {result.claims.upi_ids.join(", ")}
+                              {result.claims.upi_ids?.join(", ")}
                             </div>
                           </div>
                         )}
-                        {result.claims.promised_returns?.length > 0 && (
+                        {(result.claims.promised_returns?.length ?? 0) > 0 && (
                           <div className="p-3 rounded-lg bg-secondary/50 border border-border">
                             <span className="text-muted-foreground label-mono uppercase">
                               Promised Return Rate:
                             </span>
                             <div className="mt-1 font-mono font-bold text-red-400">
-                              {result.claims.promised_returns
-                                .map((r: any) => `${r.value}% ${r.period || ""}`)
-                                .join(", ")}
+                              {result.claims.promised_returns?.map(
+                                (r: any) => `${r.value}% ${r.period || ""}`,
+                              ).join(", ")}
                             </div>
                           </div>
                         )}
