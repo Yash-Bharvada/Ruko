@@ -3,6 +3,7 @@
 Investor Protection & Anti-Fraud Web Application for Indian Retail Investors.
 
 ## Features
+
 - **Universal Dropzone**: Real-time scam analysis for text messages, screenshots (OCR), voice notes (STT), and video reels.
 - **SEBI Registry Verification**: Offline search across 6,583+ registered SEBI intermediaries with exact and fuzzy matching.
 - **Explainable Verdicts**: Multi-tier risk scoring (0–100) with evidence highlights and vernacular read-aloud support.

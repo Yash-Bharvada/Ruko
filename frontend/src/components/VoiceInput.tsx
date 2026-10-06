@@ -25,7 +25,9 @@ export const VoiceInput: FC<Props> = ({ onTranscript, lang = "en" }) => {
       const mr = new MediaRecorder(stream, { mimeType: "audio/webm" });
       mediaRef.current = mr;
 
-      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
       mr.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
         setState("processing");
@@ -73,7 +75,8 @@ export const VoiceInput: FC<Props> = ({ onTranscript, lang = "en" }) => {
   };
 
   const fallbackBrowserSTT = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setError("Voice transcription failed. Please type your message.");
       setState("idle");
@@ -106,26 +109,46 @@ export const VoiceInput: FC<Props> = ({ onTranscript, lang = "en" }) => {
         disabled={isProcessing}
         title={isRecording ? "Stop recording" : "Record voice message"}
         className={`relative flex items-center justify-center w-10 h-10 rounded-full border transition-all duration-200 active:scale-95
-          ${isRecording
-            ? "border-red-500/60 bg-red-500/10 text-red-400 animate-pulse shadow-lg shadow-red-500/20"
-            : isProcessing
-            ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400"
-            : "border-border bg-card/60 text-muted-foreground hover:border-cyan-400/60 hover:text-cyan-400 hover:bg-cyan-500/5"
+          ${
+            isRecording
+              ? "border-red-500/60 bg-red-500/10 text-red-400 animate-pulse shadow-lg shadow-red-500/20"
+              : isProcessing
+                ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400"
+                : "border-border bg-card/60 text-muted-foreground hover:border-cyan-400/60 hover:text-cyan-400 hover:bg-cyan-500/5"
           }`}
       >
         {isProcessing ? (
           <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeOpacity="0.3"/>
-            <path d="M12 2a10 10 0 0110 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeOpacity="0.3"
+            />
+            <path
+              d="M12 2a10 10 0 0110 10"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           </svg>
         ) : isRecording ? (
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
             <rect x="4" y="4" width="16" height="16" rx="2" />
           </svg>
         ) : (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
-            <path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" />
+            <path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" />
           </svg>
         )}
 
@@ -141,7 +164,9 @@ export const VoiceInput: FC<Props> = ({ onTranscript, lang = "en" }) => {
       </span>
 
       {error && (
-        <p className="label-mono text-[10px] text-destructive text-center max-w-[160px] leading-relaxed">{error}</p>
+        <p className="label-mono text-[10px] text-destructive text-center max-w-[160px] leading-relaxed">
+          {error}
+        </p>
       )}
     </div>
   );

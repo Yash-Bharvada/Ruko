@@ -6,7 +6,8 @@
 
 const API_BASE = ""; // Relative path automatically proxies to http://localhost:8000 in dev via vite proxy
 
-export type VerdictType = "strong_red_flags" | "cannot_verify" | "no_red_flags_found" | "out_of_scope";
+export type VerdictType =
+  "strong_red_flags" | "cannot_verify" | "no_red_flags_found" | "out_of_scope";
 export type SeverityType = "high" | "medium" | "low" | "info";
 
 export interface Reason {
@@ -139,7 +140,11 @@ async function extractTextFromImage(file: File, onProgress?: (p: number) => void
 /**
  * Check plain text offer or message using the real ML model and rule engine
  */
-export async function checkText(text: string, language?: string, amount?: number): Promise<CheckResult> {
+export async function checkText(
+  text: string,
+  language?: string,
+  amount?: number,
+): Promise<CheckResult> {
   const payload: Record<string, any> = { text };
   if (language) payload.language = language;
   if (amount !== undefined && amount !== null && !isNaN(amount) && amount > 0) {
@@ -168,7 +173,7 @@ export async function checkMedia(
   file: File,
   language?: string,
   amount?: number,
-  onOcrProgress?: (p: number) => void
+  onOcrProgress?: (p: number) => void,
 ): Promise<CheckResult> {
   const formData = new FormData();
   formData.append("file", file);
@@ -266,7 +271,9 @@ export async function getPausePlan(params: {
  * Retrieve verified emergency recovery resources & cyber helpline numbers
  */
 export async function getRecoveryResources(language = "en"): Promise<RecoveryResourcesResponse> {
-  const res = await fetch(`${API_BASE}/v1/resources/already-paid?lang=${encodeURIComponent(language)}`);
+  const res = await fetch(
+    `${API_BASE}/v1/resources/already-paid?lang=${encodeURIComponent(language)}`,
+  );
   const data = await res.json();
   if (!res.ok) {
     const errorMsg = data?.error?.message || "Failed to load recovery resources.";
@@ -339,7 +346,7 @@ export interface InsightsResponse {
  */
 export async function chatWithRuko(
   messages: ChatMsg[],
-  context?: Partial<CheckResult>
+  context?: Partial<CheckResult>,
 ): Promise<ChatResponse> {
   const res = await fetch(`${API_BASE}/v1/chat`, {
     method: "POST",
@@ -370,4 +377,3 @@ export async function getInsights(result: CheckResult): Promise<InsightsResponse
   if (!res.ok) throw new Error(data?.detail || "Insights failed.");
   return data as InsightsResponse;
 }
-
