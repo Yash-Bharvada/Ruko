@@ -126,29 +126,16 @@ async def check_media(
     # 3. Video Sniffing & Routing
     video_mime = sniff_video_mime(data)
     if video_mime or content_type.startswith("video/") or any(filename.endswith(ext) for ext in (".mp4", ".mov", ".webm")):
-        if settings.ENABLE_THIRD_PARTY_AI:
-            try:
-                video_result = await video_to_text(data, mime_hint=video_mime or content_type, settings=settings)
-                return await run_check(
-                    text=video_result.text,
-                    language_hint=language,
-                    amount=amount,
-                    request_id=request_id,
-                    source="video",
-                    input_source="video",
-                    speech_text=video_result.speech_text,
-                    on_screen_text=video_result.on_screen_text,
-                )
-            except Exception:
-                pass
-        # Fallback for video reel: analyze metadata or default notification
+        video_result = await video_to_text(data, mime_hint=video_mime or content_type, settings=settings)
         return await run_check(
-            text=f"Video media upload: {file.filename}. Suspicious investment promotion reel detected.",
+            text=video_result.text,
             language_hint=language,
             amount=amount,
             request_id=request_id,
             source="video",
             input_source="video",
+            speech_text=video_result.speech_text,
+            on_screen_text=video_result.on_screen_text,
         )
 
     # 4. Image Sniffing & Routing

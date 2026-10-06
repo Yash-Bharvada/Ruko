@@ -1,6 +1,6 @@
 # Ruko Backend Evaluation & Benchmark Report
 
-**Generated**: 2026-10-04T15:50:07Z  
+**Generated**: 2026-10-06T17:06:52Z  
 **Total Benchmark Cases**: 16
 
 ---
@@ -21,10 +21,10 @@
 
 | Metric | Latency (ms) | Budget |
 |---|---|---|
-| **Minimum Latency** | 0.06 ms | < 50 ms |
-| **Mean Latency** | **96.47 ms** | < 100 ms |
-| **95th Percentile (P95)** | **130.02 ms** | < 250 ms |
-| **Maximum Latency** | 130.02 ms | < 8000 ms |
+| **Minimum Latency** | 0.38 ms | < 50 ms |
+| **Mean Latency** | **1986.85 ms** | < 100 ms |
+| **95th Percentile (P95)** | **3224.47 ms** | < 250 ms |
+| **Maximum Latency** | 3224.47 ms | < 8000 ms |
 
 ---
 
@@ -32,22 +32,22 @@
 
 | Case ID | Category | Expected | Actual Verdict | Score | Latency | Status |
 |---|---|---|---|---|---|---|
-| `gu_fixed_returns` | scam | strong_red_flags | **strong_red_flags** | 0.94 | 128.7 ms | ✅ PASS |
-| `gu_double_money` | scam | strong_red_flags | **strong_red_flags** | 0.85 | 129.34 ms | ✅ PASS |
-| `hi_paisa_double` | scam | strong_red_flags | **strong_red_flags** | 0.93 | 127.93 ms | ✅ PASS |
-| `hi_guaranteed_profit` | scam | strong_red_flags | **strong_red_flags** | 0.95 | 128.22 ms | ✅ PASS |
-| `en_vip_operator_group` | scam | strong_red_flags | **strong_red_flags** | 0.98 | 128.84 ms | ✅ PASS |
-| `en_digital_arrest` | scam | strong_red_flags | **strong_red_flags** | 0.98 | 130.02 ms | ✅ PASS |
-| `en_remote_apk` | scam | strong_red_flags | **strong_red_flags** | 1.00 | 128.53 ms | ✅ PASS |
-| `roman_hi_double` | scam | strong_red_flags | **strong_red_flags** | 0.97 | 128.16 ms | ✅ PASS |
-| `roman_gu_nafo` | scam | strong_red_flags | **strong_red_flags** | 0.93 | 128.13 ms | ✅ PASS |
-| `benign_bank_credit` | benign | no_red_flags_found/cannot_verify | **cannot_verify** | 0.00 | 128.53 ms | ✅ PASS |
-| `benign_salary_credit` | benign | no_red_flags_found/cannot_verify | **no_red_flags_found** | 0.01 | 128.25 ms | ✅ PASS |
-| `benign_demat_alert` | benign | no_red_flags_found/cannot_verify | **no_red_flags_found** | 0.15 | 128.53 ms | ✅ PASS |
-| `advice_en_stock` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.09 ms | ✅ PASS |
-| `advice_hi_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.1 ms | ✅ PASS |
-| `advice_gu_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.09 ms | ✅ PASS |
-| `advice_roman_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.06 ms | ✅ PASS |
+| `gu_fixed_returns` | scam | strong_red_flags | **strong_red_flags** | 0.94 | 2992.81 ms | ✅ PASS |
+| `gu_double_money` | scam | strong_red_flags | **strong_red_flags** | 0.85 | 2640.86 ms | ✅ PASS |
+| `hi_paisa_double` | scam | strong_red_flags | **strong_red_flags** | 0.93 | 2756.3 ms | ✅ PASS |
+| `hi_guaranteed_profit` | scam | strong_red_flags | **strong_red_flags** | 0.95 | 2932.95 ms | ✅ PASS |
+| `en_vip_operator_group` | scam | strong_red_flags | **strong_red_flags** | 0.98 | 2781.51 ms | ✅ PASS |
+| `en_digital_arrest` | scam | strong_red_flags | **strong_red_flags** | 0.98 | 2652.2 ms | ✅ PASS |
+| `en_remote_apk` | scam | strong_red_flags | **strong_red_flags** | 1.00 | 2607.35 ms | ✅ PASS |
+| `roman_hi_double` | scam | strong_red_flags | **strong_red_flags** | 0.97 | 2676.82 ms | ✅ PASS |
+| `roman_gu_nafo` | scam | strong_red_flags | **strong_red_flags** | 0.93 | 3224.47 ms | ✅ PASS |
+| `benign_bank_credit` | benign | no_red_flags_found/cannot_verify | **cannot_verify** | 0.00 | 2657.49 ms | ✅ PASS |
+| `benign_salary_credit` | benign | no_red_flags_found/cannot_verify | **no_red_flags_found** | 0.01 | 1704.89 ms | ✅ PASS |
+| `benign_demat_alert` | benign | no_red_flags_found/cannot_verify | **no_red_flags_found** | 0.15 | 2159.83 ms | ✅ PASS |
+| `advice_en_stock` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.74 ms | ✅ PASS |
+| `advice_hi_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.56 ms | ✅ PASS |
+| `advice_gu_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.48 ms | ✅ PASS |
+| `advice_roman_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.38 ms | ✅ PASS |
 
 ---
 

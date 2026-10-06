@@ -161,3 +161,28 @@ def test_custom_app_exception() -> None:
     assert body["error"]["code"] == "bad_input"
     assert body["error"]["message"] == "Something went wrong"
     assert body["error"]["request_id"] == "req-999"
+
+
+def test_httpx_logger_suppresses_info_logs_with_api_keys() -> None:
+    """Verify that httpx logger is set to WARNING and does not emit INFO-level request logs containing sensitive key params."""
+    stream = io.StringIO()
+    handler = logging.StreamHandler(stream)
+    handler.setFormatter(JsonFormatter())
+
+    root_logger = logging.getLogger()
+    root_logger.addHandler(handler)
+
+    try:
+        httpx_logger = logging.getLogger("httpx")
+        # Verify httpx logger level is set to WARNING or above
+        assert httpx_logger.level >= logging.WARNING
+
+        sensitive_url = "https://example.com/api?key=SECRET_VALUE"
+        httpx_logger.info("HTTP Request: POST %s \"HTTP/1.1 200 OK\"", sensitive_url)
+
+        output = stream.getvalue()
+        assert "SECRET_VALUE" not in output
+        assert "key=SECRET_VALUE" not in output
+        assert sensitive_url not in output
+    finally:
+        root_logger.removeHandler(handler)
