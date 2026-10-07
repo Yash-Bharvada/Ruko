@@ -341,6 +341,7 @@ class BreachAlertRequest(BaseModel):
     financial_exposed: bool = Field(False, description="Whether financial records were exposed")
     breach_names: List[str] = Field(default_factory=list, description="Names of exposed platforms")
     exposure_categories: List[str] = Field(default_factory=list, description="Leaked categories")
+    is_test_call: bool = Field(True, description="Whether this is a user-initiated test call (bypasses quiet hours)")
 
     model_config = ConfigDict(extra="ignore")
 

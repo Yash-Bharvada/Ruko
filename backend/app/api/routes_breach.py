@@ -141,6 +141,7 @@ async def trigger_breach_alert(
         opted_in=payload.voice_opt_in,
         phone_verified=phone_verified,
         settings=settings,
+        override_quiet=False if payload.is_test_call else None,
     )
 
     if not eligible:

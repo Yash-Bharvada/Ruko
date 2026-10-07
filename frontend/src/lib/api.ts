@@ -736,11 +736,15 @@ export async function requestBreachAlertCall(payload: {
   financial_exposed?: boolean;
   breach_names?: string[];
   exposure_categories?: string[];
+  is_test_call?: boolean;
 }): Promise<BreachAlertResponse> {
   const res = await fetch(`${API_BASE}/v1/breach/alert`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      ...payload,
+      is_test_call: payload.is_test_call ?? true,
+    }),
   });
 
   const data = await res.json();
