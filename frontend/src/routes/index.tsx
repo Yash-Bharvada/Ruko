@@ -136,45 +136,45 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
           : "shadow-sm"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 text-foreground md:px-8">
-        <a href="#top" className="flex items-center gap-2.5">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 xl:gap-4 px-4 py-3 text-foreground md:px-6 lg:px-8">
+        <a href="#top" className="flex items-center gap-2.5 shrink-0 whitespace-nowrap">
           <RukoLogo size={32} />
         </a>
 
-        <nav className="hidden gap-1 lg:flex items-center">
+        <nav className="hidden gap-1 xl:gap-2 lg:flex items-center whitespace-nowrap shrink-0">
           {links.map(([l, h]) => (
             <a
               key={l}
               href={h}
-              className="px-3 py-1.5 label-mono text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary rounded"
+              className="px-2.5 xl:px-3 py-1.5 label-mono text-xs whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary rounded shrink-0"
             >
               {l}
             </a>
           ))}
           <Link
             to="/explain"
-            className="inline-flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1 label-mono text-xs text-primary transition-all hover:bg-primary hover:text-primary-foreground font-semibold shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 label-mono text-xs text-primary transition-all hover:bg-primary hover:text-primary-foreground font-semibold shadow-sm whitespace-nowrap shrink-0"
           >
             <span>✦ Explain Doc</span>
           </Link>
           <Link
             to="/model-stats"
-            className="ml-2 inline-flex items-center gap-1.5 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 label-mono text-xs text-cyan-600 dark:text-cyan-400 transition-all hover:bg-cyan-500 hover:text-slate-950 font-semibold shadow-sm"
+            className="ml-1 inline-flex items-center gap-1.5 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-2.5 py-1 label-mono text-xs text-cyan-600 dark:text-cyan-400 transition-all hover:bg-cyan-500 hover:text-slate-950 font-semibold shadow-sm whitespace-nowrap shrink-0"
           >
             <span>Model & Stats</span>
             <span className="text-[10px] font-mono px-1 py-0.2 bg-cyan-400/20 rounded">0.410</span>
           </Link>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 xl:gap-3 shrink-0">
           <ThemeToggle />
 
-          <div className="relative hidden sm:block">
+          <div className="relative hidden sm:block shrink-0">
             <select
               aria-label="Language"
               value={lang}
               onChange={(e) => onLangChange(e.target.value)}
-              className="appearance-none border border-border bg-card/80 px-3 py-2 pr-7 label-mono text-foreground outline-none focus:border-cyan-400 rounded-md text-xs"
+              className="appearance-none border border-border bg-card/80 px-3 py-2 pr-7 label-mono text-foreground outline-none focus:border-cyan-400 rounded-md text-xs whitespace-nowrap"
             >
               {LANG_OPTIONS.map((o) => (
                 <option key={o.code} value={o.code} className="bg-card text-foreground">
@@ -189,7 +189,7 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
 
           <a
             href="#sebi"
-            className="hidden bg-primary px-4 py-2 label-mono text-xs text-primary-foreground transition-all hover:opacity-90 active:scale-95 sm:inline-flex rounded-md"
+            className="hidden bg-primary px-3.5 py-2 label-mono text-xs text-primary-foreground transition-all hover:opacity-90 active:scale-95 sm:inline-flex rounded-md whitespace-nowrap shrink-0"
           >
             ↗ Verify SEBI
           </a>
@@ -197,7 +197,7 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
           <button
             aria-label="Menu"
             onClick={() => setOpen(!open)}
-            className="border border-border px-3 py-1.5 label-mono lg:hidden text-foreground rounded-md text-xs"
+            className="border border-border px-3 py-1.5 label-mono lg:hidden text-foreground rounded-md text-xs whitespace-nowrap shrink-0"
           >
             {open ? "Close" : "Menu"}
           </button>
@@ -506,13 +506,13 @@ function Check({
           }}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl label-mono text-xs font-semibold transition-all ${
             checkMode === "reel"
-              ? "bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-500/20 text-pink-400 dark:text-pink-300 border border-pink-500/50 shadow-md shadow-pink-500/10"
+              ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/50 shadow-sm shadow-cyan-500/10"
               : "text-muted-foreground hover:text-foreground hover:bg-secondary/60 border border-border"
           }`}
         >
           <span>🎬</span>
           <span>Instagram Reel Scanner</span>
-          <span className="text-[10px] uppercase px-1.5 py-0.5 rounded bg-pink-500/25 text-pink-300 border border-pink-500/30">
+          <span className="text-[10px] uppercase px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
             Dedicated URL
           </span>
         </button>
@@ -520,12 +520,12 @@ function Check({
 
       {checkMode === "reel" ? (
         /* Dedicated Instagram Reel Scanner View */
-        <div className="mt-6 border border-pink-500/30 bg-card rounded-2xl overflow-hidden shadow-2xl transition-all">
-          <div className="p-6 md:p-10 border-b border-border bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-cyan-500/5">
+        <div className="mt-6 border border-border bg-card rounded-2xl overflow-hidden shadow-xl transition-all">
+          <div className="p-6 md:p-10 border-b border-border bg-gradient-to-r from-cyan-500/10 via-blue-500/5 to-transparent">
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/40 bg-pink-500/10 px-3 py-1 label-mono text-xs text-pink-400 mb-3">
-                  <span>🎬</span>
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 label-mono text-xs text-cyan-400 mb-3 shadow-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                   <span>DEDICATED REEL FRAUD SCANNER</span>
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold font-mono tracking-tight text-foreground">
@@ -540,14 +540,14 @@ function Check({
 
               {/* Ingestion Highlights */}
               <div className="flex flex-wrap md:flex-col gap-2 shrink-0">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs label-mono border border-border bg-background/80 text-foreground">
-                  <span>🎙</span> Voiceover STT Transcript
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs label-mono border border-border/80 bg-background/80 text-foreground shadow-sm">
+                  <span className="text-cyan-400">🎙</span> Voiceover STT Transcript
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs label-mono border border-border bg-background/80 text-foreground">
-                  <span>📺</span> On-Screen Frames OCR
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs label-mono border border-border/80 bg-background/80 text-foreground shadow-sm">
+                  <span className="text-cyan-400">📺</span> On-Screen Frames OCR
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs label-mono border border-border bg-background/80 text-foreground">
-                  <span>🔒</span> 100% In-Memory (Zero Disk)
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs label-mono border border-border/80 bg-background/80 text-foreground shadow-sm">
+                  <span className="text-emerald-400">🔒</span> 100% In-Memory (Zero Disk)
                 </span>
               </div>
             </div>
@@ -562,7 +562,7 @@ function Check({
               </label>
 
               <div className="mt-2 relative flex items-center">
-                <div className="absolute left-4 flex items-center pointer-events-none text-pink-400">
+                <div className="absolute left-4 flex items-center pointer-events-none text-cyan-400">
                   <svg
                     className="w-5 h-5"
                     viewBox="0 0 24 24"
@@ -587,7 +587,7 @@ function Check({
                     setErrorMsg(null);
                   }}
                   placeholder="https://www.instagram.com/reel/C8qL9XYZ123/ or https://instagr.am/..."
-                  className="w-full rounded-xl border border-pink-500/40 bg-background px-4 py-4 pl-12 pr-28 text-sm md:text-base font-mono text-foreground outline-none transition-all focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 shadow-inner"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-4 pl-12 pr-28 text-sm md:text-base font-mono text-foreground outline-none transition-all focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 shadow-inner"
                 />
 
                 <div className="absolute right-3 flex items-center gap-2">
@@ -628,7 +628,7 @@ function Check({
                   onClick={() =>
                     setReelUrl("https://www.instagram.com/reel/C8qL9XYZ123_guaranteed_profit/")
                   }
-                  className="px-2.5 py-1 rounded-md text-[11px] font-mono border border-border bg-secondary/40 text-muted-foreground hover:text-pink-400 hover:border-pink-500/40 transition-colors"
+                  className="px-2.5 py-1 rounded-md text-[11px] font-mono border border-border bg-secondary/40 text-muted-foreground hover:text-cyan-400 hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all"
                 >
                   Crypto 200% Profit Reel
                 </button>
@@ -637,7 +637,7 @@ function Check({
                   onClick={() =>
                     setReelUrl("https://www.instagram.com/reel/C9aB8XYZ456_vip_telegram_tips/")
                   }
-                  className="px-2.5 py-1 rounded-md text-[11px] font-mono border border-border bg-secondary/40 text-muted-foreground hover:text-pink-400 hover:border-pink-500/40 transition-colors"
+                  className="px-2.5 py-1 rounded-md text-[11px] font-mono border border-border bg-secondary/40 text-muted-foreground hover:text-cyan-400 hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all"
                 >
                   Unregistered VIP Telegram Tips
                 </button>
@@ -665,7 +665,7 @@ function Check({
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="e.g. 50000"
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 pl-7 text-sm font-mono text-foreground outline-none focus:border-pink-500"
+                    className="w-full rounded-md border border-border bg-background px-3 py-2 pl-7 text-sm font-mono text-foreground outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30"
                   />
                 </div>
               </div>
@@ -675,7 +675,7 @@ function Check({
                 type="button"
                 disabled={!reelUrl.trim() || loading}
                 onClick={handleRunCheck}
-                className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl font-mono font-semibold text-sm transition-all shadow-xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:via-purple-500 hover:to-indigo-500 text-white shadow-pink-500/25"
+                className="group inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl font-mono font-bold text-sm transition-all shadow-xl active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground shadow-cyan-500/20 hover:shadow-cyan-500/30"
               >
                 <span>
                   {loadingLabel}
@@ -736,7 +736,7 @@ function Check({
               />
 
               {isReelUrl && (
-                <div className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-pink-500/30 bg-pink-500/10 p-3 text-xs font-mono text-pink-400">
+                <div className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 p-3 text-xs font-mono text-cyan-400">
                   <div className="flex items-center gap-2">
                     <span>🎬</span>
                     <span>Instagram Reel Link Detected</span>
@@ -747,7 +747,7 @@ function Check({
                       setCheckMode("reel");
                       setReelUrl(text.trim());
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-pink-500 text-white font-semibold hover:bg-pink-600 transition-all text-[11px]"
+                    className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-accent hover:text-accent-foreground transition-all text-[11px] shadow-sm shadow-cyan-500/20"
                   >
                     Open in Reel Scanner →
                   </button>
