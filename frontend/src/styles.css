@@ -341,7 +341,6 @@ html.dark,
   background: var(--color-border);
   border-radius: 4px;
 }
-
 /* Tetrominos Loading Animation */
 .tetrominos-container {
   position: relative;

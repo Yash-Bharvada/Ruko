@@ -1,4 +1,4 @@
-"""Application configuration loaded from environment variables."""
+"""Application configuration loaded from environment variables (reloaded)."""
 
 from functools import lru_cache
 from typing import List
@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     # Third Party Provider Placeholders
     LLM_PROVIDER: str = "gemini"
     LLM_API_KEY: str = ""
-    LLM_MODEL: str = "gemini-2.0-flash"
+    LLM_MODEL: str = "gemini-flash-lite-latest"
     SARVAM_API_KEY: str = ""
     SARVAM_STT_URL: str = "https://api.sarvam.ai/speech-to-text"
     SARVAM_STT_MODEL: str = "saaras:v2"
@@ -48,6 +48,28 @@ class Settings(BaseSettings):
 
     # SEBI Snapshot / Verification URL
     SEBI_VERIFY_URL: str = "https://www.sebi.gov.in"
+
+    # Explain a Document Module Settings
+    EXPLAIN_ENABLED: bool = True
+    EXPLAIN_MAX_MB: int = 10
+    EXPLAIN_MAX_PAGES: int = 20
+    EXPLAIN_MAX_CHARS: int = 30000
+    EXPLAIN_LLM_TIMEOUT_S: float = 40.0
+    EXPLAIN_SIGNING_KEY: str = ""
+    EXPLAIN_TOKEN_TTL_S: int = 1800
+
+    # Breach Exposure Check Module Settings
+    BREACH_PROVIDER: str = "mock"
+    HIBP_API_KEY: str = ""
+    TWILIO_ACCOUNT_SID: str = ""
+    TWILIO_AUTH_TOKEN: str = ""
+    TWILIO_PHONE_NUMBER: str = ""
+    TWILIO_VERIFY_SERVICE_SID: str = ""
+    VOICE_ALERTS_ENABLED: bool = False
+    BREACH_ALERT_SIMULATE: bool = False
+    BREACH_QUIET_START: int = 21
+    BREACH_QUIET_END: int = 8
+    BREACH_SIGNING_KEY: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",

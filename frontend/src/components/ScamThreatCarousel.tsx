@@ -176,11 +176,13 @@ export const ScamThreatCarousel: FC<ScamThreatCarouselProps> = ({ onSelectSample
 
   // Handle touch gestures for mobile phones
   const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0]?.clientX ?? 0;
+    const touch = e.touches[0];
+    if (touch) touchStartX.current = touch.clientX;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0]?.clientX ?? 0;
+    const touch = e.touches[0];
+    if (touch) touchEndX.current = touch.clientX;
   };
 
   const handleTouchEnd = () => {
@@ -192,7 +194,7 @@ export const ScamThreatCarousel: FC<ScamThreatCarouselProps> = ({ onSelectSample
     }
   };
 
-  const current = THREAT_SAMPLES[activeIndex] || THREAT_SAMPLES[0]!;
+  const current = THREAT_SAMPLES[activeIndex] ?? THREAT_SAMPLES[0]!;
 
   return (
     <div className="relative w-full overflow-hidden py-12 md:py-16">

@@ -21,5 +21,19 @@
   "note_transcribed_uncertainty": "Audio or video transcripts may contain transcription errors. Verify independently with official sources before acting.",
   "hint_instagram_link": "Ruko cannot open Instagram links. Upload a screen recording or screenshot, or paste the caption.",
 
-  "disclaimer": "Ruko is an automated educational tool for scam detection. It is not financial advice, legal advice, or a guarantee of safety. Always verify independently with official regulators such as SEBI."
+  "disclaimer": "Ruko is an automated educational tool for scam detection. It is not financial advice, legal advice, or a guarantee of safety. Always verify independently with official regulators such as SEBI.",
+
+  "flow_first": "First",
+  "flow_then": "Then",
+  "flow_next": "Next",
+  "flow_finally": "Finally",
+  "flow_on": "on",
+
+  "breach_notice_clean": "No public data breach records were found matching this email. A lack of found records does not guarantee total account safety.",
+  "breach_notice_found": "Found known data breach exposure records. A breach exposure indicates your information appeared in a past incident, but does not necessarily mean your account is currently compromised.",
+  "breach_notice_unavailable": "Breach scan service is temporarily unavailable. Please retry shortly. Never assume an unverified account is safe.",
+  "breach_safety_minimal": "Minimal data collection: queries email address only with explicit user consent.",
+  "breach_safety_no_creds": "No passwords, OTPs, PINs, CVVs, or banking credentials are ever accepted or stored.",
+  "breach_safety_no_raw": "No raw leaked credentials stored or processed.",
+  "breach_safety_memory": "Zero persistence: processed strictly in-memory and discarded after response."
 }

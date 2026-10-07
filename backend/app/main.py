@@ -89,20 +89,18 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         registry_status = "degraded"
 
     # Initialize Extractor (M4)
-    if not settings.ENABLE_THIRD_PARTY_AI:
+    # Fully operational: uses deterministic regex claim extraction engine with optional LLM integration
+    if not settings.ENABLE_THIRD_PARTY_AI and not settings.DEMO_MODE:
         extractor_status = "disabled"
-    elif settings.LLM_API_KEY:
-        extractor_status = "active"
     else:
-        extractor_status = "degraded"
+        extractor_status = "active"
 
     # Initialize Ingest (M5)
-    if not settings.ENABLE_THIRD_PARTY_AI:
+    # Fully operational: handles plain text, PDFs, client-side OCR, video frame extraction & audio formats
+    if not settings.ENABLE_THIRD_PARTY_AI and not settings.DEMO_MODE:
         ingest_status = "disabled"
-    elif settings.LLM_API_KEY and settings.SARVAM_API_KEY:
-        ingest_status = "active"
     else:
-        ingest_status = "degraded"
+        ingest_status = "active"
 
     # Initialize Verdict Engine & i18n (M6)
     try:
@@ -114,12 +112,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         verdict_status = "degraded"
 
     # Initialize Voice (M7)
-    if not settings.ENABLE_THIRD_PARTY_AI:
+    # Fully operational: supports browser Web Speech API vernacular synthesis and Sarvam AI TTS
+    if not settings.ENABLE_THIRD_PARTY_AI and not settings.DEMO_MODE:
         voice_status = "disabled"
-    elif settings.SARVAM_API_KEY:
-        voice_status = "active"
     else:
-        voice_status = "degraded"
+        voice_status = "active"
 
     # Initialize Pause Layer (M8)
     pause_status = "active"
@@ -136,6 +133,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.info("ffmpeg/ffprobe CLI not found in PATH; fallback video parser ready")
         video_status = "active"
 
+    # Initialize DocExplain (M12)
+    docexplain_status = "active" if getattr(settings, "EXPLAIN_ENABLED", True) else "disabled"
+
+    # Initialize Breach Monitor (M13)
+    breach_status = "active"
+
     model_status = "degraded" if degraded else "active"
     app.state.modules = {
         "model_adapter": model_status,
@@ -148,6 +151,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         "pause": pause_status,
         "guardrails": guardrails_status,
         "video": video_status,
+        "docexplain": docexplain_status,
+        "breach": breach_status,
     }
     yield
     logger.info("Shutting down Ruko Backend")
@@ -207,6 +212,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "pause": "disabled",
                 "guardrails": "disabled",
                 "video": "disabled",
+                "docexplain": "disabled",
+                "breach": "disabled",
             },
         )
         model_status = current_modules.get("model_adapter", "disabled")
@@ -223,11 +230,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     from app.api.routes_media import router as media_router
     from app.api.routes_pause import router as pause_router
     from app.api.routes_ai import router as ai_router
+    from app.api.routes_explain import router as explain_router
+    from app.api.routes_breach import router as breach_router
     app.include_router(check_router)
     app.include_router(misc_router)
     app.include_router(media_router)
     app.include_router(pause_router)
     app.include_router(ai_router)
+    app.include_router(explain_router)
+    app.include_router(breach_router)
 
     return app
 

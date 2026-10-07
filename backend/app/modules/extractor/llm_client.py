@@ -29,7 +29,7 @@ class LLMClient:
     ) -> None:
         self.settings = settings or get_settings()
         self.provider = (self.settings.LLM_PROVIDER or "gemini").lower()
-        self.model = self.settings.LLM_MODEL or "gemini-2.0-flash"
+        self.model = self.settings.LLM_MODEL or "gemini-flash-lite-latest"
         self.api_key = self.settings.LLM_API_KEY or ""
         self.timeout_seconds = 8.0
         self._custom_http_client = http_client
@@ -45,9 +45,11 @@ class LLMClient:
         headers: Dict[str, str],
         payload: Dict[str, Any],
         params: Optional[Dict[str, str]] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> httpx.Response:
-        """Execute HTTP POST with 8-second timeout and 1 retry on network/5xx error."""
-        timeout = httpx.Timeout(self.timeout_seconds)
+        """Execute HTTP POST with timeout (default 8s) and 1 retry on network/5xx error."""
+        eff_timeout = timeout_seconds if timeout_seconds is not None else self.timeout_seconds
+        timeout = httpx.Timeout(eff_timeout)
 
         for attempt in range(2):
             try:
@@ -113,7 +115,7 @@ class LLMClient:
 
         return cleaned
 
-    async def _call_gemini(self, system: str, user: str) -> Dict[str, Any]:
+    async def _call_gemini(self, system: str, user: str, timeout: Optional[float] = None) -> Dict[str, Any]:
         """Call Google Gemini generateContent REST endpoint."""
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
         params = {"key": self.api_key}
@@ -135,7 +137,7 @@ class LLMClient:
             },
         }
 
-        response = await self._post_with_retry(url, headers, payload, params=params)
+        response = await self._post_with_retry(url, headers, payload, params=params, timeout_seconds=timeout)
         data = response.json()
 
         try:
@@ -146,7 +148,7 @@ class LLMClient:
         cleaned = self._clean_json_text(raw_text)
         return json.loads(cleaned)
 
-    async def _call_openai_compatible(self, system: str, user: str, base_url: str) -> Dict[str, Any]:
+    async def _call_openai_compatible(self, system: str, user: str, base_url: str, timeout: Optional[float] = None) -> Dict[str, Any]:
         """Call OpenAI or Groq chat completions API endpoint."""
         url = f"{base_url.rstrip('/')}/chat/completions"
         headers = {
@@ -163,7 +165,7 @@ class LLMClient:
             "response_format": {"type": "json_object"},
         }
 
-        response = await self._post_with_retry(url, headers, payload)
+        response = await self._post_with_retry(url, headers, payload, timeout_seconds=timeout)
         data = response.json()
 
         try:
@@ -179,12 +181,13 @@ class LLMClient:
         system: str,
         user: str,
         schema: Optional[Dict[str, Any]] = None,
+        timeout: Optional[float] = None,
     ) -> Dict[str, Any]:
         """Generate structured JSON from system and user prompt.
 
         Guarantees:
         - Never logs prompts or returned JSON content.
-        - Strict timeout of 8 seconds with 1 retry.
+        - Strict timeout (default 8s or custom) with 1 retry.
         - Returns a validated dict.
         """
         if not self.is_configured:
@@ -193,14 +196,14 @@ class LLMClient:
         start_time = time.perf_counter()
 
         if self.provider == "gemini":
-            result = await self._call_gemini(system, user)
+            result = await self._call_gemini(system, user, timeout=timeout)
         elif self.provider == "groq":
-            result = await self._call_openai_compatible(system, user, "https://api.groq.com/openai/v1")
+            result = await self._call_openai_compatible(system, user, "https://api.groq.com/openai/v1", timeout=timeout)
         elif self.provider == "openai":
-            result = await self._call_openai_compatible(system, user, "https://api.openai.com/v1")
+            result = await self._call_openai_compatible(system, user, "https://api.openai.com/v1", timeout=timeout)
         else:
             # Default to gemini endpoint
-            result = await self._call_gemini(system, user)
+            result = await self._call_gemini(system, user, timeout=timeout)
 
         latency_ms = (time.perf_counter() - start_time) * 1000.0
         logger.info("LLM inference succeeded in %.2f ms (provider=%s, model=%s)", latency_ms, self.provider, self.model)

@@ -86,6 +86,9 @@ def setup_logging(level: str = "INFO") -> logging.Logger:
     handler.addFilter(PrivacyFilter())
     root_logger.addHandler(handler)
 
+    # Suppress normal httpx request URL logging (which may contain sensitive ?key=... query params)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+
     app_logger = logging.getLogger("ruko")
     app_logger.setLevel(getattr(logging, level.upper(), logging.INFO))
     return app_logger
