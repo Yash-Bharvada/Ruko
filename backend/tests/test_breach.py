@@ -13,7 +13,14 @@ from app.core.schemas import ExposureRecord
 from app.main import create_app
 from app.modules.breach.eligibility import can_place_alert
 from app.modules.breach.normalize import normalize_email, normalize_phone_e164
-from app.modules.breach.providers import HibpProvider, MockProvider, LeakCheckProvider, XposedOrNotProvider, HybridBreachProvider
+from app.modules.breach.providers import (
+    CompositeFallbackBreachProvider,
+    HibpProvider,
+    HybridBreachProvider,
+    LeakCheckProvider,
+    MockProvider,
+    XposedOrNotProvider,
+)
 from app.modules.breach.risk_classifier import classify_exposure
 from app.modules.breach.tokens import issue_phone_token, verify_phone_token
 from app.modules.breach.twilio_client import (
@@ -113,16 +120,16 @@ async def test_mock_provider_clean_and_breached():
 
 
 @pytest.mark.asyncio
-async def test_hibp_provider_failure_returns_scan_unavailable():
-    """Verify that network/upstream errors return scan_unavailable, NEVER empty OK."""
-    hibp = HibpProvider()
-    settings = Settings(BREACH_PROVIDER="hibp", HIBP_API_KEY="mock_key")
+async def test_xposedornot_provider_handles_errors():
+    """Verify that provider error handling returns scan_unavailable with degraded flag."""
+    xon_p = XposedOrNotProvider()
+    settings = Settings(BREACH_PROVIDER="xposedornot")
 
-    with patch("httpx.AsyncClient.get", side_effect=httpx.ConnectError("Connection refused")):
-        status, exposures, is_demo, degraded = await hibp.check_email("test@example.com", settings)
+    with patch.object(httpx.AsyncClient, "get", side_effect=httpx.ConnectError("Connection failed")):
+        status, exposures, is_demo, degraded = await xon_p.check_email("test@example.com", settings)
         assert status == "scan_unavailable"
         assert len(exposures) == 0
-        assert "hibp_network_error" in degraded or "hibp_unavailable" in degraded
+        assert any("xposedornot" in flag for flag in degraded)
 
 
 @pytest.mark.asyncio

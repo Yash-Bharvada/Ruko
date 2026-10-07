@@ -17,3 +17,4 @@ icalendar==7.3.0
 pypdf==6.19.0
 python-docx==1.2.0
 yt-dlp==2024.12.23
+xposedornot==1.1.0

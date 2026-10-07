@@ -59,9 +59,10 @@ class Settings(BaseSettings):
     EXPLAIN_TOKEN_TTL_S: int = 1800
 
     # Breach Exposure Check Module Settings
-    BREACH_PROVIDER: str = "mock"
-    HIBP_API_KEY: str = ""
+    BREACH_PROVIDER: str = "xposedornot"
+    XPOSEDORNOT_API_KEY: str = ""
     LEAKCHECK_API_KEY: str = ""
+    HIBP_API_KEY: str = ""
     TWILIO_ACCOUNT_SID: str = ""
     TWILIO_AUTH_TOKEN: str = ""
     TWILIO_PHONE_NUMBER: str = ""
@@ -71,6 +72,14 @@ class Settings(BaseSettings):
     BREACH_QUIET_START: int = 21
     BREACH_QUIET_END: int = 8
     BREACH_SIGNING_KEY: str = ""
+
+    # Vapi AI Voice Agent Settings
+    VAPI_API_KEY: str = ""
+    VAPI_PUBLIC_KEY: str = ""
+    VAPI_ASSISTANT_ID: str = ""
+    VAPI_PHONE_NUMBER_ID: str = ""
+    VAPI_BASE_URL: str = "https://api.vapi.ai"
+    VAPI_SIMULATE: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",

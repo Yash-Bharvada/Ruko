@@ -159,23 +159,32 @@ async def trigger_breach_alert(
             call_placed=False,
         )
 
+    # Generate contextual security alert script
+    from app.modules.breach.twilio_client import build_contextual_alert_script
+    alert_script = build_contextual_alert_script(
+        email=payload.email,
+        total_breaches=payload.total_breaches,
+        financial_exposed=payload.financial_exposed,
+        breach_names=payload.breach_names,
+    )
+
     # Dispatch alert voice call or return simulated alert
     if getattr(settings, "BREACH_ALERT_SIMULATE", False):
         logger.info("BREACH_ALERT_SIMULATE=True: returning simulated alert (request_id=%s)", request_id)
         return BreachAlertResponse(
             status="simulated",
-            script=ALERT_CALL_SCRIPT,
+            script=alert_script,
             message="Simulated alert: no real call was placed.",
             call_placed=False,
         )
 
     logger.info("Dispatching emergency breach alert call (request_id=%s)", request_id)
-    placed = await place_alert_call(phone_e164, settings)
+    placed = await place_alert_call(phone_e164, settings, script=alert_script)
 
     return BreachAlertResponse(
         status="ok" if placed else "rejected",
         message="Voice alert call dispatched successfully." if placed else "Failed to dispatch voice call via upstream telephony.",
         call_placed=placed,
-        script=ALERT_CALL_SCRIPT if not placed else None,
+        script=alert_script,
         hint="live_calls_unavailable" if not placed else None,
     )

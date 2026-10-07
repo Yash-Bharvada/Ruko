@@ -92,108 +92,117 @@ class MockProvider:
         return "ok", exposures, True, []
 
 
-class HibpProvider:
-    """HaveIBeenPwned API provider for real-world breach verification with rate limiting and retry."""
+class XposedOrNotProvider:
+    """XposedOrNot open provider for real-world breach verification with free API."""
+
+    _catalog_cache: Optional[dict] = None
+    _catalog_lock: asyncio.Lock = asyncio.Lock()
+
+    async def _get_catalog(self) -> dict:
+        """Lazy load and cache the global breach details catalog."""
+        if XposedOrNotProvider._catalog_cache is not None:
+            return XposedOrNotProvider._catalog_cache
+
+        async with XposedOrNotProvider._catalog_lock:
+            if XposedOrNotProvider._catalog_cache is not None:
+                return XposedOrNotProvider._catalog_cache
+
+            catalog = {}
+            try:
+                from xposedornot import XposedOrNot
+                xon = XposedOrNot()
+                breaches = await asyncio.to_thread(xon.get_breaches)
+                for b in breaches:
+                    key = getattr(b, "breach_id", "").strip().lower()
+                    if key:
+                        catalog[key] = b
+                XposedOrNotProvider._catalog_cache = catalog
+                logger.info("Loaded XposedOrNot catalog with %d breaches", len(catalog))
+            except Exception as exc:
+                logger.warning("Failed to fetch XposedOrNot breach catalog: %s", exc)
+                XposedOrNotProvider._catalog_cache = {}
+
+            return XposedOrNotProvider._catalog_cache
 
     async def check_email(
         self,
         email: str,
         settings: Settings,
     ) -> Tuple[str, List[ExposureRecord], bool, List[str]]:
-        api_key = getattr(settings, "HIBP_API_KEY", "")
-        if not api_key or not api_key.strip():
-            logger.warning("HIBP_API_KEY is not configured; returning scan_unavailable")
-            return "scan_unavailable", [], False, ["hibp_api_key_missing"]
+        clean_email = email.strip()
 
-        encoded_account = httpx.URL(f"https://haveibeenpwned.com/api/v3/breachedaccount/{email.strip()}").raw_path.decode("utf-8")
-        url = f"https://haveibeenpwned.com{encoded_account}?truncateResponse=false"
-        headers = {
-            "hibp-api-key": api_key.strip(),
-            "user-agent": "Ruko-Security-Monitor/1.0",
-        }
+        try:
+            from xposedornot import XposedOrNot
+            xon = XposedOrNot()
+            res = await asyncio.to_thread(xon.check_email, clean_email)
+            breach_names = getattr(res, "breaches", []) or []
 
-        # 8-second timeout, 1 retry on 5xx or network timeout
-        max_attempts = 2
-        for attempt in range(max_attempts):
-            try:
-                async with httpx.AsyncClient(timeout=8.0) as client:
-                    resp = await client.get(url, headers=headers)
+            if not breach_names:
+                return "ok", [], False, []
 
-                    if resp.status_code == 200:
-                        raw_data = resp.json()
-                        exposures = self._map_hibp_breaches(raw_data)
-                        # Discard raw response
-                        del raw_data
-                        return "ok", exposures, False, []
+            catalog = await self._get_catalog()
+            exposures: List[ExposureRecord] = []
 
-                    elif resp.status_code == 404:
-                        # 404 in HIBP signifies 0 breaches found for this account
-                        return "ok", [], False, []
+            for b_name in breach_names:
+                b_name_clean = str(b_name).strip()
+                cat_match = catalog.get(b_name_clean.lower())
 
-                    elif resp.status_code == 429:
-                        logger.warning("HIBP rate limit encountered (429)")
-                        if attempt < max_attempts - 1:
-                            await asyncio.sleep(2.0)
-                            continue
-                        return "scan_unavailable", [], False, ["hibp_rate_limited"]
+                if cat_match:
+                    date_val = str(getattr(cat_match, "breached_date", "") or "Unknown Date")[:10]
+                    exposed_data = getattr(cat_match, "exposed_data", []) or ["Email addresses"]
+                    raw_cats = [str(c) for c in exposed_data]
+                else:
+                    date_val = "Unknown Date"
+                    raw_cats = ["Email addresses"]
 
-                    elif resp.status_code in (401, 403):
-                        logger.error("HIBP authentication error (%s)", resp.status_code)
-                        return "scan_unavailable", [], False, ["hibp_auth_failed"]
+                risk_level, fin_exp = classify_exposure(raw_cats)
+                remediation = get_remediation_notes(risk_level, fin_exp, raw_cats)
 
-                    elif resp.status_code >= 500:
-                        logger.warning("HIBP server error (%s), attempt %d", resp.status_code, attempt + 1)
-                        if attempt < max_attempts - 1:
-                            await asyncio.sleep(1.0)
-                            continue
-                        return "scan_unavailable", [], False, ["hibp_upstream_5xx"]
-
-                    else:
-                        logger.warning("Unexpected HIBP status code: %s", resp.status_code)
-                        return "scan_unavailable", [], False, ["hibp_unexpected_response"]
-
-            except Exception as exc:
-                logger.warning("HIBP network attempt %d failed: %s", attempt + 1, type(exc).__name__)
-                if attempt < max_attempts - 1:
-                    await asyncio.sleep(1.0)
-                    continue
-                return "scan_unavailable", [], False, ["hibp_network_error"]
-
-        return "scan_unavailable", [], False, ["hibp_unavailable"]
-
-    def _map_hibp_breaches(self, raw_list: list) -> List[ExposureRecord]:
-        """Normalize raw HIBP list into strictly sanitized ExposureRecord objects."""
-        records: List[ExposureRecord] = []
-        if not isinstance(raw_list, list):
-            return records
-
-        for item in raw_list:
-            if not isinstance(item, dict):
-                continue
-
-            name = str(item.get("Title") or item.get("Name") or "Unknown Incident")
-            date_val = str(item.get("BreachDate") or "Unknown Date")
-            data_classes = item.get("DataClasses") or []
-            if not isinstance(data_classes, list):
-                data_classes = []
-            sanitized_cats = [str(c) for c in data_classes]
-
-            risk_level, fin_exp = classify_exposure(sanitized_cats)
-            remediation = get_remediation_notes(risk_level, fin_exp, sanitized_cats)
-
-            records.append(
-                ExposureRecord(
-                    breach_name=name,
-                    breach_date=date_val,
-                    exposure_categories=sanitized_cats,
-                    risk_level=risk_level,
-                    financial_exposure=fin_exp,
-                    provider="hibp",
-                    remediation_notes=remediation,
+                exposures.append(
+                    ExposureRecord(
+                        breach_name=b_name_clean,
+                        breach_date=date_val,
+                        exposure_categories=raw_cats,
+                        risk_level=risk_level,
+                        financial_exposure=fin_exp,
+                        provider="xposedornot",
+                        remediation_notes=remediation,
+                    )
                 )
-            )
 
-        return records
+            return "ok", exposures, False, []
+
+        except Exception as exc:
+            logger.error("XposedOrNot check failed for %s: %s", clean_email.split("@")[0], exc)
+            return "scan_unavailable", [], False, ["xposedornot_lookup_failed"]
+
+
+class CompositeFallbackBreachProvider:
+    """Primary XposedOrNot provider with automatic fallback to synthetic MockProvider."""
+
+    def __init__(self):
+        self.primary = XposedOrNotProvider()
+        self.fallback = MockProvider()
+
+    async def check_email(
+        self,
+        email: str,
+        settings: Settings,
+    ) -> Tuple[str, List[ExposureRecord], bool, List[str]]:
+        # 1. Try Primary Provider (XposedOrNot live open breach API)
+        status, exposures, is_demo, degraded = await self.primary.check_email(email, settings)
+        if status == "ok":
+            return status, exposures, is_demo, degraded
+
+        # 2. If Primary Provider fails or is unavailable, fallback gracefully to MockProvider
+        logger.warning(
+            "Primary XposedOrNot provider failed (%s); falling back to MockProvider for %s",
+            degraded,
+            email.split("@")[0],
+        )
+        fb_status, fb_exposures, _, fb_degraded = await self.fallback.check_email(email, settings)
+        combined_degraded = list(set(degraded + fb_degraded + ["xposedornot_fallback_active"]))
+        return fb_status, fb_exposures, True, combined_degraded
 
 
 class LeakCheckProvider:
@@ -626,15 +635,53 @@ class HybridBreachProvider:
         return overall_status, merged_exposures, False, list(set(degraded_flags))
 
 
+class CompositeFallbackBreachProvider:
+    """Primary XposedOrNot provider with automatic fallback to Hybrid/LeakCheck and MockProvider."""
+
+    def __init__(self):
+        self.primary = XposedOrNotProvider()
+        self.secondary = HybridBreachProvider()
+        self.mock_fallback = MockProvider()
+
+    async def check_email(
+        self,
+        email: str,
+        settings: Settings,
+    ) -> Tuple[str, List[ExposureRecord], bool, List[str]]:
+        # 1. Primary: XposedOrNot (User's main open breach index)
+        status, exposures, is_demo, degraded = await self.primary.check_email(email, settings)
+        if status == "ok":
+            return status, exposures, is_demo, degraded
+
+        # 2. Secondary fallback: Hybrid (LeakCheck + XON)
+        logger.warning(
+            "Primary XposedOrNot provider degraded (%s); attempting Hybrid/LeakCheck fallback for %s",
+            degraded,
+            email.split("@")[0],
+        )
+        sec_status, sec_exposures, sec_demo, sec_degraded = await self.secondary.check_email(email, settings)
+        if sec_status == "ok":
+            return sec_status, sec_exposures, False, list(set(degraded + sec_degraded + ["fallback_hybrid_used"]))
+
+        # 3. Tertiary fallback: MockProvider (guarantees system resilience)
+        logger.warning("Secondary fallback also degraded; using MockProvider for demo resilience")
+        mock_status, mock_exposures, _, mock_degraded = await self.mock_fallback.check_email(email, settings)
+        return mock_status, mock_exposures, True, list(set(degraded + sec_degraded + ["fallback_mock_used"]))
+
+
+# Backward-compatibility alias
+HibpProvider = HybridBreachProvider
+
+
 def get_breach_provider(settings: Settings) -> BreachProvider:
     """Factory selecting provider based on configuration."""
-    provider_name = getattr(settings, "BREACH_PROVIDER", "hybrid").lower().strip()
-    if provider_name in ("hybrid", "multi", "all"):
-        return HybridBreachProvider()
-    if provider_name in ("xposedornot", "xposed_or_not", "xon"):
-        return XposedOrNotProvider()
-    if provider_name in ("leakcheck", "leak_check"):
-        return LeakCheckProvider()
+    provider_name = getattr(settings, "BREACH_PROVIDER", "xposedornot").lower().strip()
+    if provider_name == "mock":
+        return MockProvider()
     if provider_name == "hibp":
         return HibpProvider()
-    return MockProvider()
+    if provider_name in ("leakcheck", "leak_check"):
+        return LeakCheckProvider()
+    if provider_name in ("hybrid", "multi", "all"):
+        return HybridBreachProvider()
+    return CompositeFallbackBreachProvider()

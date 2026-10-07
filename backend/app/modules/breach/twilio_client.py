@@ -1,6 +1,6 @@
 """Stateless Twilio Verify and Voice client for phone verification and security alert calls."""
 
-from typing import Tuple
+from typing import List, Optional, Tuple
 import httpx
 
 from app.core.config import Settings
@@ -9,21 +9,58 @@ from app.core.logging import logger
 
 
 ALERT_CALL_SCRIPT = (
-    "This is a security alert from your security monitoring service. "
-    "A new data exposure associated with your verified information may have been detected. "
-    "This does not necessarily mean your account has been compromised. "
-    "Please open your security dashboard to review the details. "
-    "We will never ask you for your password, OTP, PIN, CVV, or banking credentials."
+    "This is a security alert from Ruko Cybersecurity Protection. "
+    "A data exposure associated with your verified information has been detected. "
+    "This does not necessarily mean your account has been compromised right now. "
+    "Please open your security dashboard to review the details and remediation steps. "
+    "Remember: Ruko will never ask you for your password, OTP, PIN, CVV, or banking credentials."
 )
 
 
-def build_alert_twiml() -> str:
-    """Build fixed TwiML for high-risk data exposure alert."""
+def build_contextual_alert_script(
+    email: Optional[str] = None,
+    total_breaches: int = 0,
+    financial_exposed: bool = False,
+    breach_names: Optional[list] = None,
+) -> str:
+    """Build dynamic, contextual alert message tailored to the user's specific breach scan."""
+    parts = ["This is an urgent security alert from Ruko Cybersecurity Protection."]
+    if email:
+        parts.append(f"We detected that your email address, {email}, appeared in recent data breach incidents.")
+    else:
+        parts.append("We detected that your verified information appeared in recent data breach incidents.")
+
+    if total_breaches > 0:
+        parts.append(f"A total of {total_breaches} compromised incident records were identified.")
+
+    if breach_names:
+        services = ", ".join(breach_names[:4])
+        parts.append(f"Compromised services include: {services}.")
+
+    if financial_exposed:
+        parts.append(
+            "Critical Warning: Sensitive financial or payment card data was leaked. "
+            "Please contact your bank immediately to monitor accounts and block unauthorized transactions."
+        )
+    else:
+        parts.append(
+            "Please change your passwords on affected accounts immediately and enable two-factor authentication."
+        )
+
+    parts.append(
+        "Remember: Ruko will never ask you for your password, OTP, ATM PIN, or CVV. Stay alert and stay safe."
+    )
+    return " ".join(parts)
+
+
+def build_alert_twiml(script: Optional[str] = None) -> str:
+    """Build TwiML with Polly voice for data exposure alert."""
+    text_to_speak = script or ALERT_CALL_SCRIPT
     return (
         '<?xml version="1.0" encoding="UTF-8"?>'
         "<Response>"
         '<Say voice="Polly.Aditi" language="en-IN">'
-        f"{ALERT_CALL_SCRIPT}"
+        f"{text_to_speak}"
         "</Say>"
         "</Response>"
     )
@@ -177,18 +214,22 @@ async def check_phone_verification(
         return False
 
 
-async def place_alert_call(phone_e164: str, settings: Settings) -> bool:
-    """Place automated emergency security alert voice call with fixed non-PII script.
+async def place_alert_call(
+    phone_e164: str,
+    settings: Settings,
+    script: Optional[str] = None,
+) -> bool:
+    """Place automated emergency security alert voice call with contextual script.
 
     Guarantees:
     - Never logs phone number.
-    - Fixed security alert script without any credential requests.
+    - Contextual security alert script without any credential requests.
     """
     if not (settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN and settings.TWILIO_PHONE_NUMBER):
         logger.info("Twilio voice credentials not configured; alert call recorded as demo success")
         return True
 
-    twiml = build_alert_twiml()
+    twiml = build_alert_twiml(script)
     url = f"https://api.twilio.com/2010-04-01/Accounts/{settings.TWILIO_ACCOUNT_SID}/Calls.json"
     auth = (settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
     data = {

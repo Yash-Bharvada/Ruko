@@ -30,6 +30,8 @@ import {
   startPhoneVerification,
   verifyPhoneCode,
   requestBreachAlertCall,
+  getVapiSession,
+  VapiSessionResponse,
 } from "@/lib/api";
 import { BREACH_STRINGS } from "@/lib/breachStrings";
 import { toast } from "sonner";
@@ -83,6 +85,52 @@ function BreachMonitorPage() {
     hint?: string | null | undefined;
   } | null>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
+  // Vapi AI Voice Assistant State
+  const [vapiSession, setVapiSession] = useState<VapiSessionResponse | null>(null);
+  const [isLoadingVapi, setIsLoadingVapi] = useState(false);
+  const [isSpeakingVapi, setIsSpeakingVapi] = useState(false);
+
+  const handleStartVapiAdvisor = async () => {
+    if (!result && !email.trim()) {
+      toast.error("Please run an email scan first to load breach context.");
+      return;
+    }
+
+    setIsLoadingVapi(true);
+    try {
+      const breachNames = result ? result.exposures.map((e) => e.breach_name) : [];
+      const categories = result ? result.exposures.flatMap((e) => e.exposure_categories) : [];
+      const session = await getVapiSession({
+        email: email.trim(),
+        total_breaches: result ? result.total_exposures : 0,
+        high_risk_count: result ? result.high_risk_count : 0,
+        financial_exposed: result ? result.financial_exposure_count > 0 : false,
+        breach_names: breachNames,
+        exposure_categories: categories,
+        language: lang,
+      });
+
+      setVapiSession(session);
+      toast.success("AI Security Advisor session ready with breach context.");
+
+      // Play the dynamic personalized first message via speech synthesis
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(session.first_message);
+        utterance.lang = lang === "hi" ? "hi-IN" : lang === "gu" ? "gu-IN" : "en-IN";
+        utterance.rate = 0.95;
+        utterance.onstart = () => setIsSpeakingVapi(true);
+        utterance.onend = () => setIsSpeakingVapi(false);
+        utterance.onerror = () => setIsSpeakingVapi(false);
+        window.speechSynthesis.speak(utterance);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to load AI voice advisor.");
+    } finally {
+      setIsLoadingVapi(false);
+    }
+  };
 
   // Clear all states on unmount to guarantee zero client persistence
   useEffect(() => {
@@ -252,11 +300,18 @@ function BreachMonitorPage() {
     setAlertFeedback(null);
 
     try {
+      const breachNames = result ? result.exposures.map((e) => e.breach_name) : [];
+      const categories = result ? result.exposures.flatMap((e) => e.exposure_categories) : [];
       const res = await requestBreachAlertCall({
         phone: phone.trim(),
         phone_token: phoneToken,
         voice_opt_in: voiceOptIn,
         exposures_high_risk_new: result ? result.high_risk_count > 0 : true,
+        email: email.trim(),
+        total_breaches: result ? result.total_exposures : 0,
+        financial_exposed: result ? result.financial_exposure_count > 0 : false,
+        breach_names: breachNames,
+        exposure_categories: categories,
       });
       setAlertFeedback({
         status: res.status,
@@ -542,6 +597,82 @@ function BreachMonitorPage() {
                 </p>
               </div>
             )}
+
+            {/* Vapi AI Multilingual Voice Consultation Card */}
+            <div className="rounded-2xl border border-indigo-200 dark:border-indigo-800/80 bg-gradient-to-br from-indigo-50/80 via-white to-purple-50/60 dark:from-indigo-950/40 dark:via-slate-900 dark:to-purple-950/30 p-5 shadow-sm space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                      <span>Ruko Cyber Shield — AI Voice Advisor</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">
+                        Multilingual (EN / HI / GU)
+                      </span>
+                    </h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                      Talk directly with our empathetic cyber-safety agent equipped with your exact breach findings.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleStartVapiAdvisor}
+                  disabled={isLoadingVapi}
+                  className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition-colors flex items-center gap-2 shadow-xs"
+                >
+                  {isLoadingVapi ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Connecting Assistant...</span>
+                    </>
+                  ) : isSpeakingVapi ? (
+                    <>
+                      <Volume2 className="w-3.5 h-3.5 animate-pulse text-emerald-300" />
+                      <span>Advisor Speaking...</span>
+                    </>
+                  ) : (
+                    <>
+                      <PhoneCall className="w-3.5 h-3.5" />
+                      <span>Start Voice Consultation</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {vapiSession && (
+                <div className="p-4 rounded-xl bg-white/90 dark:bg-slate-900/90 border border-indigo-100 dark:border-indigo-900/50 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
+                      <Volume2 className="w-3.5 h-3.5" />
+                      <span>Spoken Opening ({lang.toUpperCase()}):</span>
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                      Assistant: Riley / Cyber Shield
+                    </span>
+                  </div>
+
+                  <p className="text-xs italic text-slate-800 dark:text-slate-200 bg-indigo-50/50 dark:bg-indigo-950/30 p-3 rounded-lg border border-indigo-100/60 dark:border-indigo-900/30 leading-relaxed">
+                    "{vapiSession.first_message}"
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 text-[11px] text-slate-600 dark:text-slate-400 pt-1">
+                    <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono">
+                      Target: {vapiSession.variable_values?.user_email}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono">
+                      Breaches: {vapiSession.variable_values?.total_breaches}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono">
+                      Financial Risk: {vapiSession.variable_values?.financial_exposed}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Exposures List (Paginated in 15 per page) */}
             {result.exposures.length > 0 && (() => {

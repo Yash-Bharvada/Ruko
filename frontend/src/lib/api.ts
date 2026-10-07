@@ -731,6 +731,11 @@ export async function requestBreachAlertCall(payload: {
   phone_token: string;
   voice_opt_in: boolean;
   exposures_high_risk_new: boolean;
+  email?: string;
+  total_breaches?: number;
+  financial_exposed?: boolean;
+  breach_names?: string[];
+  exposure_categories?: string[];
 }): Promise<BreachAlertResponse> {
   const res = await fetch(`${API_BASE}/v1/breach/alert`, {
     method: "POST",
@@ -744,5 +749,66 @@ export async function requestBreachAlertCall(payload: {
     throw new Error(errorMsg);
   }
   return data as BreachAlertResponse;
+}
+
+// ─── Vapi AI Voice Agent API ──────────────────────────────────────────────────
+
+export interface VapiSessionPayload {
+  email: string;
+  total_breaches: number;
+  high_risk_count: number;
+  financial_exposed: boolean;
+  breach_names: string[];
+  exposure_categories: string[];
+  language?: string;
+}
+
+export interface VapiSessionResponse {
+  status: "ready" | "simulated" | "error";
+  assistant_id?: string | null;
+  public_key?: string | null;
+  first_message: string;
+  system_prompt: string;
+  variable_values: Record<string, any>;
+  message?: string | null;
+}
+
+export async function getVapiSession(payload: VapiSessionPayload): Promise<VapiSessionResponse> {
+  const res = await fetch(`${API_BASE}/v1/vapi/session`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    const errorMsg = data?.error?.message || "Failed to initialize Vapi voice session.";
+    throw new Error(errorMsg);
+  }
+  return data as VapiSessionResponse;
+}
+
+export async function triggerVapiPhoneCall(payload: {
+  phone: string;
+  email: string;
+  total_breaches: number;
+  high_risk_count: number;
+  financial_exposed: boolean;
+  breach_names: string[];
+  exposure_categories: string[];
+  language?: string;
+}): Promise<{ status: string; call_id?: string; message: string }> {
+  const res = await fetch(`${API_BASE}/v1/vapi/call/phone`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    const errorMsg = data?.error?.message || "Failed to trigger Vapi phone call.";
+    throw new Error(errorMsg);
+  }
+  return data;
 }
 

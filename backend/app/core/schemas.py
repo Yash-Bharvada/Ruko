@@ -336,8 +336,13 @@ class BreachAlertRequest(BaseModel):
     phone_token: str = Field(..., description="Valid 15-minute phone authorization token")
     voice_opt_in: bool = Field(..., description="Explicit opt-in to receive automated voice alert call")
     exposures_high_risk_new: bool = Field(False, description="Flag indicating high-risk exposure state")
+    email: Optional[str] = Field(None, description="Scanned email address for alert context")
+    total_breaches: int = Field(0, description="Total count of exposures")
+    financial_exposed: bool = Field(False, description="Whether financial records were exposed")
+    breach_names: List[str] = Field(default_factory=list, description="Names of exposed platforms")
+    exposure_categories: List[str] = Field(default_factory=list, description="Leaked categories")
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
 
 class BreachAlertResponse(BaseModel):
