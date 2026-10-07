@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BreachMonitorRouteImport } from './routes/breach-monitor'
 import { Route as ExplainRouteImport } from './routes/explain'
 import { Route as ModelStatsRouteImport } from './routes/model-stats'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BreachMonitorRoute = BreachMonitorRouteImport.update({
+  id: '/breach-monitor',
+  path: '/breach-monitor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExplainRoute = ExplainRouteImport.update({
@@ -31,30 +37,34 @@ const ModelStatsRoute = ModelStatsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/breach-monitor': typeof BreachMonitorRoute
   '/explain': typeof ExplainRoute
   '/model-stats': typeof ModelStatsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/breach-monitor': typeof BreachMonitorRoute
   '/explain': typeof ExplainRoute
   '/model-stats': typeof ModelStatsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/breach-monitor': typeof BreachMonitorRoute
   '/explain': typeof ExplainRoute
   '/model-stats': typeof ModelStatsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/explain' | '/model-stats'
+  fullPaths: '/' | '/breach-monitor' | '/explain' | '/model-stats'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/explain' | '/model-stats'
-  id: '__root__' | '/' | '/explain' | '/model-stats'
+  to: '/' | '/breach-monitor' | '/explain' | '/model-stats'
+  id: '__root__' | '/' | '/breach-monitor' | '/explain' | '/model-stats'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BreachMonitorRoute: typeof BreachMonitorRoute
   ExplainRoute: typeof ExplainRoute
   ModelStatsRoute: typeof ModelStatsRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/breach-monitor': {
+      id: '/breach-monitor'
+      path: '/breach-monitor'
+      fullPath: '/breach-monitor'
+      preLoaderRoute: typeof BreachMonitorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explain': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BreachMonitorRoute: BreachMonitorRoute,
   ExplainRoute: ExplainRoute,
   ModelStatsRoute: ModelStatsRoute,
 }

@@ -573,3 +573,140 @@ export async function speakExplainScene(
   }
   return data as ExplainSpeakResponse;
 }
+
+// ---------------------------------------------------------------------------
+// Breach Exposure Monitor (Stateless, Zero Persistence)
+// ---------------------------------------------------------------------------
+
+export interface ExposureRecord {
+  breach_name: string;
+  breach_date: string;
+  exposure_categories: string[];
+  risk_level: "HIGH" | "MEDIUM" | "LOW";
+  financial_exposure: boolean;
+  provider: string;
+  remediation: string[];
+  notes?: string | null;
+}
+
+export interface BreachCheckResult {
+  request_id: string;
+  status: "ok" | "incomplete" | "scan_unavailable";
+  is_demo: boolean;
+  exposures: ExposureRecord[];
+  total_exposures: number;
+  high_risk_count: number;
+  financial_exposure_count: number;
+  notice: string;
+  data_safety: string[];
+  degraded: string[];
+}
+
+export interface PhoneStartResponse {
+  status: "ok" | "sms_unavailable_try_call";
+  message: string;
+}
+
+export interface PhoneVerifyResponse {
+  phone_token: string;
+}
+
+export interface BreachAlertResponse {
+  status: "ok" | "rejected" | "disabled" | "simulated";
+  message: string;
+  call_placed: boolean;
+  script?: string | null;
+  hint?: string | null;
+}
+
+/**
+ * Check email for breach exposures. Stateless, no persistence.
+ */
+export async function checkBreachExposure(payload: {
+  email: string;
+  consent: boolean;
+}): Promise<BreachCheckResult> {
+  const res = await fetch(`${API_BASE}/v1/breach/check`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    const errorMsg = data?.error?.message || data?.detail || "Breach check failed.";
+    throw new Error(errorMsg);
+  }
+  return data as BreachCheckResult;
+}
+
+/**
+ * Request phone verification OTP via SMS or Voice Call.
+ */
+export async function startPhoneVerification(payload: {
+  phone: string;
+  consent: boolean;
+  channel?: "sms" | "call";
+}): Promise<PhoneStartResponse> {
+  const res = await fetch(`${API_BASE}/v1/breach/phone/start`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      phone: payload.phone,
+      consent: payload.consent,
+      channel: payload.channel || "sms",
+    }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    const errorMsg = data?.error?.message || data?.detail || "Failed to initiate phone verification.";
+    throw new Error(errorMsg);
+  }
+  return data as PhoneStartResponse;
+}
+
+/**
+ * Verify phone 4-8 digit OTP against Twilio Verify.
+ */
+export async function verifyPhoneCode(payload: {
+  phone: string;
+  code: string;
+}): Promise<PhoneVerifyResponse> {
+  const res = await fetch(`${API_BASE}/v1/breach/phone/verify`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    const errorMsg = data?.error?.message || data?.detail || "Invalid or expired verification code.";
+    throw new Error(errorMsg);
+  }
+  return data as PhoneVerifyResponse;
+}
+
+/**
+ * Trigger an emergency voice alert call if eligible.
+ */
+export async function requestBreachAlertCall(payload: {
+  phone: string;
+  phone_token: string;
+  voice_opt_in: boolean;
+  exposures_high_risk_new: boolean;
+}): Promise<BreachAlertResponse> {
+  const res = await fetch(`${API_BASE}/v1/breach/alert`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    const errorMsg = data?.error?.message || data?.detail || "Failed to place voice alert call.";
+    throw new Error(errorMsg);
+  }
+  return data as BreachAlertResponse;
+}
+

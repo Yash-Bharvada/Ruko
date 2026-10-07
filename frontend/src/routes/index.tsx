@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ShieldCheck } from "lucide-react";
 import { RukoLogo } from "../components/RukoLogo";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { ChatBot } from "../components/ChatBot";
@@ -157,6 +158,13 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
             <span>✦ Explain Doc</span>
           </Link>
           <Link
+            to="/breach-monitor"
+            className="ml-2 inline-flex items-center gap-1.5 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 label-mono text-xs text-emerald-600 dark:text-emerald-400 transition-all hover:bg-emerald-500 hover:text-slate-950 font-semibold shadow-sm"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Breach Check</span>
+          </Link>
+          <Link
             to="/model-stats"
             className="ml-2 inline-flex items-center gap-1.5 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 label-mono text-xs text-cyan-600 dark:text-cyan-400 transition-all hover:bg-cyan-500 hover:text-slate-950 font-semibold shadow-sm"
           >
@@ -227,6 +235,16 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
             <span>Explain a Document</span>
             <span className="label-mono text-xs px-2 py-0.5 rounded bg-primary/20 font-mono">
               NEW
+            </span>
+          </Link>
+          <Link
+            to="/breach-monitor"
+            onClick={() => setOpen(false)}
+            className="border-b border-border/60 py-3 text-base font-medium text-emerald-600 dark:text-emerald-400 flex items-center justify-between"
+          >
+            <span>Breach Exposure Check</span>
+            <span className="label-mono text-xs px-2 py-0.5 rounded bg-emerald-500/20 font-mono">
+              STATELESS
             </span>
           </Link>
           <Link
@@ -315,6 +333,14 @@ function Hero() {
                 className="group inline-flex items-center justify-between gap-3 border border-primary/40 bg-primary/10 px-5 py-3.5 label-mono text-primary transition-all hover:bg-primary hover:text-primary-foreground active:scale-[.98]"
               >
                 <span>✦ Explain a Document</span>
+                <span className="transition-transform group-hover:translate-x-0.5">→</span>
+              </Link>
+              <Link
+                to="/breach-monitor"
+                className="group inline-flex items-center justify-between gap-2 border border-emerald-500/40 bg-emerald-500/10 px-4 py-3.5 label-mono text-emerald-600 dark:text-emerald-400 transition-all hover:bg-emerald-500 hover:text-slate-950 active:scale-[.98]"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>Breach Check</span>
                 <span className="transition-transform group-hover:translate-x-0.5">→</span>
               </Link>
             </div>
