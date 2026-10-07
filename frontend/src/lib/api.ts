@@ -146,9 +146,9 @@ export async function checkText(
   amount?: number,
 ): Promise<CheckResult> {
   const payload: Record<string, any> = { text };
-  if (language) payload.language = language;
+  if (language) payload["language"] = language;
   if (amount !== undefined && amount !== null && !isNaN(amount) && amount > 0) {
-    payload.amount = amount;
+    payload["amount"] = amount;
   }
 
   const res = await fetch(`${API_BASE}/v1/check`, {
@@ -160,6 +160,30 @@ export async function checkText(
   const data = await res.json();
   if (!res.ok) {
     const errorMsg = data?.error?.message || "Failed to analyze message.";
+    throw new Error(errorMsg);
+  }
+  return data as CheckResult;
+}
+
+/**
+ * Check Instagram Reel or social video link via backend video/audio extraction pipeline
+ */
+export async function checkUrl(url: string, language?: string, amount?: number): Promise<CheckResult> {
+  const payload: Record<string, any> = { url };
+  if (language) payload["language"] = language;
+  if (amount !== undefined && amount !== null && !isNaN(amount) && amount > 0) {
+    payload["amount"] = amount;
+  }
+
+  const res = await fetch(`${API_BASE}/v1/check/url`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    const errorMsg = data?.error?.message || "Failed to analyze video URL.";
     throw new Error(errorMsg);
   }
   return data as CheckResult;
@@ -304,6 +328,23 @@ export async function speakVerdict(verdict: VerdictType, language = "en"): Promi
     const errorMsg = data?.error?.message || "Text-to-speech failed.";
     throw new Error(errorMsg);
   }
+
+  if (data.audio_base64) {
+    const mime = data.mime || "audio/wav";
+    return {
+      source: "sarvam_tts",
+      audio_url: `data:${mime};base64,${data.audio_base64}`,
+    };
+  }
+
+  if (data.text) {
+    return {
+      source: "browser_speech",
+      text: data.text,
+      lang_code: data.lang_code || "en-IN",
+    };
+  }
+
   return data as SpeakResponse;
 }
 

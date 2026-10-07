@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     MAX_IMAGE_MB: int = 5
     MAX_AUDIO_MB: int = 10
     MAX_VIDEO_MB: int = 25
-    MAX_VIDEO_SECONDS: int = 60
+    MAX_VIDEO_SECONDS: int = 180
     MAX_FRAMES: int = 8
     FRAME_INTERVAL_SECONDS: int = 3
     RATE_LIMIT_PER_MIN: int = 30
@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     # Feature Flags and Paths
     DEMO_MODE: bool = False
     ENABLE_THIRD_PARTY_AI: bool = True
+    ENABLE_URL_VIDEO_INGEST: bool = True
     TRANSCRIBED_NEVER_CLEAR: bool = True
     MODEL_DIR: str = "model_store"
     MODEL_REQUIRED: bool = False

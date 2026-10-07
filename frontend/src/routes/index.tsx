@@ -383,24 +383,9 @@ function Check({
   }, [injectedText]);
 
   const ups = [
-    {
-      k: "image",
-      label: "Screenshot",
-      accept: "image/png,image/jpeg,image/webp",
-      hint: "PNG, JPG — OCR scanned locally",
-    },
-    {
-      k: "voice",
-      label: "Voice note",
-      accept: "audio/mp3,audio/wav,audio/m4a,audio/ogg",
-      hint: "MP3, M4A, WAV, OGG",
-    },
-    {
-      k: "video",
-      label: "Video Reel",
-      accept: "video/mp4,video/quicktime,video/webm",
-      hint: "MP4, MOV, WEBM",
-    },
+    { k: "image", label: "Screenshot", accept: "image/png,image/jpeg,image/webp,image/*", hint: "PNG, JPG, WEBP" },
+    { k: "voice", label: "Voice note", accept: "audio/mp3,audio/wav,audio/m4a,audio/ogg,audio/webm,audio/*", hint: "MP3, M4A, WAV, WEBM" },
+    { k: "video", label: "Video Reel", accept: "video/mp4,video/quicktime,video/webm,video/*", hint: "MP4, MOV, WEBM" },
   ];
 
   const hasContent = text.trim().length > 0 || selectedFile !== null;
@@ -446,14 +431,18 @@ function Check({
     }
   };
 
+  const isReelUrl = text.includes("instagram.com") || text.includes("instagr.am");
+
   const loadingLabel =
     ocrProgress !== null
       ? `Reading image text… ${ocrProgress}%`
       : loading && selectedFile
-        ? "Analyzing File…"
-        : loading
-          ? "Analyzing Message…"
-          : "Scan Message for Fraud";
+      ? "Analyzing File…"
+      : loading && isReelUrl
+      ? "Extracting Reel Video & Audio…"
+      : loading
+      ? "Analyzing Message…"
+      : "Scan Message for Fraud";
 
   return (
     <section className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
@@ -507,7 +496,7 @@ function Check({
                 setErrorMsg(null);
               }}
               rows={7}
-              placeholder='e.g. "Join our VIP Telegram group. Guaranteed 35% monthly returns on BankNifty jackpot tips! Pay registration fee Rs 5,000 to trade@ybl right now..."'
+              placeholder='e.g. Paste a message, WhatsApp tip, or Instagram Reel link (https://www.instagram.com/reel/...) for complete audio & video frame analysis...'
               className="mt-4 w-full resize-none bg-transparent text-lg md:text-xl leading-snug outline-none placeholder:text-muted-foreground/50 text-foreground font-sans"
             />
           </div>
@@ -944,28 +933,73 @@ function Result({
                     </div>
                   )}
 
-                {/* Analyzed Message Preview */}
-                {result.text && (
-                  <div className="rounded-xl border border-border bg-secondary/20 p-5 text-xs text-muted-foreground">
-                    <div className="label-mono uppercase font-semibold mb-2 text-foreground">
-                      Analyzed Message Transcript
-                    </div>
-                    <blockquote className="font-mono leading-relaxed italic bg-background p-3 rounded border border-border text-foreground/80">
-                      &ldquo;{result.text}&rdquo;
-                    </blockquote>
+
+              {/* Analyzed Message or Reel Breakdown */}
+              {result.source === "video" || result.speech_text || result.on_screen_text ? (
+                <div className="rounded-xl border border-border bg-secondary/20 p-5 text-xs text-muted-foreground space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="label-mono uppercase font-semibold text-foreground flex items-center gap-1.5">
+                      <span>🎬</span> Instagram Reel / Video Media Analysis
+                    </span>
+                    <span className="label-mono text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                      AUDIO + FRAMES EXTRACTED
+                    </span>
                   </div>
-                )}
 
-                {/* Disclaimer */}
-                <p className="text-xs text-muted-foreground/80 leading-relaxed px-1">
-                  {result.disclaimer}
-                </p>
-              </div>
+                  {result.speech_text && (
+                    <div>
+                      <div className="label-mono text-[11px] text-cyan-400 font-semibold mb-1 flex items-center gap-1">
+                        <span>🎙</span> Reel Spoken Audio Transcript:
+                      </div>
+                      <blockquote className="font-mono leading-relaxed italic bg-background p-3 rounded border border-border text-foreground/80">
+                        &ldquo;{result.speech_text}&rdquo;
+                      </blockquote>
+                    </div>
+                  )}
+
+                  {result.on_screen_text && (
+                    <div>
+                      <div className="label-mono text-[11px] text-amber-400 font-semibold mb-1 flex items-center gap-1">
+                        <span>📺</span> Reel On-Screen Frames OCR:
+                      </div>
+                      <blockquote className="font-mono leading-relaxed bg-background p-3 rounded border border-border text-foreground/80 whitespace-pre-line">
+                        {result.on_screen_text}
+                      </blockquote>
+                    </div>
+                  )}
+
+                  {!result.speech_text && !result.on_screen_text && result.text && (
+                    <div>
+                      <div className="label-mono text-[11px] text-foreground font-semibold mb-1">
+                        Combined Reel Content:
+                      </div>
+                      <blockquote className="font-mono leading-relaxed italic bg-background p-3 rounded border border-border text-foreground/80">
+                        &ldquo;{result.text}&rdquo;
+                      </blockquote>
+                    </div>
+                  )}
+                </div>
+              ) : result.text ? (
+                <div className="rounded-xl border border-border bg-secondary/20 p-5 text-xs text-muted-foreground">
+                  <div className="label-mono uppercase font-semibold mb-2 text-foreground">
+                    Analyzed Message Transcript
+                  </div>
+                  <blockquote className="font-mono leading-relaxed italic bg-background p-3 rounded border border-border text-foreground/80">
+                    &ldquo;{result.text}&rdquo;
+                  </blockquote>
+                </div>
+              ) : null}
+
+              {/* Disclaimer */}
+              <p className="text-xs text-muted-foreground/80 leading-relaxed px-1">
+                {result.disclaimer}
+              </p>
             </div>
+          </div>
 
-            {/* AI Insight Charts — full-width below the two-column layout */}
-            <InsightCharts result={result} />
-          </>
+          {/* AI Insight Charts — full-width below the two-column layout */}
+          <InsightCharts result={result} />
+        </>
         )}
       </div>
     </section>

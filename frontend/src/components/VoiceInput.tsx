@@ -14,29 +14,78 @@ export const VoiceInput: FC<Props> = ({ onTranscript, lang = "en" }) => {
   const [error, setError] = useState<string | null>(null);
   const mediaRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const liveTranscriptRef = useRef<string>("");
+  const speechRecRef = useRef<any>(null);
 
   const startRecording = async () => {
     setError(null);
     setState("recording");
     chunksRef.current = [];
+    liveTranscriptRef.current = "";
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mr = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      let mimeType = "";
+      if (typeof MediaRecorder !== "undefined" && typeof MediaRecorder.isTypeSupported === "function") {
+        if (MediaRecorder.isTypeSupported("audio/webm")) {
+          mimeType = "audio/webm";
+        } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
+          mimeType = "audio/mp4";
+        }
+      }
+
+      const mr = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
       mediaRef.current = mr;
 
-      mr.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
-      };
+      // Start concurrent real-time SpeechRecognition if available in browser
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        try {
+          const rec = new SpeechRecognition();
+          rec.lang = lang === "hi" ? "hi-IN" : lang === "gu" ? "gu-IN" : "en-IN";
+          rec.continuous = true;
+          rec.interimResults = true;
+          rec.onresult = (e: any) => {
+            let combined = "";
+            for (let i = 0; i < e.results.length; i++) {
+              combined += e.results[i][0].transcript;
+            }
+            if (combined.trim()) {
+              liveTranscriptRef.current = combined.trim();
+            }
+          };
+          rec.onerror = () => {};
+          rec.start();
+          speechRecRef.current = rec;
+        } catch {
+          // Ignore SpeechRecognition startup error, backend will transcribe
+        }
+      }
+
+      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
+        if (speechRecRef.current) {
+          try {
+            speechRecRef.current.stop();
+          } catch {}
+          speechRecRef.current = null;
+        }
         setState("processing");
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        await sendToBackend(blob);
+
+        // If real-time browser recognition already captured speech, use it immediately
+        if (liveTranscriptRef.current && liveTranscriptRef.current.trim().length >= 3) {
+          onTranscript(liveTranscriptRef.current.trim());
+          setState("idle");
+          return;
+        }
+
+        const blob = new Blob(chunksRef.current, { type: mimeType || "audio/webm" });
+        await sendToBackend(blob, mimeType);
       };
 
       mr.start();
-    } catch (err) {
+    } catch {
       setError("Microphone access denied. Please allow microphone permissions.");
       setState("idle");
     }
@@ -46,9 +95,10 @@ export const VoiceInput: FC<Props> = ({ onTranscript, lang = "en" }) => {
     mediaRef.current?.stop();
   };
 
-  const sendToBackend = async (blob: Blob) => {
+  const sendToBackend = async (blob: Blob, mimeType: string) => {
     try {
-      const file = new File([blob], "voice.webm", { type: "audio/webm" });
+      const ext = mimeType.includes("mp4") ? "m4a" : "webm";
+      const file = new File([blob], `voice.${ext}`, { type: blob.type || mimeType || "audio/webm" });
       const fd = new FormData();
       fd.append("file", file);
       if (lang) fd.append("language", lang);
@@ -56,46 +106,22 @@ export const VoiceInput: FC<Props> = ({ onTranscript, lang = "en" }) => {
       const res = await fetch("/v1/check/media", { method: "POST", body: fd });
       const data = await res.json();
 
-      if (res.ok && data.text) {
-        onTranscript(data.text);
-        setState("idle");
-        return;
+      if (res.ok) {
+        const text = data.text || data.speech_text;
+        if (text && text.trim().length >= 3) {
+          onTranscript(text.trim());
+          setState("idle");
+          return;
+        }
       }
-      // If backend returns a result without text, still use speech_text if available
-      if (res.ok && data.speech_text) {
-        onTranscript(data.speech_text);
-        setState("idle");
-        return;
-      }
-      throw new Error("No transcript in response");
-    } catch {
-      // Fallback: browser Web Speech API
-      fallbackBrowserSTT();
-    }
-  };
 
-  const fallbackBrowserSTT = () => {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+      const err = data?.error?.message || "Could not transcribe audio. Please type your message.";
+      setError(err);
+      setState("idle");
+    } catch {
       setError("Voice transcription failed. Please type your message.");
       setState("idle");
-      return;
     }
-    const rec = new SpeechRecognition();
-    rec.lang = lang === "hi" ? "hi-IN" : lang === "gu" ? "gu-IN" : "en-IN";
-    rec.continuous = false;
-    rec.interimResults = false;
-    rec.onresult = (e: any) => {
-      const transcript = e.results[0][0].transcript;
-      onTranscript(transcript);
-      setState("idle");
-    };
-    rec.onerror = () => {
-      setError("Could not transcribe. Please type your message.");
-      setState("idle");
-    };
-    rec.start();
   };
 
   const isRecording = state === "recording";
