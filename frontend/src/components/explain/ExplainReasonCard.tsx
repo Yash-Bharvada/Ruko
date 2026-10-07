@@ -7,7 +7,7 @@ import {
   ShieldAlert,
   Building2,
 } from "lucide-react";
-import { DocExplanation } from "@/lib/api";
+import { DocExplanation, Reason } from "@/lib/api";
 import { getExplainStrings } from "@/lib/explainStrings";
 
 interface ExplainReasonCardProps {
@@ -120,14 +120,15 @@ export const ExplainReasonCard: React.FC<ExplainReasonCardProps> = ({
                   ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30"
                   : "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30";
 
-              const messageText = flag.text || flag.message || "";
+              const anyFlag = flag as any;
+              const messageText = flag.text || anyFlag.message || "";
               const flagTitle = flag.code
                 ? flag.code.replace(/_/g, " ").toUpperCase()
-                : flag.title || "Red Flag";
+                : anyFlag.title || "Red Flag";
 
               return (
                 <div
-                  key={flag.id || flag.code || idx}
+                  key={anyFlag.id || flag.code || idx}
                   className={`p-4 rounded-xl border transition-all ${borderClass}`}
                 >
                   <div className="flex items-start justify-between gap-2">

@@ -52,11 +52,14 @@ export const VideoExplainer: React.FC<VideoExplainerProps> = ({ explanation, lan
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const currentScene = scenes[selectedSceneIndex];
+    if (!currentScene) return;
+
     renderSceneFrame(
       ctx,
       1280,
       720,
-      scenes[selectedSceneIndex],
+      currentScene,
       explanation,
       selectedSceneIndex,
       scenes.length,

@@ -21,10 +21,39 @@ export default defineConfig(({ command }) => ({
       "/v1": {
         target: "http://localhost:8000",
         changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on("error", (_err, _req, res) => {
+            if ("writeHead" in res && !res.headersSent) {
+              res.writeHead(503, { "Content-Type": "application/json" });
+              res.end(
+                JSON.stringify({
+                  error: {
+                    code: "BACKEND_OFFLINE",
+                    message:
+                      "Ruko backend on http://localhost:8000 is not reachable. Run: cd backend && python -m uvicorn app.main:app --reload --port 8000",
+                  },
+                }),
+              );
+            }
+          });
+        },
       },
       "/health": {
         target: "http://localhost:8000",
         changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on("error", (_err, _req, res) => {
+            if ("writeHead" in res && !res.headersSent) {
+              res.writeHead(503, { "Content-Type": "application/json" });
+              res.end(
+                JSON.stringify({
+                  status: "offline",
+                  error: "Backend not reachable on port 8000",
+                }),
+              );
+            }
+          });
+        },
       },
     },
   },

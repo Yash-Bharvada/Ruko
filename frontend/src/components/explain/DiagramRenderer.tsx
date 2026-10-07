@@ -194,10 +194,13 @@ export function drawFlowGraphToCanvas(
   // 1. Draw edges
   for (const edge of edges) {
     if (!edge.points || edge.points.length < 2) continue;
+    const p0 = edge.points[0];
+    if (!p0) continue;
     ctx.beginPath();
-    ctx.moveTo(edge.points[0].x, edge.points[0].y);
+    ctx.moveTo(p0.x, p0.y);
     for (let i = 1; i < edge.points.length; i++) {
-      ctx.lineTo(edge.points[i].x, edge.points[i].y);
+      const pt = edge.points[i];
+      if (pt) ctx.lineTo(pt.x, pt.y);
     }
     ctx.strokeStyle = "#475569";
     ctx.lineWidth = 2;
@@ -206,28 +209,32 @@ export function drawFlowGraphToCanvas(
     // Arrowhead
     const last = edge.points[edge.points.length - 1];
     const prev = edge.points[edge.points.length - 2];
-    const angle = Math.atan2(last.y - prev.y, last.x - prev.x);
-    ctx.beginPath();
-    ctx.moveTo(last.x, last.y);
-    ctx.lineTo(
-      last.x - 10 * Math.cos(angle - Math.PI / 6),
-      last.y - 10 * Math.sin(angle - Math.PI / 6),
-    );
-    ctx.lineTo(
-      last.x - 10 * Math.cos(angle + Math.PI / 6),
-      last.y - 10 * Math.sin(angle + Math.PI / 6),
-    );
-    ctx.closePath();
-    ctx.fillStyle = "#38bdf8";
-    ctx.fill();
+    if (last && prev) {
+      const angle = Math.atan2(last.y - prev.y, last.x - prev.x);
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(
+        last.x - 10 * Math.cos(angle - Math.PI / 6),
+        last.y - 10 * Math.sin(angle - Math.PI / 6),
+      );
+      ctx.lineTo(
+        last.x - 10 * Math.cos(angle + Math.PI / 6),
+        last.y - 10 * Math.sin(angle + Math.PI / 6),
+      );
+      ctx.closePath();
+      ctx.fillStyle = "#38bdf8";
+      ctx.fill();
+    }
 
     // Edge label
     if (edge.label) {
       const mid = edge.points[Math.floor(edge.points.length / 2)];
-      ctx.fillStyle = "#94a3b8";
-      ctx.font = "11px system-ui, -apple-system, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(edge.label, mid.x + 10, mid.y - 4);
+      if (mid) {
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "11px system-ui, -apple-system, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(edge.label, mid.x + 10, mid.y - 4);
+      }
     }
   }
 
@@ -433,7 +440,7 @@ export const FlowGraphRenderer: React.FC<FlowGraphRendererProps> = (props) => {
                   markerEnd={`url(#arrow-${uniqueId})`}
                   className="transition-colors group-hover:stroke-cyan-400"
                 />
-                {edge.label && (
+                {edge.label && midPoint && (
                   <text
                     x={midPoint.x + 10}
                     y={midPoint.y - 4}

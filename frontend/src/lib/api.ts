@@ -143,9 +143,7 @@ async function extractTextFromImage(file: File, onProgress?: (p: number) => void
       },
     });
 
-    const arrayBuffer = await file.arrayBuffer();
-    const uint8 = new Uint8Array(arrayBuffer);
-    const { data } = await worker.recognize(uint8);
+    const { data } = await worker.recognize(file as any);
     await worker.terminate();
 
     const text = data.text?.trim() ?? "";
@@ -444,19 +442,27 @@ export interface GlossaryItem {
   term: string;
   meaning: string;
   evidence: string;
+  simple_explanation?: string;
+  term_devanagari?: string;
+  term_gujarati?: string;
+  context_in_doc?: string;
 }
 
 export interface KeyPoint {
   id: string;
   category: "obligation" | "fee" | "deadline" | "risk" | "right" | "other" | string;
   text: string;
+  point?: string;
   evidence: string;
 }
 
 export interface Step {
   order: number;
+  step_number?: number;
   title: string;
   text: string;
+  description?: string;
+  deadline?: string;
   evidence: string;
 }
 
@@ -481,6 +487,8 @@ export interface FlowGraph {
 export interface TimelineItem {
   label: string;
   date_text: string;
+  time_reference?: string;
+  event?: string;
   evidence: string;
 }
 

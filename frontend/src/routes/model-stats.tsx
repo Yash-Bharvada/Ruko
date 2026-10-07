@@ -42,7 +42,7 @@ interface HealthStatus {
   model: string;
 }
 
-export function ModelStatsPage() {
+function ModelStatsPage() {
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [loadingHealth, setLoadingHealth] = useState(true);
   const [threshold, setThreshold] = useState<number>(0.41);
@@ -514,5 +514,3 @@ export function ModelStatsPage() {
     </div>
   );
 }
-
-export default ModelStatsPage;

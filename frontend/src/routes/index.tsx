@@ -366,7 +366,9 @@ function Check({
   onResult: (r: CheckResult) => void;
   injectedText?: string;
 }) {
+  const [checkMode, setCheckMode] = useState<"message" | "reel">("message");
   const [text, setText] = useState("");
+  const [reelUrl, setReelUrl] = useState("");
   const [amount, setAmount] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
@@ -376,7 +378,12 @@ function Check({
 
   useEffect(() => {
     if (injectedText) {
-      setText(injectedText);
+      if (injectedText.includes("instagram.com") || injectedText.includes("instagr.am")) {
+        setCheckMode("reel");
+        setReelUrl(injectedText);
+      } else {
+        setText(injectedText);
+      }
       setSelectedFile(null);
       setFileType(null);
       setErrorMsg(null);
@@ -386,10 +393,13 @@ function Check({
   const ups = [
     { k: "image", label: "Screenshot", accept: "image/png,image/jpeg,image/webp,image/*", hint: "PNG, JPG, WEBP" },
     { k: "voice", label: "Voice note", accept: "audio/mp3,audio/wav,audio/m4a,audio/ogg,audio/webm,audio/*", hint: "MP3, M4A, WAV, WEBM" },
-    { k: "video", label: "Video Reel", accept: "video/mp4,video/quicktime,video/webm,video/*", hint: "MP4, MOV, WEBM" },
+    { k: "video", label: "Instagram Reel / Video", accept: "video/mp4,video/quicktime,video/webm,video/*", hint: "Reel MP4, MOV, WEBM" },
   ];
 
-  const hasContent = text.trim().length > 0 || selectedFile !== null;
+  const hasContent =
+    checkMode === "reel"
+      ? reelUrl.trim().length > 0
+      : text.trim().length > 0 || selectedFile !== null;
 
   const handleFileSelect = (key: string, file: File | undefined) => {
     if (!file) return;
@@ -409,7 +419,9 @@ function Check({
 
     try {
       let result: CheckResult;
-      if (selectedFile) {
+      if (checkMode === "reel") {
+        result = await checkUrl(reelUrl.trim(), lang, parsedAmt);
+      } else if (selectedFile) {
         result = await checkMedia(selectedFile, lang, parsedAmt, (p) => setOcrProgress(p));
       } else if (isReelUrl) {
         result = await checkUrl(text.trim(), lang, parsedAmt);
@@ -426,7 +438,9 @@ function Check({
       console.error("Check failed:", err);
       setErrorMsg(
         err.message ||
-          "Could not analyze media file. Please paste the message text directly into the box for instant model analysis.",
+          (checkMode === "reel"
+            ? "Could not analyze Instagram Reel. Verify the URL is public or try again."
+            : "Could not analyze media file. Please paste the message text directly into the box for instant model analysis."),
       );
     } finally {
       setLoading(false);
@@ -439,12 +453,16 @@ function Check({
   const loadingLabel =
     ocrProgress !== null
       ? `Reading image text… ${ocrProgress}%`
+      : loading && checkMode === "reel"
+      ? "Extracting Reel Video & Audio…"
       : loading && selectedFile
       ? "Analyzing File…"
       : loading && isReelUrl
       ? "Extracting Reel Video & Audio…"
       : loading
       ? "Analyzing Message…"
+      : checkMode === "reel"
+      ? "Scan Instagram Reel for Fraud"
       : "Scan Message for Fraud";
 
   return (
@@ -462,164 +480,398 @@ function Check({
         }
       />
 
-      <div className="mt-12 grid border border-border bg-card rounded-2xl overflow-hidden shadow-lg md:grid-cols-12">
-        <div className="border-b border-border p-6 md:col-span-7 md:border-b-0 md:border-r md:p-8 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between gap-2">
+      {/* Mode Switcher Tabs */}
+      <div className="mt-10 flex flex-wrap items-center gap-2.5">
+        <button
+          type="button"
+          onClick={() => {
+            setCheckMode("message");
+            setErrorMsg(null);
+          }}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl label-mono text-xs font-semibold transition-all ${
+            checkMode === "message"
+              ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/50 shadow-sm"
+              : "text-muted-foreground hover:text-foreground hover:bg-secondary/60 border border-border"
+          }`}
+        >
+          <span>💬</span>
+          <span>Message & Chat Check</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setCheckMode("reel");
+            setErrorMsg(null);
+          }}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl label-mono text-xs font-semibold transition-all ${
+            checkMode === "reel"
+              ? "bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-500/20 text-pink-400 dark:text-pink-300 border border-pink-500/50 shadow-md shadow-pink-500/10"
+              : "text-muted-foreground hover:text-foreground hover:bg-secondary/60 border border-border"
+          }`}
+        >
+          <span>🎬</span>
+          <span>Instagram Reel Scanner</span>
+          <span className="text-[10px] uppercase px-1.5 py-0.5 rounded bg-pink-500/25 text-pink-300 border border-pink-500/30">
+            Dedicated URL
+          </span>
+        </button>
+      </div>
+
+      {checkMode === "reel" ? (
+        /* Dedicated Instagram Reel Scanner View */
+        <div className="mt-6 border border-pink-500/30 bg-card rounded-2xl overflow-hidden shadow-2xl transition-all">
+          <div className="p-6 md:p-10 border-b border-border bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-cyan-500/5">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/40 bg-pink-500/10 px-3 py-1 label-mono text-xs text-pink-400 mb-3">
+                  <span>🎬</span>
+                  <span>DEDICATED REEL FRAUD SCANNER</span>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold font-mono tracking-tight text-foreground">
+                  Paste Instagram Reel URL
+                </h3>
+                <p className="mt-2 text-sm md:text-base text-muted-foreground leading-relaxed">
+                  Paste any public Instagram Reel URL. Ruko fetches the video in-memory, transcribes
+                  spoken audio via AI Speech-to-Text, runs OCR across on-screen video frames, and
+                  audits the claims against SEBI registry records and 12 scam heuristics.
+                </p>
+              </div>
+
+              {/* Ingestion Highlights */}
+              <div className="flex flex-wrap md:flex-col gap-2 shrink-0">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs label-mono border border-border bg-background/80 text-foreground">
+                  <span>🎙</span> Voiceover STT Transcript
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs label-mono border border-border bg-background/80 text-foreground">
+                  <span>📺</span> On-Screen Frames OCR
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs label-mono border border-border bg-background/80 text-foreground">
+                  <span>🔒</span> 100% In-Memory (Zero Disk)
+                </span>
+              </div>
+            </div>
+
+            {/* Reel URL Input Box */}
+            <div className="mt-8">
               <label
-                htmlFor="msg"
+                htmlFor="reel-url"
                 className="label-mono text-xs text-muted-foreground uppercase tracking-wider font-semibold"
               >
-                // 001 · Suspicious message, SMS, or Telegram tip
+                // Instagram Reel URL
               </label>
-              <div className="flex items-center gap-2">
-                <VoiceInput
-                  lang={lang}
-                  onTranscript={(t) => {
-                    setText(t);
+
+              <div className="mt-2 relative flex items-center">
+                <div className="absolute left-4 flex items-center pointer-events-none text-pink-400">
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                  </svg>
+                </div>
+
+                <input
+                  id="reel-url"
+                  type="url"
+                  value={reelUrl}
+                  onChange={(e) => {
+                    setReelUrl(e.target.value);
                     setErrorMsg(null);
                   }}
+                  placeholder="https://www.instagram.com/reel/C8qL9XYZ123/ or https://instagr.am/..."
+                  className="w-full rounded-xl border border-pink-500/40 bg-background px-4 py-4 pl-12 pr-28 text-sm md:text-base font-mono text-foreground outline-none transition-all focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 shadow-inner"
                 />
-                {text && (
+
+                <div className="absolute right-3 flex items-center gap-2">
+                  {reelUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setReelUrl("")}
+                      className="px-2 py-1 text-xs label-mono text-muted-foreground hover:text-foreground"
+                    >
+                      Clear
+                    </button>
+                  )}
                   <button
-                    onClick={() => setText("")}
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const clip = await navigator.clipboard.readText();
+                        if (clip) {
+                          setReelUrl(clip.trim());
+                          setErrorMsg(null);
+                        }
+                      } catch (err) {
+                        console.warn("Clipboard access denied:", err);
+                      }
+                    }}
+                    className="px-3 py-1.5 text-xs label-mono rounded-lg bg-secondary hover:bg-muted border border-border text-foreground transition-all active:scale-95"
+                  >
+                    Paste
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Sample Links */}
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                <span className="label-mono text-muted-foreground text-[11px]">Quick Samples:</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setReelUrl("https://www.instagram.com/reel/C8qL9XYZ123_guaranteed_profit/")
+                  }
+                  className="px-2.5 py-1 rounded-md text-[11px] font-mono border border-border bg-secondary/40 text-muted-foreground hover:text-pink-400 hover:border-pink-500/40 transition-colors"
+                >
+                  Crypto 200% Profit Reel
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setReelUrl("https://www.instagram.com/reel/C9aB8XYZ456_vip_telegram_tips/")
+                  }
+                  className="px-2.5 py-1 rounded-md text-[11px] font-mono border border-border bg-secondary/40 text-muted-foreground hover:text-pink-400 hover:border-pink-500/40 transition-colors"
+                >
+                  Unregistered VIP Telegram Tips
+                </button>
+              </div>
+            </div>
+
+            {/* Optional Amount & Action Bar */}
+            <div className="mt-8 pt-6 border-t border-border flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <label
+                  htmlFor="reel-amt"
+                  className="label-mono text-xs text-muted-foreground whitespace-nowrap font-medium"
+                >
+                  Amount mentioned in Reel (₹ Optional):
+                </label>
+                <div className="relative min-w-[140px] max-w-xs">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-muted-foreground">
+                    ₹
+                  </span>
+                  <input
+                    id="reel-amt"
+                    type="number"
+                    min="0"
+                    step="500"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="e.g. 50000"
+                    className="w-full rounded-md border border-border bg-background px-3 py-2 pl-7 text-sm font-mono text-foreground outline-none focus:border-pink-500"
+                  />
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <button
+                type="button"
+                disabled={!reelUrl.trim() || loading}
+                onClick={handleRunCheck}
+                className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl font-mono font-semibold text-sm transition-all shadow-xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:via-purple-500 hover:to-indigo-500 text-white shadow-pink-500/25"
+              >
+                <span>
+                  {loadingLabel}
+                  {loading && <span className="blink">_</span>}
+                </span>
+                <Arrow />
+              </button>
+            </div>
+
+            {errorMsg && (
+              <div className="mt-5 border border-destructive/50 bg-destructive/10 p-3.5 text-sm text-destructive rounded-xl">
+                <strong>Notice:</strong> {errorMsg}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* Universal Message, Telegram Tip & File Upload Card */
+        <div className="mt-6 grid border border-border bg-card rounded-2xl overflow-hidden shadow-lg md:grid-cols-12">
+          <div className="border-b border-border p-6 md:col-span-7 md:border-b-0 md:border-r md:p-8 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <label
+                  htmlFor="msg"
+                  className="label-mono text-xs text-muted-foreground uppercase tracking-wider font-semibold"
+                >
+                  // 001 · Suspicious message, SMS, or Telegram tip
+                </label>
+                <div className="flex items-center gap-2">
+                  <VoiceInput
+                    lang={lang}
+                    onTranscript={(t) => {
+                      setText(t);
+                      setErrorMsg(null);
+                    }}
+                  />
+                  {text && (
+                    <button
+                      onClick={() => setText("")}
+                      className="label-mono text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <textarea
+                id="msg"
+                value={text}
+                onChange={(e) => {
+                  setText(e.target.value);
+                  setErrorMsg(null);
+                }}
+                rows={7}
+                placeholder="e.g. Paste a message, WhatsApp tip, or investment offer..."
+                className="mt-4 w-full resize-none bg-transparent text-lg md:text-xl leading-snug outline-none placeholder:text-muted-foreground/50 text-foreground font-sans"
+              />
+
+              {isReelUrl && (
+                <div className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-pink-500/30 bg-pink-500/10 p-3 text-xs font-mono text-pink-400">
+                  <div className="flex items-center gap-2">
+                    <span>🎬</span>
+                    <span>Instagram Reel Link Detected</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCheckMode("reel");
+                      setReelUrl(text.trim());
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-pink-500 text-white font-semibold hover:bg-pink-600 transition-all text-[11px]"
+                  >
+                    Open in Reel Scanner →
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 border-t border-border pt-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <label
+                  htmlFor="amt"
+                  className="label-mono text-xs text-muted-foreground whitespace-nowrap font-medium"
+                >
+                  Amount involved (₹ Optional):
+                </label>
+                <div className="relative flex-1 min-w-[140px] max-w-xs">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-muted-foreground">
+                    ₹
+                  </span>
+                  <input
+                    id="amt"
+                    type="number"
+                    min="0"
+                    step="500"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="e.g. 25000"
+                    className="w-full rounded-md border border-border bg-background px-3 py-1.5 pl-7 text-sm font-mono text-foreground outline-none focus:border-cyan-400"
+                  />
+                </div>
+                {amount && (
+                  <button
+                    type="button"
+                    onClick={() => setAmount("")}
                     className="label-mono text-xs text-muted-foreground hover:text-foreground"
                   >
                     Clear
                   </button>
                 )}
               </div>
-            </div>
 
-            <textarea
-              id="msg"
-              value={text}
-              onChange={(e) => {
-                setText(e.target.value);
-                setErrorMsg(null);
-              }}
-              rows={7}
-              placeholder='e.g. Paste a message, WhatsApp tip, or Instagram Reel link (https://www.instagram.com/reel/...) for complete audio & video frame analysis...'
-              className="mt-4 w-full resize-none bg-transparent text-lg md:text-xl leading-snug outline-none placeholder:text-muted-foreground/50 text-foreground font-sans"
-            />
-          </div>
-
-          <div className="mt-6 border-t border-border pt-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <label
-                htmlFor="amt"
-                className="label-mono text-xs text-muted-foreground whitespace-nowrap font-medium"
-              >
-                Amount involved (₹ Optional):
-              </label>
-              <div className="relative flex-1 min-w-[140px] max-w-xs">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-muted-foreground">
-                  ₹
-                </span>
-                <input
-                  id="amt"
-                  type="number"
-                  min="0"
-                  step="500"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="e.g. 25000"
-                  className="w-full rounded-md border border-border bg-background px-3 py-1.5 pl-7 text-sm font-mono text-foreground outline-none focus:border-cyan-400"
-                />
-              </div>
-              {amount && (
-                <button
-                  type="button"
-                  onClick={() => setAmount("")}
-                  className="label-mono text-xs text-muted-foreground hover:text-foreground"
-                >
-                  Clear
-                </button>
+              {errorMsg && (
+                <div className="mt-4 border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive rounded-lg">
+                  <strong>Notice:</strong> {errorMsg}
+                </div>
               )}
             </div>
-
-            {errorMsg && (
-              <div className="mt-4 border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive rounded-lg">
-                <strong>Notice:</strong> {errorMsg}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-col md:col-span-5 bg-secondary/30">
-          <div className="p-4 border-b border-border bg-secondary/50">
-            <span className="label-mono text-xs text-muted-foreground uppercase tracking-wider font-semibold">
-              // 002 · Or Upload Media Directly
-            </span>
           </div>
 
-          {ups.map((u, i) => (
-            <div key={u.k} className="border-b border-border last:border-b-0">
-              <label
-                className={`group flex cursor-pointer items-center justify-between gap-4 p-5 transition-colors hover:bg-secondary ${
-                  fileType === u.k && selectedFile ? "bg-secondary" : ""
-                }`}
-              >
-                <div>
-                  <span className="label-mono text-xs text-muted-foreground">// 00{i + 2}</span>
-                  <p
-                    className={`mt-0.5 text-base font-medium ${
-                      fileType === u.k && selectedFile ? "text-cyan-400" : "text-foreground"
-                    }`}
-                  >
-                    {u.label}
-                  </p>
-                  <p className="truncate text-xs text-muted-foreground max-w-[200px]">
-                    {fileType === u.k && selectedFile ? selectedFile.name : u.hint}
-                  </p>
-                </div>
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border text-base transition-all group-hover:border-foreground group-hover:bg-primary group-hover:text-primary-foreground">
-                  {fileType === u.k && selectedFile ? "✓" : "+"}
-                </span>
-                <input
-                  type="file"
-                  accept={u.accept}
-                  className="sr-only"
-                  onChange={(e) => handleFileSelect(u.k, e.target.files?.[0])}
-                />
-              </label>
-            </div>
-          ))}
-
-          <div className="p-6 mt-auto">
-            {/* Live OCR progress bar — visible only while scanning image text */}
-            {ocrProgress !== null && (
-              <div className="mb-3">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="label-mono text-[10px] text-cyan-400">
-                    OCR · Extracting text from image
-                  </span>
-                  <span className="label-mono text-[10px] text-cyan-400 font-bold">
-                    {ocrProgress}%
-                  </span>
-                </div>
-                <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
-                    style={{ width: `${ocrProgress}%` }}
-                  />
-                </div>
-              </div>
-            )}
-            <button
-              disabled={!hasContent || loading}
-              onClick={handleRunCheck}
-              className={`${btnDark} w-full rounded-lg justify-center shadow-lg shadow-cyan-500/10`}
-            >
-              <span>
-                {loadingLabel}
-                {loading && <span className="blink">_</span>}
+          <div className="flex flex-col md:col-span-5 bg-secondary/30">
+            <div className="p-4 border-b border-border bg-secondary/50">
+              <span className="label-mono text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+                // 002 · Or Upload Media Directly
               </span>
-              <Arrow />
-            </button>
+            </div>
+
+            {ups.map((u, i) => (
+              <div key={u.k} className="border-b border-border last:border-b-0">
+                <label
+                  className={`group flex cursor-pointer items-center justify-between gap-4 p-5 transition-colors hover:bg-secondary ${
+                    fileType === u.k && selectedFile ? "bg-secondary" : ""
+                  }`}
+                >
+                  <div>
+                    <span className="label-mono text-xs text-muted-foreground">// 00{i + 2}</span>
+                    <p
+                      className={`mt-0.5 text-base font-medium ${
+                        fileType === u.k && selectedFile ? "text-cyan-400" : "text-foreground"
+                      }`}
+                    >
+                      {u.label}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground max-w-[200px]">
+                      {fileType === u.k && selectedFile ? selectedFile.name : u.hint}
+                    </p>
+                  </div>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border text-base transition-all group-hover:border-foreground group-hover:bg-primary group-hover:text-primary-foreground">
+                    {fileType === u.k && selectedFile ? "✓" : "+"}
+                  </span>
+                  <input
+                    type="file"
+                    accept={u.accept}
+                    className="sr-only"
+                    onChange={(e) => handleFileSelect(u.k, e.target.files?.[0])}
+                  />
+                </label>
+              </div>
+            ))}
+
+            <div className="p-6 mt-auto">
+              {/* Live OCR progress bar — visible only while scanning image text */}
+              {ocrProgress !== null && (
+                <div className="mb-3">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="label-mono text-[10px] text-cyan-400">
+                      OCR · Extracting text from image
+                    </span>
+                    <span className="label-mono text-[10px] text-cyan-400 font-bold">
+                      {ocrProgress}%
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
+                      style={{ width: `${ocrProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+              <button
+                disabled={!hasContent || loading}
+                onClick={handleRunCheck}
+                className={`${btnDark} w-full rounded-lg justify-center shadow-lg shadow-cyan-500/10`}
+              >
+                <span>
+                  {loadingLabel}
+                  {loading && <span className="blink">_</span>}
+                </span>
+                <Arrow />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }

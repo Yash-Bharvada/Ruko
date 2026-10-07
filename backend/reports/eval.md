@@ -1,6 +1,6 @@
 # Ruko Backend Evaluation & Benchmark Report
 
-**Generated**: 2026-10-07T02:25:42Z  
+**Generated**: 2026-10-07T05:34:59Z  
 **Total Benchmark Cases**: 16
 
 ---
@@ -21,10 +21,10 @@
 
 | Metric | Latency (ms) | Budget |
 |---|---|---|
-| **Minimum Latency** | 0.28 ms | < 50 ms |
-| **Mean Latency** | **1669.05 ms** | < 100 ms |
-| **95th Percentile (P95)** | **2662.52 ms** | < 250 ms |
-| **Maximum Latency** | 2662.52 ms | < 8000 ms |
+| **Minimum Latency** | 0.17 ms | < 50 ms |
+| **Mean Latency** | **241.81 ms** | < 100 ms |
+| **95th Percentile (P95)** | **371.04 ms** | < 250 ms |
+| **Maximum Latency** | 371.04 ms | < 8000 ms |
 
 ---
 
@@ -32,22 +32,22 @@
 
 | Case ID | Category | Expected | Actual Verdict | Score | Latency | Status |
 |---|---|---|---|---|---|---|
-| `gu_fixed_returns` | scam | strong_red_flags | **strong_red_flags** | 0.94 | 2320.75 ms | ✅ PASS |
-| `gu_double_money` | scam | strong_red_flags | **strong_red_flags** | 0.85 | 2059.44 ms | ✅ PASS |
-| `hi_paisa_double` | scam | strong_red_flags | **strong_red_flags** | 0.93 | 2662.52 ms | ✅ PASS |
-| `hi_guaranteed_profit` | scam | strong_red_flags | **strong_red_flags** | 0.95 | 2045.73 ms | ✅ PASS |
-| `en_vip_operator_group` | scam | strong_red_flags | **strong_red_flags** | 0.98 | 2457.54 ms | ✅ PASS |
-| `en_digital_arrest` | scam | strong_red_flags | **strong_red_flags** | 0.98 | 2169.81 ms | ✅ PASS |
-| `en_remote_apk` | scam | strong_red_flags | **strong_red_flags** | 1.00 | 2442.93 ms | ✅ PASS |
-| `roman_hi_double` | scam | strong_red_flags | **strong_red_flags** | 0.97 | 2138.87 ms | ✅ PASS |
-| `roman_gu_nafo` | scam | strong_red_flags | **strong_red_flags** | 0.93 | 2258.4 ms | ✅ PASS |
-| `benign_bank_credit` | benign | no_red_flags_found/cannot_verify | **cannot_verify** | 0.00 | 1938.77 ms | ✅ PASS |
-| `benign_salary_credit` | benign | no_red_flags_found/cannot_verify | **no_red_flags_found** | 0.01 | 2163.78 ms | ✅ PASS |
-| `benign_demat_alert` | benign | no_red_flags_found/cannot_verify | **cannot_verify** | 0.15 | 2044.78 ms | ✅ PASS |
-| `advice_en_stock` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.38 ms | ✅ PASS |
-| `advice_hi_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.37 ms | ✅ PASS |
-| `advice_gu_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.42 ms | ✅ PASS |
-| `advice_roman_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.28 ms | ✅ PASS |
+| `gu_fixed_returns` | scam | strong_red_flags | **strong_red_flags** | 0.95 | 341.9 ms | ✅ PASS |
+| `gu_double_money` | scam | strong_red_flags | **strong_red_flags** | 0.95 | 321.4 ms | ✅ PASS |
+| `hi_paisa_double` | scam | strong_red_flags | **strong_red_flags** | 1.00 | 312.97 ms | ✅ PASS |
+| `hi_guaranteed_profit` | scam | strong_red_flags | **strong_red_flags** | 0.95 | 371.04 ms | ✅ PASS |
+| `en_vip_operator_group` | scam | strong_red_flags | **strong_red_flags** | 1.00 | 370.19 ms | ✅ PASS |
+| `en_digital_arrest` | scam | strong_red_flags | **strong_red_flags** | 0.95 | 310.66 ms | ✅ PASS |
+| `en_remote_apk` | scam | strong_red_flags | **strong_red_flags** | 1.00 | 305.0 ms | ✅ PASS |
+| `roman_hi_double` | scam | strong_red_flags | **strong_red_flags** | 1.00 | 332.13 ms | ✅ PASS |
+| `roman_gu_nafo` | scam | strong_red_flags | **strong_red_flags** | 1.00 | 307.69 ms | ✅ PASS |
+| `benign_bank_credit` | benign | no_red_flags_found/cannot_verify | **cannot_verify** | 0.60 | 299.29 ms | ✅ PASS |
+| `benign_salary_credit` | benign | no_red_flags_found/cannot_verify | **cannot_verify** | 0.35 | 305.58 ms | ✅ PASS |
+| `benign_demat_alert` | benign | no_red_flags_found/cannot_verify | **cannot_verify** | 0.35 | 290.26 ms | ✅ PASS |
+| `advice_en_stock` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.21 ms | ✅ PASS |
+| `advice_hi_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.23 ms | ✅ PASS |
+| `advice_gu_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.2 ms | ✅ PASS |
+| `advice_roman_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.17 ms | ✅ PASS |
 
 ---
 
