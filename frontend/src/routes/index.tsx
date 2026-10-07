@@ -6,6 +6,8 @@ import { ThemeToggle } from "../components/ThemeToggle";
 import { ChatBot } from "../components/ChatBot";
 import { InsightCharts } from "../components/InsightCharts";
 import { VoiceInput } from "../components/VoiceInput";
+import { SiteLoader } from "../components/SiteLoader";
+import { InteractivePixelGrid } from "../components/InteractivePixelGrid";
 import {
   checkText,
   checkMedia,
@@ -312,17 +314,8 @@ function Hero() {
     >
       <div className="absolute inset-0 bg-glow pointer-events-none opacity-70" />
       <div className="absolute inset-0 grid-lines opacity-20 dark:opacity-40 pointer-events-none" />
-      <div
-        ref={ref}
-        className="pointer-events-none absolute right-0 top-24 hidden grid-cols-8 md:grid"
-      >
-        {Array.from({ length: 64 }).map((_, i) => (
-          <div
-            key={i}
-            className={`h-12 w-12 ${cells.includes(i) ? "pixel bg-accent" : ""}`}
-            style={{ animationDelay: `${(i % 7) * 400}ms` }}
-          />
-        ))}
+      <div className="absolute right-4 top-20 hidden md:block z-10">
+        <InteractivePixelGrid />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-5 pb-10 pt-36 md:px-8 md:pt-44">
@@ -1799,6 +1792,7 @@ function Index() {
 
   return (
     <>
+      <SiteLoader />
       <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
         <Nav lang={lang} onLangChange={setLang} />
         <Hero />
