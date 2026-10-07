@@ -42,6 +42,25 @@ export interface RegistryInfo {
   verify_url: string;
 }
 
+export interface PromisedReturnClaim {
+  value: number;
+  period?: string;
+}
+
+export interface PaymentRequestClaim {
+  amount?: number;
+  method?: string;
+  target?: string;
+}
+
+export interface CheckClaims {
+  upi_ids?: string[];
+  promised_returns?: PromisedReturnClaim[];
+  payment_requests?: PaymentRequestClaim[];
+  urgency_cues?: string[];
+  guaranteed?: boolean;
+}
+
 export interface CheckResult {
   request_id: string;
   language: string;
@@ -50,7 +69,7 @@ export interface CheckResult {
   reasons: Reason[];
   registry?: RegistryInfo;
   model?: ModelInfo;
-  claims?: Record<string, any>;
+  claims?: CheckClaims;
   note: string;
   disclaimer: string;
   text?: string;
