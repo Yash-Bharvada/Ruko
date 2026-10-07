@@ -247,3 +247,106 @@ class ExplainSpeakRequest(BaseModel):
     speak_token: str = Field(..., description="HMAC-SHA256 signature token")
 
     model_config = ConfigDict(extra="forbid")
+
+
+# =============================================================================
+# Breach Exposure Check Schemas (Stateless)
+# =============================================================================
+
+class ExposureRecord(BaseModel):
+    """Normalized, sanitized record of a specific data breach exposure."""
+
+    breach_name: str = Field(..., description="Name of the service or incident")
+    breach_date: str = Field(..., description="Approximate date or year of exposure")
+    exposure_categories: List[str] = Field(default_factory=list, description="Sanitized data categories exposed")
+    risk_level: Literal["HIGH", "MEDIUM", "LOW"] = Field(..., description="Conservative deterministic risk assessment")
+    financial_exposure: bool = Field(False, description="True ONLY if banking, card, or payment data was exposed")
+    provider: str = Field(..., description="Provider source: mock | hibp")
+    remediation_notes: List[str] = Field(default_factory=list, description="Actionable safety recommendations")
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class BreachCheckRequest(BaseModel):
+    """Stateless breach check request payload."""
+
+    email: str = Field(..., min_length=3, max_length=320, description="Email address to check")
+    consent: bool = Field(..., description="Explicit user consent to query breach index (must be true)")
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class BreachCheckResult(BaseModel):
+    """Stateless summary and exposure findings for an email query."""
+
+    request_id: str = Field(..., description="Request tracing UUID")
+    status: Literal["ok", "incomplete", "scan_unavailable"] = Field(..., description="Scan execution status")
+    is_demo: bool = Field(False, description="True if mock/synthetic demo records are returned")
+    exposures: List[ExposureRecord] = Field(default_factory=list, description="List of normalized breach exposures")
+    total_exposures: int = Field(0, description="Total count of exposures found")
+    high_risk_count: int = Field(0, description="Count of HIGH risk exposures")
+    financial_exposure_count: int = Field(0, description="Count of exposures with financial data")
+    notice: str = Field(..., description="Educational honest guidance note")
+    data_safety: List[str] = Field(default_factory=list, description="Explicit data safety guarantees")
+    degraded: List[str] = Field(default_factory=list, description="Non-blocking degradation or error notices")
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class PhoneStartRequest(BaseModel):
+    """Request payload to initiate phone verification via Twilio Verify."""
+
+    phone: str = Field(..., min_length=8, max_length=20, description="E.164 phone number (+91...)")
+    consent: bool = Field(..., description="User consent to receive verification OTP")
+    channel: Literal["sms", "call"] = Field("sms", description="Verification delivery channel: sms or call")
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class PhoneStartResponse(BaseModel):
+    """Response indicating verification code dispatch."""
+
+    status: Literal["ok", "sms_unavailable_try_call"] = Field("ok", description="Dispatch status")
+    message: str = Field(..., description="Human-friendly status explanation")
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class PhoneVerifyRequest(BaseModel):
+    """Request payload to verify OTP against Twilio Verify."""
+
+    phone: str = Field(..., min_length=8, max_length=20, description="E.164 phone number")
+    code: str = Field(..., min_length=4, max_length=8, pattern=r"^\d{4,8}$", description="Verification code (4 to 8 digits)")
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class PhoneVerifyResponse(BaseModel):
+    """Stateless phone authorization token valid for 15 minutes."""
+
+    phone_token: str = Field(..., description="Signed token confirming phone possession")
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class BreachAlertRequest(BaseModel):
+    """Request payload to trigger an automated emergency voice alert call."""
+
+    phone: str = Field(..., min_length=8, max_length=20, description="Verified E.164 phone number")
+    phone_token: str = Field(..., description="Valid 15-minute phone authorization token")
+    voice_opt_in: bool = Field(..., description="Explicit opt-in to receive automated voice alert call")
+    exposures_high_risk_new: bool = Field(False, description="Flag indicating high-risk exposure state")
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class BreachAlertResponse(BaseModel):
+    """Outcome of alert call dispatch eligibility check."""
+
+    status: Literal["ok", "rejected", "disabled", "simulated"] = Field(..., description="Alert dispatch status")
+    message: str = Field(..., description="Explanation of dispatch decision")
+    call_placed: bool = Field(False, description="True if voice call was successfully dispatched")
+    script: Optional[str] = Field(None, description="Exact text of the fixed security alert script")
+    hint: Optional[str] = Field(None, description="Actionable hint for client UI e.g. live_calls_unavailable")
+
+    model_config = ConfigDict(extra="forbid")

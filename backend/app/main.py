@@ -136,6 +136,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Initialize DocExplain (M12)
     docexplain_status = "active" if getattr(settings, "EXPLAIN_ENABLED", True) else "disabled"
 
+    # Initialize Breach Monitor (M13)
+    breach_status = "active"
+
     model_status = "degraded" if degraded else "active"
     app.state.modules = {
         "model_adapter": model_status,
@@ -149,6 +152,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         "guardrails": guardrails_status,
         "video": video_status,
         "docexplain": docexplain_status,
+        "breach": breach_status,
     }
     yield
     logger.info("Shutting down Ruko Backend")
@@ -209,6 +213,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "guardrails": "disabled",
                 "video": "disabled",
                 "docexplain": "disabled",
+                "breach": "disabled",
             },
         )
         model_status = current_modules.get("model_adapter", "disabled")
@@ -226,12 +231,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     from app.api.routes_pause import router as pause_router
     from app.api.routes_ai import router as ai_router
     from app.api.routes_explain import router as explain_router
+    from app.api.routes_breach import router as breach_router
     app.include_router(check_router)
     app.include_router(misc_router)
     app.include_router(media_router)
     app.include_router(pause_router)
     app.include_router(ai_router)
     app.include_router(explain_router)
+    app.include_router(breach_router)
 
     return app
 
