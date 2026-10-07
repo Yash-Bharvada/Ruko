@@ -35,8 +35,52 @@ def load_demo_cases() -> List[Dict[str, Any]]:
     raise FileNotFoundError("data/demo_cases.json not found")
 
 
+async def run_explain_demo_docs() -> bool:
+    """Run synthetic demo documents through the Explain a Document pipeline."""
+    from app.modules.docexplain import explain_document
+
+    docs_dir = Path(__file__).resolve().parent.parent / "data" / "demo_docs"
+    demo_files = [
+        ("English Loan Agreement", docs_dir / "loan_agreement.txt", "en"),
+        ("Hindi Health Insurance Policy", docs_dir / "insurance_clause.txt", "hi"),
+        ("Gujarati Rental Agreement", docs_dir / "rental_agreement.txt", "gu"),
+    ]
+
+    print("\n" + "=" * 80)
+    print(" RUKO EXPLAIN A DOCUMENT — DEMO WALKTHROUGH")
+    print(f" Explaining {len(demo_files)} Synthetic Legal/Financial Documents")
+    print("=" * 80 + "\n")
+
+    all_ok = True
+    for title, path, lang in demo_files:
+        if not path.is_file():
+            continue
+        with open(path, "r", encoding="utf-8") as f:
+            doc_text = f.read()
+
+        start = time.perf_counter()
+        exp = await explain_document(
+            plain_text=doc_text,
+            language=lang,
+            include_storyboard=True,
+            crosscheck=True,
+        )
+        elapsed_ms = (time.perf_counter() - start) * 1000.0
+
+        print(f"DOCUMENT: {title} (Lang: {exp.language}, Type: {exp.doc_type_guess}) in {elapsed_ms:.1f}ms")
+        print(f"  Summary    : {exp.summary[:100]}...")
+        print(f"  Key Points : {len(exp.key_points)} takeaways grounded")
+        print(f"  Steps      : {len(exp.steps)} action steps")
+        print(f"  Storyboard : {len(exp.storyboard)} browser scenes generated & signed")
+        if exp.storyboard:
+            print(f"  Sample Scene 1 Narration : \"{exp.storyboard[0].narration[:80]}...\"")
+        print("-" * 80)
+
+    return all_ok
+
+
 async def run_smoke_test() -> bool:
-    """Run all demo cases through Ruko backend pipeline and display formatted demo results."""
+    """Run all demo cases and demo docs through Ruko backend pipeline."""
     cases = load_demo_cases()
     settings = Settings()
 
@@ -78,6 +122,9 @@ async def run_smoke_test() -> bool:
 
         print(f"  Summary  : {result.note}")
         print("-" * 80)
+
+    # Run doc explain demo
+    await run_explain_demo_docs()
 
     print("\n" + "=" * 80)
     if all_passed:

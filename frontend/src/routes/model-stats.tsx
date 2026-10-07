@@ -1,21 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { 
-  ShieldCheck, 
-  ShieldAlert, 
-  Cpu, 
-  Activity, 
-  Sliders, 
-  BarChart3, 
-  CheckCircle2, 
-  AlertTriangle, 
-  ArrowLeft, 
+import {
+  ShieldCheck,
+  ShieldAlert,
+  Cpu,
+  Activity,
+  Sliders,
+  BarChart3,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowLeft,
   ExternalLink,
   Zap,
   Globe,
   Lock,
   Layers,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import RukoLogo from "../components/RukoLogo";
 import ThemeToggle from "../components/ThemeToggle";
@@ -63,23 +63,80 @@ export function ModelStatsPage() {
   // Compute dynamic simulator metrics based on slider threshold
   const simRecall = Math.min(100, Math.max(40, Number((100 - (threshold - 0.41) * 65).toFixed(1))));
   const simFPR = Math.max(0, Math.min(50, Number((25.93 - (threshold - 0.41) * 45).toFixed(1))));
-  const simAccuracy = Math.min(98, Math.max(75, Number((88.33 + (threshold - 0.41) * 15).toFixed(1))));
+  const simAccuracy = Math.min(
+    98,
+    Math.max(75, Number((88.33 + (threshold - 0.41) * 15).toFixed(1))),
+  );
 
   const CATEGORY_STATS = [
-    { name: "Digital Arrest / Police Impersonation", samples: 4, rawAcc: "100.0%", pipeAcc: "75.0%", status: "Active Defense" },
-    { name: "High-Yield / Ponzi Investment Scam", samples: 8, rawAcc: "100.0%", pipeAcc: "87.5%", status: "Strict Safety" },
-    { name: "Telegram Task & Like Fraud", samples: 5, rawAcc: "100.0%", pipeAcc: "60.0%", status: "Heuristic Match" },
-    { name: "Bank Transaction Alerts", samples: 5, rawAcc: "100.0%", pipeAcc: "100.0%", status: "Verified Safe" },
-    { name: "OTP & Credential Messages", samples: 4, rawAcc: "100.0%", pipeAcc: "100.0%", status: "High Priority" },
-    { name: "Malware APK / Remote Screenshare", samples: 2, rawAcc: "100.0%", pipeAcc: "100.0%", status: "Zero Tolerance" },
-    { name: "Electricity / Utility Phishing", samples: 8, rawAcc: "100.0%", pipeAcc: "62.5%", status: "Pattern Monitored" },
-    { name: "Legitimate Stockbroker Settlement", samples: 4, rawAcc: "100.0%", pipeAcc: "100.0%", status: "0% False Alarms" },
+    {
+      name: "Digital Arrest / Police Impersonation",
+      samples: 4,
+      rawAcc: "100.0%",
+      pipeAcc: "75.0%",
+      status: "Active Defense",
+    },
+    {
+      name: "High-Yield / Ponzi Investment Scam",
+      samples: 8,
+      rawAcc: "100.0%",
+      pipeAcc: "87.5%",
+      status: "Strict Safety",
+    },
+    {
+      name: "Telegram Task & Like Fraud",
+      samples: 5,
+      rawAcc: "100.0%",
+      pipeAcc: "60.0%",
+      status: "Heuristic Match",
+    },
+    {
+      name: "Bank Transaction Alerts",
+      samples: 5,
+      rawAcc: "100.0%",
+      pipeAcc: "100.0%",
+      status: "Verified Safe",
+    },
+    {
+      name: "OTP & Credential Messages",
+      samples: 4,
+      rawAcc: "100.0%",
+      pipeAcc: "100.0%",
+      status: "High Priority",
+    },
+    {
+      name: "Malware APK / Remote Screenshare",
+      samples: 2,
+      rawAcc: "100.0%",
+      pipeAcc: "100.0%",
+      status: "Zero Tolerance",
+    },
+    {
+      name: "Electricity / Utility Phishing",
+      samples: 8,
+      rawAcc: "100.0%",
+      pipeAcc: "62.5%",
+      status: "Pattern Monitored",
+    },
+    {
+      name: "Legitimate Stockbroker Settlement",
+      samples: 4,
+      rawAcc: "100.0%",
+      pipeAcc: "100.0%",
+      status: "0% False Alarms",
+    },
   ];
 
   const LANGUAGE_METRICS = [
     { lang: "English (EN)", samples: 38, rawAcc: "94.7%", pipeAcc: "81.6%", badge: "Primary" },
     { lang: "Hindi (HI)", samples: 9, rawAcc: "77.8%", pipeAcc: "66.7%", badge: "Indic Core" },
-    { lang: "Hinglish (Latin)", samples: 6, rawAcc: "83.3%", pipeAcc: "83.3%", badge: "Conversational" },
+    {
+      lang: "Hinglish (Latin)",
+      samples: 6,
+      rawAcc: "83.3%",
+      pipeAcc: "83.3%",
+      badge: "Conversational",
+    },
     { lang: "Gujarati (GU)", samples: 6, rawAcc: "66.7%", pipeAcc: "66.7%", badge: "Regional" },
     { lang: "Gujlish (Latin)", samples: 1, rawAcc: "100.0%", pipeAcc: "100.0%", badge: "Phonetic" },
   ];
@@ -129,7 +186,10 @@ export function ModelStatsPage() {
                 Ruko AI Model Thresholds & Performance
               </h1>
               <p className="mt-4 text-base md:text-lg text-muted-foreground leading-relaxed">
-                Ruko combines a machine learning text classifier (<code className="text-cyan-400 font-mono">model.joblib</code>) with a deterministic safety rule engine and offline SEBI registry lookup to stop financial fraud before victims transfer money.
+                Ruko combines a machine learning text classifier (
+                <code className="text-cyan-400 font-mono">model.joblib</code>) with a deterministic
+                safety rule engine and offline SEBI registry lookup to stop financial fraud before
+                victims transfer money.
               </p>
             </div>
 
@@ -165,9 +225,7 @@ export function ModelStatsPage() {
               <span className="label-mono text-xs uppercase font-semibold">Scam Catch Recall</span>
               <ShieldAlert className="h-5 w-5 text-cyan-400" />
             </div>
-            <div className="text-4xl font-bold font-mono text-cyan-400 tracking-tight">
-              100.0%
-            </div>
+            <div className="text-4xl font-bold font-mono text-cyan-400 tracking-tight">100.0%</div>
             <div className="mt-2 text-xs text-muted-foreground">
               33 out of 33 unseen scam cases caught (0% leak)
             </div>
@@ -188,7 +246,9 @@ export function ModelStatsPage() {
 
           <div className="rounded-xl border border-border bg-card p-6 shadow-sm hover:border-indigo-500/40 transition-all">
             <div className="flex items-center justify-between text-muted-foreground mb-3">
-              <span className="label-mono text-xs uppercase font-semibold">Mean Inference Latency</span>
+              <span className="label-mono text-xs uppercase font-semibold">
+                Mean Inference Latency
+              </span>
               <Zap className="h-5 w-5 text-indigo-400" />
             </div>
             <div className="text-4xl font-bold font-mono text-foreground tracking-tight">
@@ -201,7 +261,9 @@ export function ModelStatsPage() {
 
           <div className="rounded-xl border border-border bg-card p-6 shadow-sm hover:border-amber-500/40 transition-all">
             <div className="flex items-center justify-between text-muted-foreground mb-3">
-              <span className="label-mono text-xs uppercase font-semibold">SEBI Entities Cached</span>
+              <span className="label-mono text-xs uppercase font-semibold">
+                SEBI Entities Cached
+              </span>
               <Lock className="h-5 w-5 text-amber-400" />
             </div>
             <div className="text-4xl font-bold font-mono text-foreground tracking-tight">
@@ -225,7 +287,8 @@ export function ModelStatsPage() {
                 Threshold Decision Boundary Simulator
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Drag the decision boundary to observe the trade-off between Scam Recall and Precision.
+                Drag the decision boundary to observe the trade-off between Scam Recall and
+                Precision.
               </p>
             </div>
 
@@ -241,9 +304,9 @@ export function ModelStatsPage() {
                 Reset to Calibrated (0.410)
               </button>
               <button
-                onClick={() => setThreshold(0.80)}
+                onClick={() => setThreshold(0.8)}
                 className={`px-3 py-1.5 rounded text-xs label-mono border transition-all ${
-                  threshold === 0.80
+                  threshold === 0.8
                     ? "bg-cyan-500/20 text-cyan-400 border-cyan-500"
                     : "border-border text-muted-foreground hover:text-foreground"
                 }`}
@@ -272,7 +335,9 @@ export function ModelStatsPage() {
             />
             <div className="flex justify-between text-xs label-mono text-muted-foreground">
               <span>0.10 (Ultra Strict)</span>
-              <span className="text-cyan-400 font-semibold font-mono">0.410 (Ruko Recommended Calibrated)</span>
+              <span className="text-cyan-400 font-semibold font-mono">
+                0.410 (Ruko Recommended Calibrated)
+              </span>
               <span>0.90 (Lenient)</span>
             </div>
           </div>
@@ -280,27 +345,29 @@ export function ModelStatsPage() {
           {/* Live Simulator Results */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-border">
             <div className="rounded-lg border border-border/80 bg-background/80 p-5">
-              <span className="label-mono text-xs text-muted-foreground uppercase">Estimated Scam Recall</span>
-              <div className="mt-2 text-3xl font-bold font-mono text-cyan-400">
-                {simRecall}%
-              </div>
+              <span className="label-mono text-xs text-muted-foreground uppercase">
+                Estimated Scam Recall
+              </span>
+              <div className="mt-2 text-3xl font-bold font-mono text-cyan-400">{simRecall}%</div>
               <div className="mt-2 text-xs text-muted-foreground">
                 Percentage of fraudulent communications intercepted
               </div>
             </div>
 
             <div className="rounded-lg border border-border/80 bg-background/80 p-5">
-              <span className="label-mono text-xs text-muted-foreground uppercase">False Positive Rate</span>
-              <div className="mt-2 text-3xl font-bold font-mono text-amber-400">
-                {simFPR}%
-              </div>
+              <span className="label-mono text-xs text-muted-foreground uppercase">
+                False Positive Rate
+              </span>
+              <div className="mt-2 text-3xl font-bold font-mono text-amber-400">{simFPR}%</div>
               <div className="mt-2 text-xs text-muted-foreground">
                 Harmless user chats flagged for review
               </div>
             </div>
 
             <div className="rounded-lg border border-border/80 bg-background/80 p-5">
-              <span className="label-mono text-xs text-muted-foreground uppercase">Raw Model Accuracy</span>
+              <span className="label-mono text-xs text-muted-foreground uppercase">
+                Raw Model Accuracy
+              </span>
               <div className="mt-2 text-3xl font-bold font-mono text-emerald-400">
                 {simAccuracy}%
               </div>
@@ -334,18 +401,10 @@ export function ModelStatsPage() {
               <tbody className="divide-y divide-border font-mono text-xs md:text-sm">
                 {CATEGORY_STATS.map((item, idx) => (
                   <tr key={idx} className="hover:bg-muted/40 transition-colors">
-                    <td className="px-6 py-4 font-sans font-medium text-foreground">
-                      {item.name}
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground">
-                      {item.samples}
-                    </td>
-                    <td className="px-6 py-4 text-cyan-400 font-semibold">
-                      {item.rawAcc}
-                    </td>
-                    <td className="px-6 py-4 text-emerald-400 font-semibold">
-                      {item.pipeAcc}
-                    </td>
+                    <td className="px-6 py-4 font-sans font-medium text-foreground">{item.name}</td>
+                    <td className="px-6 py-4 text-muted-foreground">{item.samples}</td>
+                    <td className="px-6 py-4 text-cyan-400 font-semibold">{item.rawAcc}</td>
+                    <td className="px-6 py-4 text-emerald-400 font-semibold">{item.pipeAcc}</td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-sans font-medium border border-border bg-secondary text-foreground">
                         <CheckCircle2 className="h-3 w-3 text-cyan-400" />
@@ -370,7 +429,10 @@ export function ModelStatsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {LANGUAGE_METRICS.map((lang, idx) => (
-              <div key={idx} className="rounded-xl border border-border bg-card p-6 hover:border-cyan-500/40 transition-all">
+              <div
+                key={idx}
+                className="rounded-xl border border-border bg-card p-6 hover:border-cyan-500/40 transition-all"
+              >
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-semibold text-foreground">{lang.lang}</span>
                   <span className="label-mono text-[10px] px-2 py-0.5 rounded border border-border bg-secondary text-muted-foreground">
@@ -417,7 +479,9 @@ export function ModelStatsPage() {
                     {moduleName}
                   </div>
                   <div className="mt-1 flex items-center gap-1.5">
-                    <span className={`h-2 w-2 rounded-full ${status === "active" ? "bg-emerald-400" : "bg-amber-400"}`} />
+                    <span
+                      className={`h-2 w-2 rounded-full ${status === "active" ? "bg-emerald-400" : "bg-amber-400"}`}
+                    />
                     <span className="text-xs font-mono font-semibold uppercase text-foreground">
                       {status}
                     </span>

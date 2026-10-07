@@ -100,6 +100,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
+                  "additionalProperties": true,
                   "title": "Response Registry Lookup V1 Registry Lookup Get"
                 }
               }
@@ -142,6 +143,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Speak Verdict V1 Speak Post"
                 }
@@ -175,6 +177,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Get Privacy V1 Privacy Get"
                 }
@@ -388,7 +391,177 @@
               "application/json": {
                 "schema": {
                   "type": "object",
+                  "additionalProperties": true,
                   "title": "Response Get Recovery Resources V1 Resources Already Paid Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/chat": {
+      "post": {
+        "tags": [
+          "AI Chat & Insights"
+        ],
+        "summary": "Chat With Ruko",
+        "description": "Ruko AI chat assistant powered by Groq Llama 3.3-70b.\n\nProvides expert guidance on investment fraud, scam detection results,\nSEBI verification, and recovery steps in English, Hindi, or Gujarati.",
+        "operationId": "chat_with_ruko_v1_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/analyze/insights": {
+      "post": {
+        "tags": [
+          "AI Chat & Insights"
+        ],
+        "summary": "Generate Insights",
+        "description": "Generate AI-powered visual insight charts for a completed scan result.\n\nUses Groq Llama 3.3-70b to interpret the ML model output and generate\nstructured chart data for visualization on the frontend.",
+        "operationId": "generate_insights_v1_analyze_insights_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InsightsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsightsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/explain": {
+      "post": {
+        "tags": [
+          "Document Explanation"
+        ],
+        "summary": "Explain Document Endpoint",
+        "description": "Upload a complex document or paste text to receive a grounded plain-language explanation.",
+        "operationId": "explain_document_endpoint_v1_explain_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_explain_document_endpoint_v1_explain_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocExplanation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/explain/speak": {
+      "post": {
+        "tags": [
+          "Document Explanation"
+        ],
+        "summary": "Explain Speak Endpoint",
+        "description": "Synthesize audio for a verified storyboard scene narration with tamper-proof HMAC check.",
+        "operationId": "explain_speak_endpoint_v1_explain_speak_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExplainSpeakRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Explain Speak Endpoint V1 Explain Speak Post"
                 }
               }
             }
@@ -413,7 +586,7 @@
         "properties": {
           "file": {
             "type": "string",
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
             "description": "Audio voice-note file"
           },
@@ -452,7 +625,7 @@
         "properties": {
           "file": {
             "type": "string",
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
             "description": "Screenshot or photo of suspicious message"
           },
@@ -491,9 +664,9 @@
         "properties": {
           "file": {
             "type": "string",
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
-            "description": "Multipart file: text (.txt), image, audio, or video reel"
+            "description": "Multipart file: text (.txt), PDF (.pdf), image, audio, or video reel"
           },
           "language": {
             "anyOf": [
@@ -518,6 +691,18 @@
             ],
             "title": "Amount",
             "description": "Optional investment amount mentioned"
+          },
+          "extracted_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extracted Text",
+            "description": "Client-extracted OCR or transcript text"
           }
         },
         "type": "object",
@@ -525,6 +710,122 @@
           "file"
         ],
         "title": "Body_check_media_v1_check_media_post"
+      },
+      "Body_explain_document_endpoint_v1_explain_post": {
+        "properties": {
+          "file": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File",
+            "description": "PDF, DOCX, or Image document to explain"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text",
+            "description": "Pasted document text to explain"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Target language: en | hi | gu | hinglish | gujlish",
+            "default": "en"
+          },
+          "include_storyboard": {
+            "type": "boolean",
+            "title": "Include Storyboard",
+            "description": "Whether to include browser video storyboard",
+            "default": true
+          },
+          "crosscheck": {
+            "type": "boolean",
+            "title": "Crosscheck",
+            "description": "Whether to crosscheck red flags against Ruko rules",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "Body_explain_document_endpoint_v1_explain_post"
+      },
+      "ChatMessage": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "ChatMessage"
+      },
+      "ChatRequest": {
+        "properties": {
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/ChatMessage"
+            },
+            "type": "array",
+            "title": "Messages"
+          },
+          "context": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "messages"
+        ],
+        "title": "ChatRequest"
+      },
+      "ChatResponse": {
+        "properties": {
+          "reply": {
+            "type": "string",
+            "title": "Reply"
+          },
+          "suggestions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Suggestions",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "reply"
+        ],
+        "title": "ChatResponse"
       },
       "CheckRequest": {
         "properties": {
@@ -607,6 +908,7 @@
             "description": "ML model output details"
           },
           "claims": {
+            "additionalProperties": true,
             "type": "object",
             "title": "Claims",
             "description": "Extracted claims"
@@ -717,6 +1019,353 @@
         "title": "CheckResult",
         "description": "Unified verdict and explainable report returned by Ruko."
       },
+      "Diagrams": {
+        "properties": {
+          "flowchart": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FlowGraph"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Process or decision flowchart"
+          },
+          "money_flow": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FlowGraph"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Financial or payment flow diagram"
+          },
+          "timeline": {
+            "items": {
+              "$ref": "#/components/schemas/TimelineItem"
+            },
+            "type": "array",
+            "title": "Timeline",
+            "description": "Chronological timeline events"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Diagrams",
+        "description": "Collection of validated JSON diagram representations."
+      },
+      "DocExplanation": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Unique request UUID"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Requested or detected explanation language"
+          },
+          "input_source": {
+            "type": "string",
+            "title": "Input Source",
+            "description": "Input source type: pdf | docx | text | ocr"
+          },
+          "doc_type_guess": {
+            "type": "string",
+            "title": "Doc Type Guess",
+            "description": "Inferred document type (e.g. loan_agreement, insurance_policy)"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "description": "Plain-language comprehensive summary"
+          },
+          "glossary": {
+            "items": {
+              "$ref": "#/components/schemas/GlossaryItem"
+            },
+            "type": "array",
+            "title": "Glossary",
+            "description": "Grounded term explanations"
+          },
+          "key_points": {
+            "items": {
+              "$ref": "#/components/schemas/KeyPoint"
+            },
+            "type": "array",
+            "title": "Key Points",
+            "description": "Categorized grounded takeaways"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/Step"
+            },
+            "type": "array",
+            "title": "Steps",
+            "description": "Chronological actionable steps"
+          },
+          "diagrams": {
+            "$ref": "#/components/schemas/Diagrams",
+            "description": "JSON diagram representations"
+          },
+          "storyboard": {
+            "items": {
+              "$ref": "#/components/schemas/Scene"
+            },
+            "type": "array",
+            "title": "Storyboard",
+            "description": "4-8 browser video storyboard scenes"
+          },
+          "ruko_flags": {
+            "items": {
+              "$ref": "#/components/schemas/Reason"
+            },
+            "type": "array",
+            "title": "Ruko Flags",
+            "description": "Red flags surfaced by Ruko rules/checker"
+          },
+          "registry": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RegistryInfo"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "SEBI snapshot lookup details if claimed"
+          },
+          "ocr_quality": {
+            "type": "string",
+            "enum": [
+              "good",
+              "low",
+              "n/a"
+            ],
+            "title": "Ocr Quality",
+            "description": "OCR quality assessment",
+            "default": "n/a"
+          },
+          "confidence_notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Confidence Notes",
+            "description": "Honest uncertainty and limitation notes"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "description": "Localized educational disclaimer"
+          },
+          "degraded": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Degraded",
+            "description": "Non-blocking degradation flags"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "language",
+          "input_source",
+          "doc_type_guess",
+          "summary",
+          "disclaimer"
+        ],
+        "title": "DocExplanation",
+        "description": "Comprehensive grounded document explanation output."
+      },
+      "ExplainSpeakRequest": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request UUID matching the scene"
+          },
+          "scene_id": {
+            "type": "string",
+            "title": "Scene Id",
+            "description": "Scene ID to synthesize"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Target language (en | hi | gu | hinglish | gujlish)",
+            "default": "en"
+          },
+          "narration": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Narration",
+            "description": "Exact verified narration text (<= 300 chars)"
+          },
+          "issued_at": {
+            "type": "integer",
+            "title": "Issued At",
+            "description": "Timestamp issued in storyboard"
+          },
+          "speak_token": {
+            "type": "string",
+            "title": "Speak Token",
+            "description": "HMAC-SHA256 signature token"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "scene_id",
+          "narration",
+          "issued_at",
+          "speak_token"
+        ],
+        "title": "ExplainSpeakRequest",
+        "description": "Request payload to synthesize speech for a verified storyboard scene."
+      },
+      "FlowGraph": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Diagram title"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/GraphNode"
+            },
+            "type": "array",
+            "title": "Nodes",
+            "description": "Diagram nodes (max 12)"
+          },
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/GraphEdge"
+            },
+            "type": "array",
+            "title": "Edges",
+            "description": "Directed edges"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "title": "FlowGraph",
+        "description": "Structured graph for flowcharts or process diagrams."
+      },
+      "GlossaryItem": {
+        "properties": {
+          "term": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Term",
+            "description": "Term or phrase explained"
+          },
+          "meaning": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Meaning",
+            "description": "Plain-language explanation"
+          },
+          "evidence": {
+            "type": "string",
+            "title": "Evidence",
+            "description": "Verbatim quote from source document"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "term",
+          "meaning",
+          "evidence"
+        ],
+        "title": "GlossaryItem",
+        "description": "Glossary entry explaining a complex legal or financial term."
+      },
+      "GraphEdge": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Source node ID"
+          },
+          "target": {
+            "type": "string",
+            "title": "Target",
+            "description": "Target node ID"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label",
+            "description": "Optional edge transition label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source",
+          "target"
+        ],
+        "title": "GraphEdge",
+        "description": "Directed edge connecting two nodes in a diagram."
+      },
+      "GraphNode": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique node ID"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 60,
+            "title": "Label",
+            "description": "Node display label (max 60 chars)"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "start",
+              "step",
+              "decision",
+              "end",
+              "money",
+              "party",
+              "loop"
+            ],
+            "title": "Kind",
+            "description": "Node visual/functional type"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "kind"
+        ],
+        "title": "GraphNode",
+        "description": "Node in a JSON diagram graph."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -771,6 +1420,180 @@
         ],
         "title": "HealthResponse",
         "description": "Liveness and module status response."
+      },
+      "InsightChart": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "data": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "insight": {
+            "type": "string",
+            "title": "Insight"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "type",
+          "data",
+          "insight",
+          "color"
+        ],
+        "title": "InsightChart"
+      },
+      "InsightsRequest": {
+        "properties": {
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "verdict": {
+            "type": "string",
+            "title": "Verdict"
+          },
+          "reasons": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "claims": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claims"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "default": "en"
+          }
+        },
+        "type": "object",
+        "required": [
+          "score",
+          "verdict",
+          "reasons"
+        ],
+        "title": "InsightsRequest"
+      },
+      "InsightsResponse": {
+        "properties": {
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "risk_level": {
+            "type": "string",
+            "title": "Risk Level"
+          },
+          "charts": {
+            "items": {
+              "$ref": "#/components/schemas/InsightChart"
+            },
+            "type": "array",
+            "title": "Charts"
+          },
+          "action_items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Action Items"
+          },
+          "confidence_note": {
+            "type": "string",
+            "title": "Confidence Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "summary",
+          "risk_level",
+          "charts",
+          "action_items",
+          "confidence_note"
+        ],
+        "title": "InsightsResponse"
+      },
+      "KeyPoint": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique key point identifier, e.g. kp_1"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "obligation",
+              "fee",
+              "deadline",
+              "risk",
+              "right",
+              "other"
+            ],
+            "title": "Category",
+            "description": "Category of key point"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Text",
+            "description": "Plain-language takeaway"
+          },
+          "evidence": {
+            "type": "string",
+            "title": "Evidence",
+            "description": "Verbatim quote from source document"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "category",
+          "text",
+          "evidence"
+        ],
+        "title": "KeyPoint",
+        "description": "Grounded key takeaway or clause summary."
       },
       "LossArithmetic": {
         "properties": {
@@ -1009,6 +1832,7 @@
           },
           "matches": {
             "items": {
+              "additionalProperties": true,
               "type": "object"
             },
             "type": "array",
@@ -1040,6 +1864,88 @@
         ],
         "title": "RegistryInfo",
         "description": "Snapshot verification outcome for claimed registration numbers/names."
+      },
+      "Scene": {
+        "properties": {
+          "scene_id": {
+            "type": "string",
+            "title": "Scene Id",
+            "description": "Unique scene identifier, e.g. scene_1"
+          },
+          "narration": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Narration",
+            "description": "TTS-friendly spoken script (<= 300 chars)"
+          },
+          "caption": {
+            "type": "string",
+            "maxLength": 80,
+            "title": "Caption",
+            "description": "On-screen text subtitle/caption (<= 80 chars)"
+          },
+          "visual": {
+            "$ref": "#/components/schemas/SceneVisual",
+            "description": "Visual configuration for this scene"
+          },
+          "issued_at": {
+            "type": "integer",
+            "title": "Issued At",
+            "description": "Unix timestamp (seconds) when speak token was signed"
+          },
+          "speak_token": {
+            "type": "string",
+            "title": "Speak Token",
+            "description": "HMAC-SHA256 signature for safe audio synthesis"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "scene_id",
+          "narration",
+          "caption",
+          "visual",
+          "issued_at",
+          "speak_token"
+        ],
+        "title": "Scene",
+        "description": "Individual scene in a browser-rendered storyboard."
+      },
+      "SceneVisual": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "title",
+              "bullets",
+              "flowchart",
+              "timeline",
+              "money_flow"
+            ],
+            "title": "Type",
+            "description": "Visual scene layout type"
+          },
+          "ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ref",
+            "description": "Reference to diagram, key point id, or visual key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "title": "SceneVisual",
+        "description": "Visual asset specification for a browser-rendered video scene."
       },
       "SpeakRequest": {
         "properties": {
@@ -1084,6 +1990,71 @@
         "title": "SpeakRequest",
         "description": "Request to synthesize spoken explanation.\n\nSECURITY MANDATE:\nAccepts ONLY structured reason codes and verdict. Free-text inputs are strictly\nforbidden to ensure the backend only speaks validated, safe templated phrases."
       },
+      "Step": {
+        "properties": {
+          "order": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Order",
+            "description": "Step sequence number"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Title",
+            "description": "Step title"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Text",
+            "description": "Detailed explanation of the step"
+          },
+          "evidence": {
+            "type": "string",
+            "title": "Evidence",
+            "description": "Verbatim quote from source document"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "order",
+          "title",
+          "text",
+          "evidence"
+        ],
+        "title": "Step",
+        "description": "Actionable step or chronological milestone for the user."
+      },
+      "TimelineItem": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Milestone event description"
+          },
+          "date_text": {
+            "type": "string",
+            "title": "Date Text",
+            "description": "Date or timeframe text"
+          },
+          "evidence": {
+            "type": "string",
+            "title": "Evidence",
+            "description": "Verbatim quote from source document"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "date_text",
+          "evidence"
+        ],
+        "title": "TimelineItem",
+        "description": "Event or milestone on a timeline diagram."
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -1107,6 +2078,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",

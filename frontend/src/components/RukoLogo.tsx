@@ -23,12 +23,13 @@ export const RukoLogo: FC<RukoLogoProps> = ({
           <div
             className="absolute inset-0 rounded-full blur-md opacity-70 group-hover:opacity-100 transition-opacity duration-500"
             style={{
-              background: "radial-gradient(circle, rgba(0,229,255,0.6) 0%, rgba(0,140,255,0.15) 70%, transparent 100%)",
+              background:
+                "radial-gradient(circle, rgba(0,229,255,0.6) 0%, rgba(0,140,255,0.15) 70%, transparent 100%)",
               transform: "scale(1.2)",
             }}
           />
         )}
-        
+
         {/* Real Rupee Badge Image */}
         <div
           className="relative rounded-full overflow-hidden border border-cyan-400/40 shadow-lg shadow-cyan-500/20 transition-transform duration-300 group-hover:scale-105"

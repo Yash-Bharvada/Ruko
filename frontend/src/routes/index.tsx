@@ -48,11 +48,7 @@ const R = ({
   children: ReactNode;
   d?: number;
   className?: string;
-}) => (
-  <div className={className}>
-    {children}
-  </div>
-);
+}) => <div className={className}>{children}</div>;
 
 const Arrow = () => (
   <svg
@@ -69,7 +65,13 @@ const Arrow = () => (
 const Logo = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
     <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="1.6" />
-    <path d="M7 6h10M7 10h8M9 6v8c0 0 6 0 6-4s-6-4-6-4l7 10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M7 6h10M7 10h8M9 6v8c0 0 6 0 6-4s-6-4-6-4l7 10"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
@@ -107,13 +109,7 @@ const LANG_OPTIONS = [
   { code: "gu", label: "ગુ · ગુજરાતી" },
 ];
 
-function Nav({
-  lang,
-  onLangChange,
-}: {
-  lang: string;
-  onLangChange: (l: string) => void;
-}) {
+function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) => void }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -134,7 +130,9 @@ function Nav({
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 border-b border-border/70 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 ${
-        scrolled ? "shadow-lg shadow-black/10 dark:shadow-cyan-950/20 bg-background/90" : "shadow-sm"
+        scrolled
+          ? "shadow-lg shadow-black/10 dark:shadow-cyan-950/20 bg-background/90"
+          : "shadow-sm"
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 text-foreground md:px-8">
@@ -152,6 +150,12 @@ function Nav({
               {l}
             </a>
           ))}
+          <Link
+            to="/explain"
+            className="inline-flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1 label-mono text-xs text-primary transition-all hover:bg-primary hover:text-primary-foreground font-semibold shadow-sm"
+          >
+            <span>✦ Explain Doc</span>
+          </Link>
           <Link
             to="/model-stats"
             className="ml-2 inline-flex items-center gap-1.5 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 label-mono text-xs text-cyan-600 dark:text-cyan-400 transition-all hover:bg-cyan-500 hover:text-slate-950 font-semibold shadow-sm"
@@ -216,12 +220,24 @@ function Nav({
             </a>
           ))}
           <Link
+            to="/explain"
+            onClick={() => setOpen(false)}
+            className="border-b border-border/60 py-3 text-base font-medium text-primary flex items-center justify-between"
+          >
+            <span>Explain a Document</span>
+            <span className="label-mono text-xs px-2 py-0.5 rounded bg-primary/20 font-mono">
+              NEW
+            </span>
+          </Link>
+          <Link
             to="/model-stats"
             onClick={() => setOpen(false)}
             className="border-b border-border/60 py-3 text-base font-medium text-cyan-600 dark:text-cyan-400 flex items-center justify-between"
           >
             <span>Model Thresholds & Stats</span>
-            <span className="label-mono text-xs px-2 py-0.5 rounded bg-cyan-500/20 font-mono">0.410</span>
+            <span className="label-mono text-xs px-2 py-0.5 rounded bg-cyan-500/20 font-mono">
+              0.410
+            </span>
           </Link>
           <div className="flex gap-2 pt-3">
             {LANG_OPTIONS.map((o) => (
@@ -232,7 +248,9 @@ function Nav({
                   setOpen(false);
                 }}
                 className={`border px-3 py-1.5 label-mono rounded text-xs ${
-                  lang === o.code ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground"
+                  lang === o.code
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border text-muted-foreground"
                 }`}
               >
                 {o.label.split(" ")[0]}
@@ -261,7 +279,10 @@ function Hero() {
   const cells = [12, 13, 20, 21, 22, 27, 28, 29, 30, 35, 36, 37, 44, 45, 52];
 
   return (
-    <section id="top" className="relative overflow-hidden bg-background text-foreground transition-colors duration-300">
+    <section
+      id="top"
+      className="relative overflow-hidden bg-background text-foreground transition-colors duration-300"
+    >
       <div className="absolute inset-0 bg-glow pointer-events-none opacity-70" />
       <div className="absolute inset-0 grid-lines opacity-20 dark:opacity-40 pointer-events-none" />
       <div
@@ -282,12 +303,21 @@ function Hero() {
           <R>
             <p className="max-w-md text-lg leading-snug text-muted-foreground md:text-xl">
               Got an investment tip, WhatsApp message, or high-yield offer? Paste it or upload it.
-              Ruko scores the scam risk with machine learning and verifies registration against 6,583+
-              SEBI entities before your money moves.
+              Ruko scores the scam risk with machine learning and verifies registration against
+              6,583+ SEBI entities before your money moves.
             </p>
-            <a href="#check" className={`${btnDark} mt-8`}>
-              ■ Check an offer <Arrow />
-            </a>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a href="#check" className={btnDark}>
+                ■ Check an offer <Arrow />
+              </a>
+              <Link
+                to="/explain"
+                className="group inline-flex items-center justify-between gap-3 border border-primary/40 bg-primary/10 px-5 py-3.5 label-mono text-primary transition-all hover:bg-primary hover:text-primary-foreground active:scale-[.98]"
+              >
+                <span>✦ Explain a Document</span>
+                <span className="transition-transform group-hover:translate-x-0.5">→</span>
+              </Link>
+            </div>
           </R>
           <R d={200} className="hidden md:flex md:justify-end md:pt-10">
             <p className="label-mono leading-relaxed text-muted-foreground">
@@ -393,7 +423,7 @@ function Check({
       console.error("Check failed:", err);
       setErrorMsg(
         err.message ||
-          "Could not analyze media file. Please paste the message text directly into the box for instant model analysis."
+          "Could not analyze media file. Please paste the message text directly into the box for instant model analysis.",
       );
     } finally {
       setLoading(false);
@@ -433,13 +463,19 @@ function Check({
         <div className="border-b border-border p-6 md:col-span-7 md:border-b-0 md:border-r md:p-8 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between gap-2">
-              <label htmlFor="msg" className="label-mono text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+              <label
+                htmlFor="msg"
+                className="label-mono text-xs text-muted-foreground uppercase tracking-wider font-semibold"
+              >
                 // 001 · Suspicious message, SMS, or Telegram tip
               </label>
               <div className="flex items-center gap-2">
                 <VoiceInput
                   lang={lang}
-                  onTranscript={(t) => { setText(t); setErrorMsg(null); }}
+                  onTranscript={(t) => {
+                    setText(t);
+                    setErrorMsg(null);
+                  }}
                 />
                 {text && (
                   <button
@@ -467,7 +503,10 @@ function Check({
 
           <div className="mt-6 border-t border-border pt-4">
             <div className="flex flex-wrap items-center gap-3">
-              <label htmlFor="amt" className="label-mono text-xs text-muted-foreground whitespace-nowrap font-medium">
+              <label
+                htmlFor="amt"
+                className="label-mono text-xs text-muted-foreground whitespace-nowrap font-medium"
+              >
                 Amount involved (₹ Optional):
               </label>
               <div className="relative flex-1 min-w-[140px] max-w-xs">
@@ -549,8 +588,12 @@ function Check({
             {ocrProgress !== null && (
               <div className="mb-3">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="label-mono text-[10px] text-cyan-400">OCR · Extracting text from image</span>
-                  <span className="label-mono text-[10px] text-cyan-400 font-bold">{ocrProgress}%</span>
+                  <span className="label-mono text-[10px] text-cyan-400">
+                    OCR · Extracting text from image
+                  </span>
+                  <span className="label-mono text-[10px] text-cyan-400 font-bold">
+                    {ocrProgress}%
+                  </span>
                 </div>
                 <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
                   <div
@@ -578,12 +621,12 @@ function Check({
   );
 }
 
-function Result({ 
-  result, 
+function Result({
+  result,
   lang,
-  onRunSample
-}: { 
-  result: CheckResult | null; 
+  onRunSample,
+}: {
+  result: CheckResult | null;
   lang: string;
   onRunSample?: (sampleText: string) => void;
 }) {
@@ -613,7 +656,8 @@ function Result({
       if ("speechSynthesis" in window) {
         const textToSpeak = speakRes.text || result.note;
         const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        utterance.lang = speakRes.lang_code || (lang === "hi" ? "hi-IN" : lang === "gu" ? "gu-IN" : "en-IN");
+        utterance.lang =
+          speakRes.lang_code || (lang === "hi" ? "hi-IN" : lang === "gu" ? "gu-IN" : "en-IN");
         utterance.onend = () => setSpeaking(false);
         utterance.onerror = () => setSpeaking(false);
         speechSynthesis.speak(utterance);
@@ -633,7 +677,10 @@ function Result({
   };
 
   return (
-    <section id="result" className="border-y border-border bg-card/70 py-20 md:py-28 text-foreground transition-colors">
+    <section
+      id="result"
+      className="border-y border-border bg-card/70 py-20 md:py-28 text-foreground transition-colors"
+    >
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="flex items-center gap-3 label-mono text-muted-foreground scroll-mt-24">
           <span>[N.02/05]</span>
@@ -652,26 +699,42 @@ function Result({
               Awaiting Message Scan
             </h3>
             <p className="mt-3 text-sm md:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed">
-              Enter suspicious text, WhatsApp tip, or upload media above and click <strong className="text-foreground">"Scan Message for Fraud"</strong>. Ruko will evaluate red flags and extract payment requests.
+              Enter suspicious text, WhatsApp tip, or upload media above and click{" "}
+              <strong className="text-foreground">"Scan Message for Fraud"</strong>. Ruko will
+              evaluate red flags and extract payment requests.
             </p>
 
             {onRunSample && (
               <div className="mt-8 pt-6 border-t border-border flex flex-wrap items-center justify-center gap-3">
-                <span className="label-mono text-xs text-muted-foreground">Quick Test Samples:</span>
+                <span className="label-mono text-xs text-muted-foreground">
+                  Quick Test Samples:
+                </span>
                 <button
-                  onClick={() => onRunSample("Guaranteed 400% profit in 15 days on BankNifty jackpot. Transfer ₹5000 to trade@ybl now")}
+                  onClick={() =>
+                    onRunSample(
+                      "Guaranteed 400% profit in 15 days on BankNifty jackpot. Transfer ₹5000 to trade@ybl now",
+                    )
+                  }
                   className="px-3 py-1.5 rounded-md border border-border bg-card hover:border-cyan-500/50 hover:text-cyan-400 text-xs label-mono transition-all"
                 >
                   BankNifty Scam (₹5,000)
                 </button>
                 <button
-                  onClick={() => onRunSample("CRITICAL: Mumbai Police Cyber Cell. 150g MDMA was seized in your parcel. Connect on Skype id: police_mumbai within 2 hours")}
+                  onClick={() =>
+                    onRunSample(
+                      "CRITICAL: Mumbai Police Cyber Cell. 150g MDMA was seized in your parcel. Connect on Skype id: police_mumbai within 2 hours",
+                    )
+                  }
                   className="px-3 py-1.5 rounded-md border border-border bg-card hover:border-cyan-500/50 hover:text-cyan-400 text-xs label-mono transition-all"
                 >
                   Digital Arrest Notice
                 </button>
                 <button
-                  onClick={() => onRunSample("Parag Parikh Flexi Cap Fund monthly SIP of INR 5,000 processed via HDFC Bank on 03-Oct. NAV allotment 82.410")}
+                  onClick={() =>
+                    onRunSample(
+                      "Parag Parikh Flexi Cap Fund monthly SIP of INR 5,000 processed via HDFC Bank on 03-Oct. NAV allotment 82.410",
+                    )
+                  }
                   className="px-3 py-1.5 rounded-md border border-border bg-card hover:border-emerald-500/50 hover:text-emerald-400 text-xs label-mono transition-all"
                 >
                   Legitimate Mutual Fund SIP
@@ -682,178 +745,194 @@ function Result({
         ) : (
           <>
             <div key={result.request_id} className="mt-12 grid gap-10 lg:grid-cols-12 items-start">
-            {/* Left Column: Verdict, Risk Score, Guidance */}
-            <div className="lg:col-span-5 rounded-2xl border border-border bg-background p-6 md:p-8 shadow-xl">
-              <div className="flex items-center justify-between pb-4 border-b border-border">
-                <span className="label-mono text-xs text-muted-foreground font-semibold">
-                  ANALYSIS VERDICT
-                </span>
-                <span className="label-mono text-[11px] font-mono text-muted-foreground">
-                  ID: {result.request_id.slice(0, 8)}
-                </span>
-              </div>
-
-              {/* Prominent Verdict Banner */}
-              <div className={`mt-6 p-4 rounded-xl border flex items-center gap-3 ${
-                result.verdict === "strong_red_flags"
-                  ? "border-red-500/40 bg-red-500/10 text-red-400"
-                  : result.verdict === "cannot_verify"
-                  ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
-                  : result.verdict === "out_of_scope"
-                  ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400"
-                  : "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
-              }`}>
-                <div className="text-xl">
-                  {result.verdict === "strong_red_flags" ? "✖" : result.verdict === "no_red_flags_found" ? "✔" : "✦"}
+              {/* Left Column: Verdict, Risk Score, Guidance */}
+              <div className="lg:col-span-5 rounded-2xl border border-border bg-background p-6 md:p-8 shadow-xl">
+                <div className="flex items-center justify-between pb-4 border-b border-border">
+                  <span className="label-mono text-xs text-muted-foreground font-semibold">
+                    ANALYSIS VERDICT
+                  </span>
+                  <span className="label-mono text-[11px] font-mono text-muted-foreground">
+                    ID: {result.request_id.slice(0, 8)}
+                  </span>
                 </div>
-                <div>
-                  <div className="text-sm font-mono font-bold tracking-wider uppercase">
-                    {result.verdict === "strong_red_flags"
-                      ? "HIGH RISK · FINANCIAL SCAM DETECTED"
+
+                {/* Prominent Verdict Banner */}
+                <div
+                  className={`mt-6 p-4 rounded-xl border flex items-center gap-3 ${
+                    result.verdict === "strong_red_flags"
+                      ? "border-red-500/40 bg-red-500/10 text-red-400"
                       : result.verdict === "cannot_verify"
-                      ? "CAUTION · UNVERIFIED / SUSPICIOUS OFFER"
-                      : result.verdict === "out_of_scope"
-                      ? "STOCK TIP QUERY · NOT FINANCIAL ADVICE"
-                      : "SAFE · NO ACTIVE RED FLAGS DETECTED"}
+                        ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
+                        : result.verdict === "out_of_scope"
+                          ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400"
+                          : "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
+                  }`}
+                >
+                  <div className="text-xl">
+                    {result.verdict === "strong_red_flags"
+                      ? "✖"
+                      : result.verdict === "no_red_flags_found"
+                        ? "✔"
+                        : "✦"}
+                  </div>
+                  <div>
+                    <div className="text-sm font-mono font-bold tracking-wider uppercase">
+                      {result.verdict === "strong_red_flags"
+                        ? "HIGH RISK · FINANCIAL SCAM DETECTED"
+                        : result.verdict === "cannot_verify"
+                          ? "CAUTION · UNVERIFIED / SUSPICIOUS OFFER"
+                          : result.verdict === "out_of_scope"
+                            ? "STOCK TIP QUERY · NOT FINANCIAL ADVICE"
+                            : "SAFE · NO ACTIVE RED FLAGS DETECTED"}
+                    </div>
                   </div>
                 </div>
+
+                {/* Risk Level Bar */}
+                <div className="mt-8">
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="label-mono text-xs text-muted-foreground font-semibold uppercase">
+                      Calculated Risk Score
+                    </span>
+                    <span
+                      className={`text-4xl font-bold font-mono ${
+                        result.score >= 0.41 ? "text-red-400" : "text-emerald-400"
+                      }`}
+                    >
+                      {Math.round(result.score * 100)}%
+                    </span>
+                  </div>
+                  <div className="h-3 w-full rounded-full bg-secondary overflow-hidden border border-border p-0.5">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${
+                        result.score >= 0.41
+                          ? "bg-gradient-to-r from-amber-500 to-red-500"
+                          : "bg-gradient-to-r from-teal-400 to-emerald-500"
+                      }`}
+                      style={{ width: `${Math.max(5, Math.round(result.score * 100))}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Honest Note */}
+                <div className="mt-6 p-4 rounded-xl bg-secondary/50 border border-border">
+                  <div className="label-mono text-xs text-muted-foreground font-semibold uppercase mb-1">
+                    Honest Guidance Note
+                  </div>
+                  <p className="text-sm text-foreground leading-relaxed font-sans font-medium">
+                    {result.note}
+                  </p>
+                </div>
+
+                {/* Contextual Hint (e.g., Instagram link warning) */}
+                {result.hint && (
+                  <div className="mt-4 p-4 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-300 text-xs leading-relaxed">
+                    <strong>Notice:</strong> {result.hint}
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="mt-8 flex flex-wrap gap-3 pt-6 border-t border-border">
+                  <button
+                    onClick={handleReadAloud}
+                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 label-mono text-xs text-primary-foreground hover:opacity-90 active:scale-95 transition-all shadow"
+                  >
+                    <span>{speaking ? "■ Stop voice" : "▷ Listen to Verdict"}</span>
+                  </button>
+                  <a
+                    href="#pause"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-4 py-2.5 label-mono text-xs text-foreground hover:bg-secondary active:scale-95 transition-all"
+                  >
+                    <span>◷ 24h Cooling Pause</span>
+                  </a>
+                </div>
               </div>
 
-              {/* Risk Level Bar */}
-              <div className="mt-8">
-                <div className="flex justify-between items-baseline mb-2">
-                  <span className="label-mono text-xs text-muted-foreground font-semibold uppercase">
-                    Calculated Risk Score
-                  </span>
-                  <span className={`text-4xl font-bold font-mono ${
-                    result.score >= 0.41 ? "text-red-400" : "text-emerald-400"
-                  }`}>
-                    {Math.round(result.score * 100)}%
-                  </span>
-                </div>
-                <div className="h-3 w-full rounded-full bg-secondary overflow-hidden border border-border p-0.5">
-                  <div
-                    className={`h-full rounded-full transition-all duration-700 ${
-                      result.score >= 0.41
-                        ? "bg-gradient-to-r from-amber-500 to-red-500"
-                        : "bg-gradient-to-r from-teal-400 to-emerald-500"
-                    }`}
-                    style={{ width: `${Math.max(5, Math.round(result.score * 100))}%` }}
-                  />
-                </div>
-              </div>
+              {/* Right Column: Identified Red Flags & Extracted Claims */}
+              <div className="lg:col-span-7 space-y-6">
+                {/* Extracted Red Flags Card */}
+                <div className="rounded-2xl border border-border bg-background p-6 md:p-8 shadow-xl">
+                  <div className="flex items-center justify-between pb-4 border-b border-border">
+                    <span className="label-mono text-xs text-muted-foreground font-semibold uppercase">
+                      Identified Red Flags ({result.reasons.length})
+                    </span>
+                    <span className="label-mono text-xs text-muted-foreground">
+                      Rule & Pattern Analysis
+                    </span>
+                  </div>
 
-              {/* Honest Note */}
-              <div className="mt-6 p-4 rounded-xl bg-secondary/50 border border-border">
-                <div className="label-mono text-xs text-muted-foreground font-semibold uppercase mb-1">
-                  Honest Guidance Note
-                </div>
-                <p className="text-sm text-foreground leading-relaxed font-sans font-medium">
-                  {result.note}
-                </p>
-              </div>
-
-              {/* Contextual Hint (e.g., Instagram link warning) */}
-              {result.hint && (
-                <div className="mt-4 p-4 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-300 text-xs leading-relaxed">
-                  <strong>Notice:</strong> {result.hint}
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="mt-8 flex flex-wrap gap-3 pt-6 border-t border-border">
-                <button
-                  onClick={handleReadAloud}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 label-mono text-xs text-primary-foreground hover:opacity-90 active:scale-95 transition-all shadow"
-                >
-                  <span>{speaking ? "■ Stop voice" : "▷ Listen to Verdict"}</span>
-                </button>
-                <a
-                  href="#pause"
-                  className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-4 py-2.5 label-mono text-xs text-foreground hover:bg-secondary active:scale-95 transition-all"
-                >
-                  <span>◷ 24h Cooling Pause</span>
-                </a>
-              </div>
-            </div>
-
-            {/* Right Column: Identified Red Flags & Extracted Claims */}
-            <div className="lg:col-span-7 space-y-6">
-              {/* Extracted Red Flags Card */}
-              <div className="rounded-2xl border border-border bg-background p-6 md:p-8 shadow-xl">
-                <div className="flex items-center justify-between pb-4 border-b border-border">
-                  <span className="label-mono text-xs text-muted-foreground font-semibold uppercase">
-                    Identified Red Flags ({result.reasons.length})
-                  </span>
-                  <span className="label-mono text-xs text-muted-foreground">
-                    Rule & Pattern Analysis
-                  </span>
-                </div>
-
-                <div className="mt-4 divide-y divide-border">
-                  {result.reasons.length === 0 ? (
-                    <div className="py-8 text-center text-muted-foreground text-sm">
-                      No explicit red-flag rules were triggered by this communication.
-                    </div>
-                  ) : (
-                    result.reasons.map((flag, i) => (
-                      <div key={flag.code + i} className="py-4 first:pt-2 last:pb-0">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className={`label-mono text-[10px] px-2 py-0.5 rounded font-semibold uppercase ${
-                            flag.severity === "high"
-                              ? "bg-red-500/15 text-red-400 border border-red-500/30"
-                              : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
-                          }`}>
-                            {flag.severity} RISK
-                          </span>
-                          <span className="label-mono text-[10px] text-muted-foreground">
-                            [{flag.source.toUpperCase()}]
-                          </span>
+                  <div className="mt-4 divide-y divide-border">
+                    {result.reasons.length === 0 ? (
+                      <div className="py-8 text-center text-muted-foreground text-sm">
+                        No explicit red-flag rules were triggered by this communication.
+                      </div>
+                    ) : (
+                      result.reasons.map((flag, i) => (
+                        <div key={flag.code + i} className="py-4 first:pt-2 last:pb-0">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span
+                              className={`label-mono text-[10px] px-2 py-0.5 rounded font-semibold uppercase ${
+                                flag.severity === "high"
+                                  ? "bg-red-500/15 text-red-400 border border-red-500/30"
+                                  : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                              }`}
+                            >
+                              {flag.severity} RISK
+                            </span>
+                            <span className="label-mono text-[10px] text-muted-foreground">
+                              [{flag.source.toUpperCase()}]
+                            </span>
+                          </div>
+                          <p className="text-base font-medium text-foreground leading-snug">
+                            {flag.text}
+                          </p>
+                          {flag.evidence && (
+                            <div className="mt-2 rounded bg-secondary/60 px-3 py-1.5 font-mono text-xs text-red-400 border border-border">
+                              Matched Evidence: &ldquo;{flag.evidence}&rdquo;
+                            </div>
+                          )}
                         </div>
-                        <p className="text-base font-medium text-foreground leading-snug">
-                          {flag.text}
-                        </p>
-                        {flag.evidence && (
-                          <div className="mt-2 rounded bg-secondary/60 px-3 py-1.5 font-mono text-xs text-red-400 border border-border">
-                            Matched Evidence: &ldquo;{flag.evidence}&rdquo;
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Extracted Claims and Entities (UPI, Returns, Urgencies) */}
+                {result.claims &&
+                  (result.claims.upi_ids?.length > 0 ||
+                    result.claims.promised_returns?.length > 0 ||
+                    result.claims.payment_requests?.length > 0) && (
+                    <div className="rounded-2xl border border-border bg-background p-6 shadow-xl">
+                      <div className="label-mono text-xs text-muted-foreground font-semibold uppercase pb-3 border-b border-border">
+                        Extracted Financial Claims & Entities
+                      </div>
+                      <div className="mt-4 grid sm:grid-cols-2 gap-4 text-xs">
+                        {result.claims.upi_ids?.length > 0 && (
+                          <div className="p-3 rounded-lg bg-secondary/50 border border-border">
+                            <span className="text-muted-foreground label-mono uppercase">
+                              Detected UPI Address:
+                            </span>
+                            <div className="mt-1 font-mono font-bold text-cyan-400 truncate">
+                              {result.claims.upi_ids.join(", ")}
+                            </div>
+                          </div>
+                        )}
+                        {result.claims.promised_returns?.length > 0 && (
+                          <div className="p-3 rounded-lg bg-secondary/50 border border-border">
+                            <span className="text-muted-foreground label-mono uppercase">
+                              Promised Return Rate:
+                            </span>
+                            <div className="mt-1 font-mono font-bold text-red-400">
+                              {result.claims.promised_returns
+                                .map((r: any) => `${r.value}% ${r.period || ""}`)
+                                .join(", ")}
+                            </div>
                           </div>
                         )}
                       </div>
-                    ))
+                    </div>
                   )}
-                </div>
-              </div>
 
-              {/* Extracted Claims and Entities (UPI, Returns, Urgencies) */}
-              {result.claims && (
-                (result.claims.upi_ids?.length > 0 ||
-                  result.claims.promised_returns?.length > 0 ||
-                  result.claims.payment_requests?.length > 0) && (
-                  <div className="rounded-2xl border border-border bg-background p-6 shadow-xl">
-                    <div className="label-mono text-xs text-muted-foreground font-semibold uppercase pb-3 border-b border-border">
-                      Extracted Financial Claims & Entities
-                    </div>
-                    <div className="mt-4 grid sm:grid-cols-2 gap-4 text-xs">
-                      {result.claims.upi_ids?.length > 0 && (
-                        <div className="p-3 rounded-lg bg-secondary/50 border border-border">
-                          <span className="text-muted-foreground label-mono uppercase">Detected UPI Address:</span>
-                          <div className="mt-1 font-mono font-bold text-cyan-400 truncate">
-                            {result.claims.upi_ids.join(", ")}
-                          </div>
-                        </div>
-                      )}
-                      {result.claims.promised_returns?.length > 0 && (
-                        <div className="p-3 rounded-lg bg-secondary/50 border border-border">
-                          <span className="text-muted-foreground label-mono uppercase">Promised Return Rate:</span>
-                          <div className="mt-1 font-mono font-bold text-red-400">
-                            {result.claims.promised_returns.map((r: any) => `${r.value}% ${r.period || ""}`).join(", ")}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )
-              )}
 
               {/* Analyzed Message or Reel Breakdown */}
               {result.source === "video" || result.speech_text || result.on_screen_text ? (
@@ -921,7 +1000,7 @@ function Result({
           {/* AI Insight Charts — full-width below the two-column layout */}
           <InsightCharts result={result} />
         </>
-      )}
+        )}
       </div>
     </section>
   );
@@ -986,7 +1065,10 @@ function Sebi() {
         }
       />
 
-      <div className="mt-12 border-y border-border bg-secondary py-4" aria-label="Names people search for">
+      <div
+        className="mt-12 border-y border-border bg-secondary py-4"
+        aria-label="Names people search for"
+      >
         <div className="mx-auto mb-3 flex max-w-7xl items-center gap-3 px-5 label-mono text-muted-foreground md:px-8">
           <span className="h-2 w-2 bg-accent" aria-hidden="true" />
           <span>Quick search 6,583+ official SEBI intermediaries</span>
@@ -1124,18 +1206,17 @@ function Pause({ verdict, lang }: { verdict: string; lang: string }) {
     fetchPlan();
   }, [verdict, amt, lang]);
 
-  const questions =
-    plan?.decision_questions || [
-      "Would I still invest if no one was rushing me?",
-      "Can I find this adviser on the official SEBI site myself?",
-      "Could I afford to lose all of this money?",
-    ];
+  const questions = plan?.decision_questions || [
+    "Would I still invest if no one was rushing me?",
+    "Can I find this adviser on the official SEBI site myself?",
+    "Could I afford to lose all of this money?",
+  ];
 
   const handleShare = async () => {
     const shareText =
       plan?.share_text ||
       `I am pausing for 24 hours before transferring ₹${amt.toLocaleString(
-        "en-IN"
+        "en-IN",
       )}. Can you check this investment offer with me? — via Ruko`;
 
     if (navigator.share) {
@@ -1200,9 +1281,7 @@ function Pause({ verdict, lang }: { verdict: string; lang: string }) {
                 return (
                   <R key={q} d={i * 80}>
                     <button
-                      onClick={() =>
-                        setChecked((c) => (on ? c.filter((x) => x !== i) : [...c, i]))
-                      }
+                      onClick={() => setChecked((c) => (on ? c.filter((x) => x !== i) : [...c, i]))}
                       className="flex w-full items-center gap-5 border-b border-border py-5 text-left transition-colors hover:text-accent"
                     >
                       <span
@@ -1342,7 +1421,9 @@ function Recovery({ lang }: { lang: string }) {
                 }`}
               >
                 <span className="label-mono opacity-70">// STEP 00{st.step}</span>
-                <p className={`mt-6 font-pixel font-bold leading-none ${isHelpline ? "text-6xl" : "text-4xl"}`}>
+                <p
+                  className={`mt-6 font-pixel font-bold leading-none ${isHelpline ? "text-6xl" : "text-4xl"}`}
+                >
                   {isHelpline ? "1930" : `0${st.step}`}
                 </p>
                 <p className="mt-auto pt-6 text-xl font-medium">{st.action}</p>
@@ -1389,7 +1470,10 @@ function Footer() {
             <Link to="/" className="hover:text-foreground transition-colors">
               Checker
             </Link>
-            <Link to="/model-stats" className="hover:text-cyan-400 text-cyan-500 font-semibold transition-colors">
+            <Link
+              to="/model-stats"
+              className="hover:text-cyan-400 text-cyan-500 font-semibold transition-colors"
+            >
               Model Thresholds & Diagnostics
             </Link>
             <a href="#sebi" className="hover:text-foreground transition-colors">
@@ -1448,4 +1532,3 @@ function Index() {
     </>
   );
 }
-
