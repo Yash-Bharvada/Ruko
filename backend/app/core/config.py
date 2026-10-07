@@ -1,4 +1,4 @@
-"""Application configuration loaded from environment variables (reloaded)."""
+"""Application configuration loaded from environment variables (twilio-enabled)."""
 
 from functools import lru_cache
 from typing import List
@@ -61,6 +61,7 @@ class Settings(BaseSettings):
     # Breach Exposure Check Module Settings
     BREACH_PROVIDER: str = "mock"
     HIBP_API_KEY: str = ""
+    LEAKCHECK_API_KEY: str = ""
     TWILIO_ACCOUNT_SID: str = ""
     TWILIO_AUTH_TOKEN: str = ""
     TWILIO_PHONE_NUMBER: str = ""

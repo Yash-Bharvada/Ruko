@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import {
   Shield,
   ShieldCheck,
@@ -18,6 +18,9 @@ import {
   Volume2,
   VolumeX,
   Sparkles,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import RukoLogo from "../components/RukoLogo";
 import ThemeToggle from "../components/ThemeToggle";
@@ -55,6 +58,8 @@ function BreachMonitorPage() {
   const [isChecking, setIsChecking] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
   const [result, setResult] = useState<BreachCheckResult | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 15;
 
   // Phone Verification & Voice Alert State (Stateless)
   const [phone, setPhone] = useState("");
@@ -74,8 +79,8 @@ function BreachMonitorPage() {
   const [alertFeedback, setAlertFeedback] = useState<{
     status: string;
     message: string;
-    script?: string | null;
-    hint?: string | null;
+    script?: string | null | undefined;
+    hint?: string | null | undefined;
   } | null>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
@@ -139,6 +144,7 @@ function BreachMonitorPage() {
     setIsChecking(true);
     setScanError(null);
     setResult(null);
+    setCurrentPage(1);
 
     try {
       const res = await checkBreachExposure({ email: email.trim(), consent });
@@ -255,8 +261,8 @@ function BreachMonitorPage() {
       setAlertFeedback({
         status: res.status,
         message: res.message,
-        script: res.script,
-        hint: res.hint,
+        script: res.script ?? null,
+        hint: res.hint ?? null,
       });
       if (res.status === "simulated") {
         toast.info("Simulated alert generated.");
@@ -537,90 +543,179 @@ function BreachMonitorPage() {
               </div>
             )}
 
-            {/* Exposures List */}
-            {result.exposures.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                  {t.results.foundTitle} ({result.exposures.length})
-                </h3>
+            {/* Exposures List (Paginated in 15 per page) */}
+            {result.exposures.length > 0 && (() => {
+              const totalPages = Math.ceil(result.exposures.length / PAGE_SIZE);
+              const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
+              const startIndex = (safeCurrentPage - 1) * PAGE_SIZE;
+              const paginatedExposures = result.exposures.slice(startIndex, startIndex + PAGE_SIZE);
 
-                {result.exposures.map((exp, idx) => (
+              const handlePageChange = (p: number) => {
+                setCurrentPage(p);
+                const el = document.getElementById("exposures-list-header");
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              };
+
+              return (
+                <div className="space-y-4">
                   <div
-                    key={idx}
-                    className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-4 shadow-xs"
+                    id="exposures-list-header"
+                    className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 dark:border-slate-800/80 pb-3"
                   >
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <div>
-                        <h4 className="text-base font-bold text-slate-900 dark:text-slate-100">
-                          {exp.breach_name}
-                        </h4>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                          Approx. Exposure Date: {exp.breach_date || "Unknown"} • Provider: {exp.provider}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {exp.financial_exposure && (
-                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                            {t.results.financialWarningBadge}
-                          </span>
-                        )}
-
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                            exp.risk_level === "HIGH"
-                              ? "bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-800"
-                              : exp.risk_level === "MEDIUM"
-                              ? "bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800"
-                              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700"
-                          }`}
-                        >
-                          {exp.risk_level} RISK
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Categories */}
                     <div>
-                      <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                        {t.results.categoriesLabel}:
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {exp.exposure_categories.map((cat, cIdx) => (
-                          <span
-                            key={cIdx}
-                            className="px-2 py-0.5 rounded-md text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
-                          >
-                            {cat}
-                          </span>
-                        ))}
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        {t.results.foundTitle} ({result.exposures.length})
+                      </h3>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Showing {startIndex + 1}–{Math.min(startIndex + PAGE_SIZE, result.exposures.length)} of {result.exposures.length} incident records
                       </div>
                     </div>
 
-                    {/* Remediation & Recommended Actions */}
-                    {exp.remediation && exp.remediation.length > 0 && (
-                      <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800 space-y-2">
-                        <div className="text-xs font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500" />
-                          <span>{t.results.recommendedActions}:</span>
-                        </div>
-                        <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-1 list-disc list-inside">
-                          {exp.remediation.map((step, sIdx) => (
-                            <li key={sIdx}>{step}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {exp.notes && (
-                      <div className="text-[11px] text-slate-500 dark:text-slate-400 italic">
-                        Note: {exp.notes}
+                    {totalPages > 1 && (
+                      <div className="text-xs text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
+                        Page {safeCurrentPage} of {totalPages}
                       </div>
                     )}
                   </div>
-                ))}
-              </div>
-            )}
+
+                  {paginatedExposures.map((exp, idx) => (
+                    <div
+                      key={`${safeCurrentPage}-${idx}`}
+                      className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-4 shadow-xs"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <h4 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                            {exp.breach_name}
+                          </h4>
+                          <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            Approx. Exposure Date: {exp.breach_date || "Unknown"} • Provider: {exp.provider}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {exp.financial_exposure && (
+                            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                              {t.results.financialWarningBadge}
+                            </span>
+                          )}
+
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                              exp.risk_level === "HIGH"
+                                ? "bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-800"
+                                : exp.risk_level === "MEDIUM"
+                                ? "bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800"
+                                : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700"
+                            }`}
+                          >
+                            {exp.risk_level} RISK
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Categories */}
+                      <div>
+                        <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                          {t.results.categoriesLabel}:
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {exp.exposure_categories.map((cat, cIdx) => (
+                            <span
+                              key={cIdx}
+                              className="px-2 py-0.5 rounded-md text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                            >
+                              {cat}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Remediation & Recommended Actions */}
+                      {exp.remediation && exp.remediation.length > 0 && (
+                        <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800 space-y-2">
+                          <div className="text-xs font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500" />
+                            <span>{t.results.recommendedActions}:</span>
+                          </div>
+                          <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-1 list-disc list-inside">
+                            {exp.remediation.map((step, sIdx) => (
+                              <li key={sIdx}>{step}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {exp.notes && (
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 italic">
+                          Note: {exp.notes}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
+                        Page {safeCurrentPage} of {totalPages} ({PAGE_SIZE} per page)
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handlePageChange(safeCurrentPage - 1)}
+                          disabled={safeCurrentPage <= 1}
+                          className="px-2.5 py-1.5 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                        >
+                          <ChevronLeft className="w-3.5 h-3.5" />
+                          <span>Previous</span>
+                        </button>
+
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1)
+                            .filter(p => p === 1 || p === totalPages || Math.abs(p - safeCurrentPage) <= 2)
+                            .map((p, idx, arr) => {
+                              const prev = arr[idx - 1];
+                              const hasGap = prev && p - prev > 1;
+                              return (
+                                <Fragment key={p}>
+                                  {hasGap && (
+                                    <span className="px-1 text-slate-400 text-xs">...</span>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => handlePageChange(p)}
+                                    className={`w-7 h-7 rounded-lg text-xs font-semibold flex items-center justify-center transition-colors ${
+                                      p === safeCurrentPage
+                                        ? "bg-indigo-600 text-white shadow-xs"
+                                        : "border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                    }`}
+                                  >
+                                    {p}
+                                  </button>
+                                </Fragment>
+                              );
+                            })}
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handlePageChange(safeCurrentPage + 1)}
+                          disabled={safeCurrentPage >= totalPages}
+                          className="px-2.5 py-1.5 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                        >
+                          <span>Next</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </section>
         )}
 
@@ -859,6 +954,24 @@ function BreachMonitorPage() {
             </div>
           </div>
         </section>
+
+        {/* Attribution & Transparency Footer */}
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200/80 dark:border-slate-800/80 pt-4 px-1 pb-6">
+          <div className="flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span>Zero-disk in-memory processing • Verified Breach Intelligence</span>
+          </div>
+          <a
+            href="https://leakcheck.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+          >
+            <span>Powered by</span>
+            <span className="font-semibold text-slate-700 dark:text-slate-300 hover:underline">LeakCheck</span>
+            <ExternalLink className="w-3 h-3 ml-0.5" />
+          </a>
+        </div>
       </main>
     </div>
   );

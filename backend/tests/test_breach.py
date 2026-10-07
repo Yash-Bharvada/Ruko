@@ -13,7 +13,7 @@ from app.core.schemas import ExposureRecord
 from app.main import create_app
 from app.modules.breach.eligibility import can_place_alert
 from app.modules.breach.normalize import normalize_email, normalize_phone_e164
-from app.modules.breach.providers import HibpProvider, MockProvider
+from app.modules.breach.providers import HibpProvider, MockProvider, LeakCheckProvider, XposedOrNotProvider, HybridBreachProvider
 from app.modules.breach.risk_classifier import classify_exposure
 from app.modules.breach.tokens import issue_phone_token, verify_phone_token
 from app.modules.breach.twilio_client import (
@@ -123,6 +123,241 @@ async def test_hibp_provider_failure_returns_scan_unavailable():
         assert status == "scan_unavailable"
         assert len(exposures) == 0
         assert "hibp_network_error" in degraded or "hibp_unavailable" in degraded
+
+
+@pytest.mark.asyncio
+async def test_leakcheck_provider_pro_api_success():
+    """Verify LeakCheck Pro API v2 successful response parsing and risk classification."""
+    provider = LeakCheckProvider()
+    settings = Settings(BREACH_PROVIDER="leakcheck", LEAKCHECK_API_KEY="test_key_123")
+
+    fake_pro_payload = {
+        "success": True,
+        "found": 1,
+        "quota": 99,
+        "result": [
+            {
+                "email": "user@target.com",
+                "source": {
+                    "name": "SecOps Portal",
+                    "breach_date": "2024-06",
+                },
+                "fields": ["email", "password", "username"],
+            }
+        ],
+    }
+
+    async def mock_get(self, url, *args, **kwargs):
+        if "api/v2/query" in str(url):
+            return httpx.Response(200, json=fake_pro_payload)
+        return httpx.Response(404)
+
+    with patch("httpx.AsyncClient.get", new=mock_get):
+        status, exposures, is_demo, degraded = await provider.check_email("user@target.com", settings)
+        assert status == "ok"
+        assert is_demo is False
+        assert len(exposures) == 1
+        record = exposures[0]
+        assert record.breach_name == "SecOps Portal"
+        assert record.breach_date == "2024-06"
+        assert record.risk_level == "HIGH"
+        assert record.financial_exposure is False
+        assert record.provider == "leakcheck"
+        assert len(record.remediation_notes) > 0
+
+
+@pytest.mark.asyncio
+async def test_leakcheck_provider_pro_403_fallback_to_public():
+    """Verify that when Pro API returns 403 ('Active plan required'), it seamlessly falls back to Public API."""
+    provider = LeakCheckProvider()
+    settings = Settings(BREACH_PROVIDER="leakcheck", LEAKCHECK_API_KEY="test_key_free_tier")
+
+    fake_public_payload = {
+        "success": True,
+        "found": 2,
+        "fields": ["username", "email", "address"],
+        "sources": [
+            {"name": "Database Alpha", "date": "2022-03"},
+            {"name": "Database Beta", "date": "2023-09"},
+        ],
+    }
+
+    async def mock_get(self, url, *args, **kwargs):
+        url_str = str(url)
+        if "api/v2/query" in url_str:
+            return httpx.Response(403, json={"success": False, "error": "Active plan required"})
+        elif "api/public" in url_str:
+            return httpx.Response(200, json=fake_public_payload)
+        return httpx.Response(404)
+
+    with patch("httpx.AsyncClient.get", new=mock_get):
+        status, exposures, is_demo, degraded = await provider.check_email("target@example.com", settings)
+        assert status == "ok"
+        assert is_demo is False
+        assert len(exposures) == 2
+        assert exposures[0].breach_name == "Database Alpha"
+        assert exposures[0].breach_date == "2022-03"
+        assert exposures[0].provider == "leakcheck"
+        assert exposures[1].breach_name == "Database Beta"
+
+
+@pytest.mark.asyncio
+async def test_leakcheck_provider_public_not_found():
+    """Verify that LeakCheck 'Not found' response is correctly interpreted as 0 exposures, status ok."""
+    provider = LeakCheckProvider()
+    settings = Settings(BREACH_PROVIDER="leakcheck", LEAKCHECK_API_KEY="")
+
+    async def mock_get(self, url, *args, **kwargs):
+        return httpx.Response(200, json={"success": False, "error": "Not found"})
+
+    with patch("httpx.AsyncClient.get", new=mock_get):
+        status, exposures, is_demo, degraded = await provider.check_email("clean@example.com", settings)
+        assert status == "ok"
+        assert len(exposures) == 0
+        assert is_demo is False
+
+
+@pytest.mark.asyncio
+async def test_leakcheck_provider_rate_limited():
+    """Verify that 429 rate limit errors return status 'scan_unavailable' with honest degradation notice."""
+    provider = LeakCheckProvider()
+    settings = Settings(BREACH_PROVIDER="leakcheck", LEAKCHECK_API_KEY="")
+
+    async def mock_get(self, url, *args, **kwargs):
+        return httpx.Response(429, json={"error": "Rate limit exceeded"})
+
+    with patch("httpx.AsyncClient.get", new=mock_get):
+        status, exposures, is_demo, degraded = await provider.check_email("rate@example.com", settings)
+        assert status == "scan_unavailable"
+        assert len(exposures) == 0
+        assert "leakcheck_rate_limited" in degraded
+
+
+@pytest.mark.asyncio
+async def test_leakcheck_provider_network_error():
+    """Verify that upstream network failure returns scan_unavailable."""
+    provider = LeakCheckProvider()
+    settings = Settings(BREACH_PROVIDER="leakcheck", LEAKCHECK_API_KEY="")
+
+    with patch("httpx.AsyncClient.get", side_effect=httpx.ConnectError("Network down")):
+        status, exposures, is_demo, degraded = await provider.check_email("down@example.com", settings)
+        assert status == "scan_unavailable"
+        assert len(exposures) == 0
+        assert "leakcheck_network_error" in degraded or "leakcheck_unavailable" in degraded
+
+
+@pytest.mark.asyncio
+async def test_leakcheck_provider_phone_query():
+    """Verify that check_phone normalizes phone number and queries phone type."""
+    provider = LeakCheckProvider()
+    settings = Settings(BREACH_PROVIDER="leakcheck", LEAKCHECK_API_KEY="test_key")
+
+    queried_paths = []
+
+    async def mock_get(self, url, *args, **kwargs):
+        queried_paths.append(str(url))
+        return httpx.Response(200, json={"success": False, "error": "Not found"})
+
+    with patch("httpx.AsyncClient.get", new=mock_get):
+        status, exposures, is_demo, degraded = await provider.check_phone("+1 (555) 019-2834", settings)
+        assert status == "ok"
+        assert len(exposures) == 0
+        assert any("15550192834" in q for q in queried_paths)
+
+
+@pytest.mark.asyncio
+async def test_xposedornot_provider_success():
+    """Verify XposedOrNot matches breach names against catalog and assigns risk level."""
+    provider = XposedOrNotProvider()
+    settings = Settings(BREACH_PROVIDER="xposedornot")
+
+    fake_check_payload = {"breaches": [["Canva", "Adobe"]]}
+    fake_catalog = {
+        "status": "success",
+        "exposedBreaches": [
+            {
+                "breachID": "Canva",
+                "breachedDate": "2019-05-24T00:00:00+00:00",
+                "exposedData": ["Email addresses", "Passwords", "Names"],
+            },
+            {
+                "breachID": "Adobe",
+                "breachedDate": "2013-10-04T00:00:00+00:00",
+                "exposedData": ["Email addresses", "Password hints", "Usernames"],
+            },
+        ],
+    }
+
+    async def mock_get(self, url, *args, **kwargs):
+        url_str = str(url)
+        if "breaches" in url_str and "check-email" not in url_str:
+            return httpx.Response(200, json=fake_catalog)
+        elif "check-email" in url_str:
+            return httpx.Response(200, json=fake_check_payload)
+        return httpx.Response(404)
+
+    with patch("httpx.AsyncClient.get", new=mock_get):
+        status, exposures, is_demo, degraded = await provider.check_email("user@example.com", settings)
+        assert status == "ok"
+        assert is_demo is False
+        assert len(exposures) == 2
+        assert exposures[0].breach_name in ("Canva", "Adobe")
+        assert exposures[0].provider == "xposedornot"
+        assert any(e.risk_level == "HIGH" for e in exposures)
+
+
+@pytest.mark.asyncio
+async def test_xposedornot_provider_not_found():
+    """Verify XposedOrNot correctly handles 'Not found' without raising."""
+    provider = XposedOrNotProvider()
+    settings = Settings(BREACH_PROVIDER="xposedornot")
+
+    async def mock_get(self, url, *args, **kwargs):
+        return httpx.Response(200, json={"Error": "Not found", "email": None})
+
+    with patch("httpx.AsyncClient.get", new=mock_get):
+        status, exposures, is_demo, degraded = await provider.check_email("clean@example.com", settings)
+        assert status == "ok"
+        assert len(exposures) == 0
+
+
+@pytest.mark.asyncio
+async def test_hybrid_provider_merging():
+    """Verify HybridBreachProvider merges and deduplicates results from both LeakCheck and XposedOrNot."""
+    hybrid = HybridBreachProvider()
+    settings = Settings(BREACH_PROVIDER="hybrid")
+
+    record_leakcheck = ExposureRecord(
+        breach_name="Adobe",
+        breach_date="2013-10-04",
+        exposure_categories=["Email addresses", "Passwords"],
+        risk_level="HIGH",
+        financial_exposure=False,
+        provider="leakcheck",
+        remediation_notes=["Reset password"],
+    )
+    record_xposed = ExposureRecord(
+        breach_name="Canva",
+        breach_date="2019-05-24",
+        exposure_categories=["Email addresses", "Names"],
+        risk_level="MEDIUM",
+        financial_exposure=False,
+        provider="xposedornot",
+        remediation_notes=["Monitor account"],
+    )
+
+    with patch.object(hybrid.leakcheck, "check_email", new_callable=AsyncMock) as mock_lc, \
+         patch.object(hybrid.xposed, "check_email", new_callable=AsyncMock) as mock_xon:
+        mock_lc.return_value = ("ok", [record_leakcheck], False, [])
+        mock_xon.return_value = ("ok", [record_xposed], False, [])
+
+        status, exposures, is_demo, degraded = await hybrid.check_email("multi@example.com", settings)
+        assert status == "ok"
+        assert is_demo is False
+        assert len(exposures) == 2
+        names = [e.breach_name for e in exposures]
+        assert "Adobe" in names
+        assert "Canva" in names
 
 
 # =============================================================================
@@ -369,7 +604,7 @@ async def test_api_breach_check_requires_consent():
 @pytest.mark.asyncio
 async def test_api_phone_verification_and_alert_flow(caplog):
     caplog.set_level(logging.INFO)
-    app = create_app(Settings(BREACH_PROVIDER="mock", VOICE_ALERTS_ENABLED=True))
+    app = create_app(Settings(BREACH_PROVIDER="mock", VOICE_ALERTS_ENABLED=True, TWILIO_ACCOUNT_SID="", BREACH_ALERT_SIMULATE=False))
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         # 1. Start phone verification (SMS channel)
@@ -440,6 +675,7 @@ async def test_api_simulated_alert_flow():
         BREACH_ALERT_SIMULATE=True,
         BREACH_QUIET_START=0,
         BREACH_QUIET_END=0,  # Quiet hours inactive
+        TWILIO_ACCOUNT_SID="",
     ))
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
@@ -476,6 +712,7 @@ async def test_simulated_alert_blocked_by_eligibility():
         BREACH_PROVIDER="mock",
         VOICE_ALERTS_ENABLED=True,
         BREACH_ALERT_SIMULATE=True,
+        TWILIO_ACCOUNT_SID="",
     ))
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:

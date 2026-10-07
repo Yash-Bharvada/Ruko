@@ -1,24 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ShieldCheck } from "lucide-react";
 import { RukoLogo } from "../components/RukoLogo";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { ChatBot } from "../components/ChatBot";
 import { InsightCharts } from "../components/InsightCharts";
 import { VoiceInput } from "../components/VoiceInput";
-import { VideoIntroSection } from "../components/VideoIntroSection";
-import { SiteLoader } from "../components/SiteLoader";
-import { InteractivePixelGrid } from "../components/InteractivePixelGrid";
-import {
-  ShieldAlert,
-  ShieldCheck,
-  AlertTriangle,
-  Zap,
-  ArrowRight,
-  Sparkles,
-  Activity,
-  CheckCircle2,
-  Scan,
-} from "lucide-react";
 import {
   checkText,
   checkMedia,
@@ -129,8 +116,8 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const f = () => setScrolled(window.scrollY > 80);
-    window.addEventListener("scroll", f, { passive: true });
+    const f = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", f);
     return () => window.removeEventListener("scroll", f);
   }, []);
 
@@ -142,52 +129,60 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
     ["Recovery", "#recovery"],
   ];
 
+  // In-page desktop links (omits redundant "Verify SEBI" since the dedicated CTA button is present)
+  const desktopLinks = [
+    ["Check", "#check"],
+    ["Result", "#result"],
+    ["Pause", "#pause"],
+    ["Recovery", "#recovery"],
+  ];
+
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 border-b border-border/70 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 ${
+      className={`fixed inset-x-0 top-0 z-50 w-full overflow-x-clip transition-all duration-300 border-b border-border/70 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 ${
         scrolled
           ? "shadow-lg shadow-black/10 dark:shadow-cyan-950/20 bg-background/90"
           : "shadow-sm"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 xl:gap-4 px-4 py-3 text-foreground md:px-6 lg:px-8">
-        <a href="#top" className="flex items-center gap-2.5 shrink-0 whitespace-nowrap">
-          <RukoLogo size={32} />
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-1.5 xl:gap-3 px-3 py-2.5 text-foreground sm:px-4 md:px-6 lg:px-8">
+        <a href="#top" className="flex items-center gap-2 shrink-0 whitespace-nowrap">
+          <RukoLogo size={30} />
         </a>
 
-        <nav className="hidden gap-1 xl:gap-2 lg:flex items-center whitespace-nowrap shrink-0">
-          {links.map(([l, h]) => (
+        <nav className="hidden gap-1 xl:gap-1.5 lg:flex items-center whitespace-nowrap shrink-0">
+          {desktopLinks.map(([l, h]) => (
             <a
               key={l}
               href={h}
-              className="px-2.5 xl:px-3 py-1.5 label-mono text-xs whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary rounded shrink-0"
+              className="px-2 xl:px-2.5 py-1 label-mono text-xs whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary rounded shrink-0"
             >
               {l}
             </a>
           ))}
           <Link
             to="/explain"
-            className="inline-flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 label-mono text-xs text-primary transition-all hover:bg-primary hover:text-primary-foreground font-semibold shadow-sm whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 label-mono text-[11px] text-primary transition-all hover:bg-primary hover:text-primary-foreground font-semibold shadow-sm whitespace-nowrap shrink-0"
           >
             <span>✦ Explain Doc</span>
           </Link>
           <Link
             to="/breach-monitor"
-            className="ml-2 inline-flex items-center gap-1.5 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 label-mono text-xs text-emerald-600 dark:text-emerald-400 transition-all hover:bg-emerald-500 hover:text-slate-950 font-semibold shadow-sm"
+            className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 label-mono text-[11px] text-emerald-600 dark:text-emerald-400 transition-all hover:bg-emerald-500 hover:text-slate-950 font-semibold shadow-sm whitespace-nowrap shrink-0"
           >
-            <ShieldCheck className="w-3.5 h-3.5" />
+            <ShieldCheck className="w-3 h-3" />
             <span>Breach Check</span>
           </Link>
           <Link
             to="/model-stats"
-            className="ml-1 inline-flex items-center gap-1.5 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-2.5 py-1 label-mono text-xs text-cyan-600 dark:text-cyan-400 transition-all hover:bg-cyan-500 hover:text-slate-950 font-semibold shadow-sm whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-2 py-1 label-mono text-[11px] text-cyan-600 dark:text-cyan-400 transition-all hover:bg-cyan-500 hover:text-slate-950 font-semibold shadow-sm whitespace-nowrap shrink-0"
           >
             <span>Model & Stats</span>
             <span className="text-[10px] font-mono px-1 py-0.2 bg-cyan-400/20 rounded">0.410</span>
           </Link>
         </nav>
 
-        <div className="flex items-center gap-2 xl:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 xl:gap-2.5 shrink-0">
           <ThemeToggle />
 
           <div className="relative hidden sm:block shrink-0">
@@ -195,7 +190,7 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
               aria-label="Language"
               value={lang}
               onChange={(e) => onLangChange(e.target.value)}
-              className="appearance-none border border-border bg-card/80 px-3 py-2 pr-7 label-mono text-foreground outline-none focus:border-cyan-400 rounded-md text-xs whitespace-nowrap"
+              className="appearance-none border border-border bg-card/80 px-2.5 py-1.5 pr-6 label-mono text-foreground outline-none focus:border-cyan-400 rounded-md text-[11px] whitespace-nowrap cursor-pointer"
             >
               {LANG_OPTIONS.map((o) => (
                 <option key={o.code} value={o.code} className="bg-card text-foreground">
@@ -203,14 +198,14 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
                 </option>
               ))}
             </select>
-            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
+            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-muted-foreground">
               ▼
             </span>
           </div>
 
           <a
             href="#sebi"
-            className="hidden bg-primary px-3.5 py-2 label-mono text-xs text-primary-foreground transition-all hover:opacity-90 active:scale-95 sm:inline-flex rounded-md whitespace-nowrap shrink-0"
+            className="hidden bg-primary px-3 py-1.5 label-mono text-xs text-primary-foreground font-semibold transition-all hover:bg-accent hover:text-accent-foreground active:scale-95 sm:inline-flex rounded-md whitespace-nowrap shrink-0 shadow-sm"
           >
             ↗ Verify SEBI
           </a>
@@ -297,8 +292,6 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
 
 function Hero() {
   const ref = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLElement | null>(null);
-  const [heroMouse, setHeroMouse] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const f = () => {
@@ -310,95 +303,55 @@ function Hero() {
     return () => window.removeEventListener("scroll", f);
   }, []);
 
-  const handleHeroMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (!heroRef.current) return;
-    const rect = heroRef.current.getBoundingClientRect();
-    setHeroMouse({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-  };
-
-  const handleHeroMouseLeave = () => {
-    setHeroMouse(null);
-  };
+  const cells = [12, 13, 20, 21, 22, 27, 28, 29, 30, 35, 36, 37, 44, 45, 52];
 
   return (
     <section
       id="top"
-      ref={heroRef}
-      onMouseMove={handleHeroMouseMove}
-      onMouseLeave={handleHeroMouseLeave}
       className="relative overflow-hidden bg-background text-foreground transition-colors duration-300"
     >
       <div className="absolute inset-0 bg-glow pointer-events-none opacity-70" />
       <div className="absolute inset-0 grid-lines opacity-20 dark:opacity-40 pointer-events-none" />
-
-      {/* Interactive Cursor Spotlight Glow for Grid Background */}
-      {heroMouse && (
-        <div
-          className="pointer-events-none absolute inset-0 transition-opacity duration-300"
-          style={{
-            background: `radial-gradient(450px circle at ${heroMouse.x}px ${heroMouse.y}px, var(--color-accent-glow, rgba(6, 182, 212, 0.08)), transparent 80%)`,
-          }}
-        />
-      )}
-
-      {/* Interactive Pixel Mosaic ("cheques") responding smoothly to cursor */}
       <div
         ref={ref}
-        className="absolute right-0 top-16 hidden md:flex items-center justify-end z-10 pr-6 lg:pr-12 pointer-events-auto"
+        className="pointer-events-none absolute right-0 top-24 hidden grid-cols-8 md:grid"
       >
-        <InteractivePixelGrid />
+        {Array.from({ length: 64 }).map((_, i) => (
+          <div
+            key={i}
+            className={`h-12 w-12 ${cells.includes(i) ? "pixel bg-accent" : ""}`}
+            style={{ animationDelay: `${(i % 7) * 400}ms` }}
+          />
+        ))}
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-5 pb-10 pt-28 md:px-8 md:pt-36">
+      <div className="relative mx-auto max-w-7xl px-5 pb-10 pt-36 md:px-8 md:pt-44">
         <div className="grid gap-10 md:grid-cols-2">
           <R>
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1 text-xs label-mono text-cyan-400 mb-6 w-fit">
-              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
-              AI-Powered Scam Interception Engine
-            </div>
             <p className="max-w-md text-lg leading-snug text-muted-foreground md:text-xl">
               Got an investment tip, WhatsApp message, or high-yield offer? Paste it or upload it.
-              Ruko scores the scam risk with machine learning and verifies registration against{" "}
-              <span className="text-foreground font-medium">6,583+ SEBI entities</span> before your
-              money moves.
+              Ruko scores the scam risk with machine learning and verifies registration against
+              6,583+ SEBI entities before your money moves.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap gap-3">
               <a href="#check" className={btnDark}>
                 ■ Check an offer <Arrow />
               </a>
               <Link
                 to="/explain"
-                className="group inline-flex items-center justify-between gap-2.5 border border-primary/40 bg-primary/10 px-4 py-3.5 label-mono text-xs text-primary transition-all hover:bg-primary hover:text-primary-foreground active:scale-[.98] rounded-md font-semibold"
+                className="group inline-flex items-center justify-between gap-3 border border-primary/40 bg-primary/10 px-5 py-3.5 label-mono text-primary transition-all hover:bg-primary hover:text-primary-foreground active:scale-[.98]"
               >
-                <span>✦ Explain Doc</span>
+                <span>✦ Explain a Document</span>
                 <span className="transition-transform group-hover:translate-x-0.5">→</span>
               </Link>
               <Link
                 to="/breach-monitor"
-                className="group inline-flex items-center justify-between gap-2 border border-emerald-500/40 bg-emerald-500/10 px-4 py-3.5 label-mono text-xs text-emerald-600 dark:text-emerald-400 transition-all hover:bg-emerald-500 hover:text-slate-950 active:scale-[.98] rounded-md font-semibold"
+                className="group inline-flex items-center justify-between gap-2 border border-emerald-500/40 bg-emerald-500/10 px-4 py-3.5 label-mono text-emerald-600 dark:text-emerald-400 transition-all hover:bg-emerald-500 hover:text-slate-950 active:scale-[.98]"
               >
                 <ShieldCheck className="w-4 h-4" />
                 <span>Breach Check</span>
                 <span className="transition-transform group-hover:translate-x-0.5">→</span>
               </Link>
-            </div>
-
-            <div className="mt-8 grid grid-cols-3 gap-4 border-t border-border/60 pt-6">
-              <div>
-                <p className="text-2xl font-bold text-foreground font-mono">6,583+</p>
-                <p className="text-[11px] text-muted-foreground label-mono">SEBI Entities</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-cyan-500 font-mono">0.410</p>
-                <p className="text-[11px] text-muted-foreground label-mono">ML Threshold</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-emerald-500 font-mono">&lt; 1.2s</p>
-                <p className="text-[11px] text-muted-foreground label-mono">Verdict Time</p>
-              </div>
             </div>
           </R>
           <R d={200} className="hidden md:flex md:justify-end md:pt-10">
@@ -412,11 +365,11 @@ function Hero() {
           </R>
         </div>
 
-        <div className="mt-16 flex flex-wrap items-end gap-x-6 md:mt-24">
-          <h1 className="font-pixel text-[20vw] font-bold leading-[0.78] tracking-tight md:text-[16vw] lg:text-[13rem] text-foreground">
+        <div className="mt-20 flex flex-wrap items-end gap-x-6 md:mt-28">
+          <h1 className="font-pixel text-[24vw] font-bold leading-[0.78] tracking-tight md:text-[18vw] lg:text-[15rem] text-foreground">
             RUKO<span className="blink text-accent">_</span>
           </h1>
-          <p className="pb-2 text-3xl font-light tracking-tight md:text-5xl text-foreground">
+          <p className="pb-2 text-4xl font-light tracking-tight md:text-6xl text-foreground">
             Stop. Check.
             <br />
             Stay safe.
@@ -1025,161 +978,58 @@ function Result({
           <span className="h-px flex-1 bg-border" />
         </div>
 
-        {/* If no check has been performed yet, show minimal diagnostic sandbox */}
+        {/* If no check has been performed yet, show clear ready state */}
         {!result ? (
-          <div className="mt-12 overflow-hidden rounded-2xl border border-border bg-card/30 backdrop-blur-md shadow-sm transition-all duration-300">
-            {/* Top Minimal Telemetry Header */}
-            <div className="flex flex-wrap items-center justify-between border-b border-border bg-secondary/30 px-6 py-3 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-foreground/40" />
-                <span className="label-mono text-[11px] text-muted-foreground font-medium tracking-wider uppercase">
-                  DIAGNOSTIC ENGINE READY
+          <div className="mt-12 rounded-2xl border border-dashed border-border bg-background/50 p-8 md:p-14 text-center max-w-3xl mx-auto shadow-sm">
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 mb-5">
+              <span className="text-2xl font-mono">✦</span>
+            </div>
+            <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+              Awaiting Message Scan
+            </h3>
+            <p className="mt-3 text-sm md:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed">
+              Enter suspicious text, WhatsApp tip, or upload media above and click{" "}
+              <strong className="text-foreground">"Scan Message for Fraud"</strong>. Ruko will
+              evaluate red flags and extract payment requests.
+            </p>
+
+            {onRunSample && (
+              <div className="mt-8 pt-6 border-t border-border flex flex-wrap items-center justify-center gap-3">
+                <span className="label-mono text-xs text-muted-foreground">
+                  Quick Test Samples:
                 </span>
+                <button
+                  onClick={() =>
+                    onRunSample(
+                      "Guaranteed 400% profit in 15 days on BankNifty jackpot. Transfer ₹5000 to trade@ybl now",
+                    )
+                  }
+                  className="px-3 py-1.5 rounded-md border border-border bg-card hover:border-cyan-500/50 hover:text-cyan-400 text-xs label-mono transition-all"
+                >
+                  BankNifty Scam (₹5,000)
+                </button>
+                <button
+                  onClick={() =>
+                    onRunSample(
+                      "CRITICAL: Mumbai Police Cyber Cell. 150g MDMA was seized in your parcel. Connect on Skype id: police_mumbai within 2 hours",
+                    )
+                  }
+                  className="px-3 py-1.5 rounded-md border border-border bg-card hover:border-cyan-500/50 hover:text-cyan-400 text-xs label-mono transition-all"
+                >
+                  Digital Arrest Notice
+                </button>
+                <button
+                  onClick={() =>
+                    onRunSample(
+                      "Parag Parikh Flexi Cap Fund monthly SIP of INR 5,000 processed via HDFC Bank on 03-Oct. NAV allotment 82.410",
+                    )
+                  }
+                  className="px-3 py-1.5 rounded-md border border-border bg-card hover:border-emerald-500/50 hover:text-emerald-400 text-xs label-mono transition-all"
+                >
+                  Legitimate Mutual Fund SIP
+                </button>
               </div>
-              <div className="flex items-center gap-3 label-mono text-[11px] text-muted-foreground">
-                <span className="hidden sm:inline">SEBI INDEX: 6,583+</span>
-                <span className="hidden sm:inline">·</span>
-                <span>THRESHOLD: 0.410</span>
-              </div>
-            </div>
-
-            {/* Center Core Scanner Graphic */}
-            <div className="relative px-6 py-10 md:px-10 md:py-14 text-center">
-              <div className="relative mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-border bg-secondary/40 text-foreground/70 shadow-sm">
-                <Scan className="h-6 w-6 stroke-[1.5]" />
-              </div>
-
-              <h3 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
-                Ready to Analyze Threat Signals
-              </h3>
-              <p className="mt-2 text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed font-sans">
-                Paste any suspicious WhatsApp tip, stock market advisory, digital arrest threat, or
-                upload screenshots above. Ruko calculates fraud probability, cross-checks official
-                SEBI registration, and isolates payment requests.
-              </p>
-
-              {/* 3 Minimal Interactive Sample Cards */}
-              {onRunSample && (
-                <div className="mt-10 text-left">
-                  <div className="flex items-center justify-between mb-3 px-0.5">
-                    <span className="label-mono text-[11px] text-muted-foreground uppercase tracking-wider">
-                      Example Test Scenarios
-                    </span>
-                    <span className="label-mono text-[10px] text-muted-foreground hidden sm:inline">
-                      1-CLICK TEST
-                    </span>
-                  </div>
-
-                  <div className="grid gap-3.5 md:grid-cols-3">
-                    {/* Card 1: BankNifty Scam */}
-                    <div
-                      onClick={() =>
-                        onRunSample(
-                          "Guaranteed 400% profit in 15 days on BankNifty jackpot. Transfer ₹5000 to trade@ybl now",
-                        )
-                      }
-                      className="group relative flex flex-col justify-between rounded-xl border border-border bg-background/50 p-4 transition-all duration-200 hover:border-foreground/30 hover:bg-background/90 active:scale-[0.99] cursor-pointer"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="label-mono text-[10px] px-2 py-0.5 rounded border border-border bg-secondary/50 text-muted-foreground font-mono">
-                            WHATSAPP SCAM
-                          </span>
-                          <span className="font-mono text-[10px] text-muted-foreground font-medium">
-                            98% RISK
-                          </span>
-                        </div>
-                        <h4 className="mt-2.5 text-sm font-medium text-foreground group-hover:text-foreground transition-colors">
-                          BankNifty 400% Guaranteed Jackpot
-                        </h4>
-                        <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed font-mono line-clamp-2">
-                          &ldquo;Guaranteed 400% profit in 15 days on BankNifty jackpot. Transfer ₹5000 to trade@ybl now&rdquo;
-                        </p>
-                      </div>
-
-                      <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between label-mono text-[11px] text-muted-foreground group-hover:text-foreground transition-colors">
-                        <span>Test this sample</span>
-                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-
-                    {/* Card 2: Digital Arrest Extortion */}
-                    <div
-                      onClick={() =>
-                        onRunSample(
-                          "CRITICAL: Mumbai Police Cyber Cell. 150g MDMA was seized in your parcel. Connect on Skype id: police_mumbai within 2 hours",
-                        )
-                      }
-                      className="group relative flex flex-col justify-between rounded-xl border border-border bg-background/50 p-4 transition-all duration-200 hover:border-foreground/30 hover:bg-background/90 active:scale-[0.99] cursor-pointer"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="label-mono text-[10px] px-2 py-0.5 rounded border border-border bg-secondary/50 text-muted-foreground font-mono">
-                            EXTORTION FRAUD
-                          </span>
-                          <span className="font-mono text-[10px] text-muted-foreground font-medium">
-                            94% RISK
-                          </span>
-                        </div>
-                        <h4 className="mt-2.5 text-sm font-medium text-foreground group-hover:text-foreground transition-colors">
-                          Fake Cyber Police Narcotics Notice
-                        </h4>
-                        <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed font-mono line-clamp-2">
-                          &ldquo;CRITICAL: Mumbai Police Cyber Cell. 150g MDMA was seized in your parcel. Connect on Skype...&rdquo;
-                        </p>
-                      </div>
-
-                      <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between label-mono text-[11px] text-muted-foreground group-hover:text-foreground transition-colors">
-                        <span>Test this sample</span>
-                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-
-                    {/* Card 3: Legitimate SIP */}
-                    <div
-                      onClick={() =>
-                        onRunSample(
-                          "Parag Parikh Flexi Cap Fund monthly SIP of INR 5,000 processed via HDFC Bank on 03-Oct. NAV allotment 82.410",
-                        )
-                      }
-                      className="group relative flex flex-col justify-between rounded-xl border border-border bg-background/50 p-4 transition-all duration-200 hover:border-foreground/30 hover:bg-background/90 active:scale-[0.99] cursor-pointer"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="label-mono text-[10px] px-2 py-0.5 rounded border border-border bg-secondary/50 text-muted-foreground font-mono">
-                            SEBI VERIFIED
-                          </span>
-                          <span className="font-mono text-[10px] text-muted-foreground font-medium">
-                            VERIFIED SAFE
-                          </span>
-                        </div>
-                        <h4 className="mt-2.5 text-sm font-medium text-foreground group-hover:text-foreground transition-colors">
-                          Parag Parikh Flexi Cap SIP
-                        </h4>
-                        <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed font-mono line-clamp-2">
-                          &ldquo;Parag Parikh Flexi Cap Fund monthly SIP of INR 5,000 processed via HDFC Bank on 03-Oct...&rdquo;
-                        </p>
-                      </div>
-
-                      <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between label-mono text-[11px] text-muted-foreground group-hover:text-foreground transition-colors">
-                        <span>Test this sample</span>
-                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Bottom Minimal Specs Bar */}
-            <div className="border-t border-border bg-secondary/20 px-6 py-3">
-              <div className="flex flex-wrap items-center justify-between gap-3 label-mono text-[11px] text-muted-foreground">
-                <span>REAL-TIME SCAM INTERCEPTION PIPELINE</span>
-                <span>
-                  EMERGENCY HELPLINE: <strong className="text-foreground">1930</strong>
-                </span>
-              </div>
-            </div>
+            )}
           </div>
         ) : (
           <>
@@ -1364,7 +1214,7 @@ function Result({
                               </span>
                               <div className="mt-1 font-mono font-bold text-red-400">
                                 {result.claims.promised_returns
-                                  .map((r: any) => `${r.value}% ${r.period || ""}`)
+                                  .map((r) => `${r.value}% ${r.period || ""}`)
                                   .join(", ")}
                               </div>
                             </div>
@@ -1373,72 +1223,73 @@ function Result({
                     </div>
                   )}
 
-                {/* Analyzed Message or Reel Breakdown */}
-                {result.source === "video" || result.speech_text || result.on_screen_text ? (
-                  <div className="rounded-xl border border-border bg-secondary/20 p-5 text-xs text-muted-foreground space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="label-mono uppercase font-semibold text-foreground flex items-center gap-1.5">
-                        <span>🎬</span> Instagram Reel / Video Media Analysis
-                      </span>
-                      <span className="label-mono text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
-                        AUDIO + FRAMES EXTRACTED
-                      </span>
-                    </div>
 
-                    {result.speech_text && (
-                      <div>
-                        <div className="label-mono text-[11px] text-cyan-400 font-semibold mb-1 flex items-center gap-1">
-                          <span>🎙</span> Reel Spoken Audio Transcript:
-                        </div>
-                        <blockquote className="font-mono leading-relaxed italic bg-background p-3 rounded border border-border text-foreground/80">
-                          &ldquo;{result.speech_text}&rdquo;
-                        </blockquote>
-                      </div>
-                    )}
-
-                    {result.on_screen_text && (
-                      <div>
-                        <div className="label-mono text-[11px] text-amber-400 font-semibold mb-1 flex items-center gap-1">
-                          <span>📺</span> Reel On-Screen Frames OCR:
-                        </div>
-                        <blockquote className="font-mono leading-relaxed bg-background p-3 rounded border border-border text-foreground/80 whitespace-pre-line">
-                          {result.on_screen_text}
-                        </blockquote>
-                      </div>
-                    )}
-
-                    {!result.speech_text && !result.on_screen_text && result.text && (
-                      <div>
-                        <div className="label-mono text-[11px] text-foreground font-semibold mb-1">
-                          Combined Reel Content:
-                        </div>
-                        <blockquote className="font-mono leading-relaxed italic bg-background p-3 rounded border border-border text-foreground/80">
-                          &ldquo;{result.text}&rdquo;
-                        </blockquote>
-                      </div>
-                    )}
+              {/* Analyzed Message or Reel Breakdown */}
+              {result.source === "video" || result.speech_text || result.on_screen_text ? (
+                <div className="rounded-xl border border-border bg-secondary/20 p-5 text-xs text-muted-foreground space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="label-mono uppercase font-semibold text-foreground flex items-center gap-1.5">
+                      <span>🎬</span> Instagram Reel / Video Media Analysis
+                    </span>
+                    <span className="label-mono text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                      AUDIO + FRAMES EXTRACTED
+                    </span>
                   </div>
-                ) : result.text ? (
-                  <div className="rounded-xl border border-border bg-secondary/20 p-5 text-xs text-muted-foreground">
-                    <div className="label-mono uppercase font-semibold mb-2 text-foreground">
-                      Analyzed Message Transcript
-                    </div>
-                    <blockquote className="font-mono leading-relaxed italic bg-background p-3 rounded border border-border text-foreground/80">
-                      &ldquo;{result.text}&rdquo;
-                    </blockquote>
-                  </div>
-                ) : null}
 
-                {/* Disclaimer */}
-                <p className="text-xs text-muted-foreground/80 leading-relaxed px-1">
-                  {result.disclaimer}
-                </p>
-              </div>
+                  {result.speech_text && (
+                    <div>
+                      <div className="label-mono text-[11px] text-cyan-400 font-semibold mb-1 flex items-center gap-1">
+                        <span>🎙</span> Reel Spoken Audio Transcript:
+                      </div>
+                      <blockquote className="font-mono leading-relaxed italic bg-background p-3 rounded border border-border text-foreground/80">
+                        &ldquo;{result.speech_text}&rdquo;
+                      </blockquote>
+                    </div>
+                  )}
+
+                  {result.on_screen_text && (
+                    <div>
+                      <div className="label-mono text-[11px] text-amber-400 font-semibold mb-1 flex items-center gap-1">
+                        <span>📺</span> Reel On-Screen Frames OCR:
+                      </div>
+                      <blockquote className="font-mono leading-relaxed bg-background p-3 rounded border border-border text-foreground/80 whitespace-pre-line">
+                        {result.on_screen_text}
+                      </blockquote>
+                    </div>
+                  )}
+
+                  {!result.speech_text && !result.on_screen_text && result.text && (
+                    <div>
+                      <div className="label-mono text-[11px] text-foreground font-semibold mb-1">
+                        Combined Reel Content:
+                      </div>
+                      <blockquote className="font-mono leading-relaxed italic bg-background p-3 rounded border border-border text-foreground/80">
+                        &ldquo;{result.text}&rdquo;
+                      </blockquote>
+                    </div>
+                  )}
+                </div>
+              ) : result.text ? (
+                <div className="rounded-xl border border-border bg-secondary/20 p-5 text-xs text-muted-foreground">
+                  <div className="label-mono uppercase font-semibold mb-2 text-foreground">
+                    Analyzed Message Transcript
+                  </div>
+                  <blockquote className="font-mono leading-relaxed italic bg-background p-3 rounded border border-border text-foreground/80">
+                    &ldquo;{result.text}&rdquo;
+                  </blockquote>
+                </div>
+              ) : null}
+
+              {/* Disclaimer */}
+              <p className="text-xs text-muted-foreground/80 leading-relaxed px-1">
+                {result.disclaimer}
+              </p>
             </div>
+          </div>
 
-            {/* AI Insight Charts — full-width below the two-column layout */}
-            <InsightCharts result={result} />
-          </>
+          {/* AI Insight Charts — full-width below the two-column layout */}
+          <InsightCharts result={result} />
+        </>
         )}
       </div>
     </section>
@@ -1948,46 +1799,24 @@ function Index() {
 
   return (
     <>
-      {/* Preloader with Tetrominos & Frame Progress Bar */}
-      <SiteLoader totalFrames={240} />
-
-      {/* Screen 1: Pure Full-Screen Video Section - Only video playing continuously */}
-      <VideoIntroSection
-        totalFrames={240}
-        fps={24}
-        onScrollDown={() => {
-          const el = document.getElementById("landing-content");
-          if (el) el.scrollIntoView({ behavior: "smooth" });
-        }}
-      />
-
-      {/* Sticky Header Navigation (slides in as user scrolls into landing page) */}
-      <Nav lang={lang} onLangChange={setLang} />
-
-      {/* Screen 2+: Landing Page Content */}
-      <div
-        id="landing-content"
-        className="relative z-10 min-h-screen bg-background text-foreground transition-colors duration-300 shadow-[0_-24px_60px_rgba(0,0,0,0.35)] rounded-t-[2.5rem] border-t border-border/50 backdrop-blur-sm -mt-6"
-      >
-        <main>
-          <Hero />
-          <Check lang={lang} onResult={setCheckResult} injectedText={injectedText} />
-          <Result
-            result={checkResult}
-            lang={lang}
-            onRunSample={(sample) => {
-              setInjectedText(sample);
-              const checkEl = document.getElementById("check");
-              if (checkEl) checkEl.scrollIntoView({ behavior: "smooth" });
-            }}
-          />
-          <Sebi />
-          <Pause verdict={checkResult?.verdict || "strong_red_flags"} lang={lang} />
-          <Recovery lang={lang} />
-          <Footer />
-        </main>
-      </div>
-
+      <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
+        <Nav lang={lang} onLangChange={setLang} />
+        <Hero />
+        <Check lang={lang} onResult={setCheckResult} injectedText={injectedText} />
+        <Result
+          result={checkResult}
+          lang={lang}
+          onRunSample={(sample) => {
+            setInjectedText(sample);
+            const checkEl = document.getElementById("check");
+            if (checkEl) checkEl.scrollIntoView({ behavior: "smooth" });
+          }}
+        />
+        <Sebi />
+        <Pause verdict={checkResult?.verdict || "strong_red_flags"} lang={lang} />
+        <Recovery lang={lang} />
+        <Footer />
+      </main>
       {/* Floating AI Chat — always accessible, context-aware after scan */}
       <ChatBot scanResult={checkResult} />
     </>

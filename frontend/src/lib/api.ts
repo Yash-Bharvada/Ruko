@@ -43,7 +43,7 @@ export interface RegistryInfo {
 }
 
 export interface PromisedReturnClaim {
-  value: number | string;
+  value: number;
   period?: string;
 }
 
@@ -59,7 +59,6 @@ export interface CheckClaims {
   payment_requests?: PaymentRequestClaim[];
   urgency_cues?: string[];
   guaranteed?: boolean;
-  [key: string]: any;
 }
 
 export interface CheckResult {
@@ -613,7 +612,8 @@ export interface ExposureRecord {
   risk_level: "HIGH" | "MEDIUM" | "LOW";
   financial_exposure: boolean;
   provider: string;
-  remediation: string[];
+  remediation?: string[];
+  remediation_notes?: string[];
   notes?: string | null;
 }
 
@@ -665,7 +665,15 @@ export async function checkBreachExposure(payload: {
     const errorMsg = data?.error?.message || data?.detail || "Breach check failed.";
     throw new Error(errorMsg);
   }
-  return data as BreachCheckResult;
+  const result = data as BreachCheckResult;
+  if (Array.isArray(result.exposures)) {
+    result.exposures = result.exposures.map((exp: any) => ({
+      ...exp,
+      remediation: exp.remediation || exp.remediation_notes || [],
+      remediation_notes: exp.remediation_notes || exp.remediation || [],
+    }));
+  }
+  return result;
 }
 
 /**
@@ -737,3 +745,4 @@ export async function requestBreachAlertCall(payload: {
   }
   return data as BreachAlertResponse;
 }
+
