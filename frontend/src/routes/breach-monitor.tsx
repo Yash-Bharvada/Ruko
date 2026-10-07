@@ -18,6 +18,7 @@ import {
   Volume2,
   VolumeX,
   Sparkles,
+  Phone,
   ExternalLink,
   ChevronLeft,
   ChevronRight,
@@ -31,6 +32,7 @@ import {
   verifyPhoneCode,
   requestBreachAlertCall,
   getVapiSession,
+  triggerVapiPhoneCall,
   VapiSessionResponse,
 } from "@/lib/api";
 import { BREACH_STRINGS } from "@/lib/breachStrings";
@@ -90,6 +92,9 @@ function BreachMonitorPage() {
   const [vapiSession, setVapiSession] = useState<VapiSessionResponse | null>(null);
   const [isLoadingVapi, setIsLoadingVapi] = useState(false);
   const [isSpeakingVapi, setIsSpeakingVapi] = useState(false);
+  const [vapiPhone, setVapiPhone] = useState("9727662885");
+  const [isCallingPhone, setIsCallingPhone] = useState(false);
+  const [phoneCallFeedback, setPhoneCallFeedback] = useState<string | null>(null);
 
   const handleStartVapiAdvisor = async () => {
     if (!result && !email.trim()) {
@@ -129,6 +134,48 @@ function BreachMonitorPage() {
       toast.error(err.message || "Failed to load AI voice advisor.");
     } finally {
       setIsLoadingVapi(false);
+    }
+  };
+
+  const handleTriggerPhoneCall = async () => {
+    const rawNumber = vapiPhone.trim();
+    if (!rawNumber) {
+      toast.error("Please enter a valid phone number.");
+      return;
+    }
+
+    const formattedNumber = rawNumber.startsWith("+")
+      ? rawNumber
+      : rawNumber.length === 10
+      ? `+91${rawNumber}`
+      : `+${rawNumber}`;
+
+    setIsCallingPhone(true);
+    setPhoneCallFeedback(null);
+    try {
+      const breachNames = result ? result.exposures.map((e) => e.breach_name) : [];
+      const categories = result ? result.exposures.flatMap((e) => e.exposure_categories) : [];
+      const res = await triggerVapiPhoneCall({
+        phone: formattedNumber,
+        email: email.trim() || "investor@ruko.in",
+        total_breaches: result ? result.total_exposures : 0,
+        high_risk_count: result ? result.high_risk_count : 0,
+        financial_exposed: result ? result.financial_exposure_count > 0 : false,
+        breach_names: breachNames,
+        exposure_categories: categories,
+        language: lang,
+      });
+
+      setPhoneCallFeedback(res.message);
+      if (res.status === "dispatched") {
+        toast.success(`Outbound call dispatched to ${formattedNumber}`);
+      } else {
+        toast.info(res.message);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to initiate outbound call.");
+    } finally {
+      setIsCallingPhone(false);
     }
   };
 
@@ -670,6 +717,50 @@ function BreachMonitorPage() {
                       Financial Risk: {vapiSession.variable_values?.financial_exposed}
                     </span>
                   </div>
+                </div>
+              )}
+
+              {/* Direct Outbound Phone Call Trigger Bar */}
+              <div className="pt-2 border-t border-indigo-100 dark:border-indigo-900/40 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                  <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                    Receive AI Voice Consultation on Phone:
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <input
+                    type="tel"
+                    value={vapiPhone}
+                    onChange={(e) => setVapiPhone(e.target.value)}
+                    placeholder="+91 97276 62885"
+                    className="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 w-44"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleTriggerPhoneCall}
+                    disabled={isCallingPhone || !vapiPhone.trim()}
+                    className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white transition-colors flex items-center gap-1.5 shadow-xs"
+                  >
+                    {isCallingPhone ? (
+                      <>
+                        <RefreshCw className="w-3 h-3 animate-spin" />
+                        <span>Initiating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <PhoneCall className="w-3 h-3" />
+                        <span>Call My Phone</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {phoneCallFeedback && (
+                <div className="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-xs text-indigo-900 dark:text-indigo-200 flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <span>{phoneCallFeedback}</span>
                 </div>
               )}
             </div>
