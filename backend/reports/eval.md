@@ -1,6 +1,6 @@
 # Ruko Backend Evaluation & Benchmark Report
 
-**Generated**: 2026-10-07T07:26:24Z  
+**Generated**: 2026-10-07T07:31:27Z  
 **Total Benchmark Cases**: 16
 
 ---
@@ -21,10 +21,10 @@
 
 | Metric | Latency (ms) | Budget |
 |---|---|---|
-| **Minimum Latency** | 0.08 ms | < 50 ms |
-| **Mean Latency** | **517.27 ms** | < 100 ms |
-| **95th Percentile (P95)** | **807.51 ms** | < 250 ms |
-| **Maximum Latency** | 807.51 ms | < 8000 ms |
+| **Minimum Latency** | 0.23 ms | < 50 ms |
+| **Mean Latency** | **584.97 ms** | < 100 ms |
+| **95th Percentile (P95)** | **1562.1 ms** | < 250 ms |
+| **Maximum Latency** | 1562.1 ms | < 8000 ms |
 
 ---
 
@@ -32,22 +32,22 @@
 
 | Case ID | Category | Expected | Actual Verdict | Score | Latency | Status |
 |---|---|---|---|---|---|---|
-| `gu_fixed_returns` | scam | strong_red_flags | **strong_red_flags** | 0.94 | 632.94 ms | ✅ PASS |
-| `gu_double_money` | scam | strong_red_flags | **strong_red_flags** | 0.85 | 639.12 ms | ✅ PASS |
-| `hi_paisa_double` | scam | strong_red_flags | **strong_red_flags** | 0.93 | 658.1 ms | ✅ PASS |
-| `hi_guaranteed_profit` | scam | strong_red_flags | **strong_red_flags** | 0.95 | 709.74 ms | ✅ PASS |
-| `en_vip_operator_group` | scam | strong_red_flags | **strong_red_flags** | 0.98 | 730.67 ms | ✅ PASS |
-| `en_digital_arrest` | scam | strong_red_flags | **strong_red_flags** | 0.98 | 627.09 ms | ✅ PASS |
-| `en_remote_apk` | scam | strong_red_flags | **strong_red_flags** | 1.00 | 710.9 ms | ✅ PASS |
-| `roman_hi_double` | scam | strong_red_flags | **strong_red_flags** | 0.97 | 600.58 ms | ✅ PASS |
-| `roman_gu_nafo` | scam | strong_red_flags | **strong_red_flags** | 0.93 | 807.51 ms | ✅ PASS |
-| `benign_bank_credit` | benign | no_red_flags_found/cannot_verify | **cannot_verify** | 0.00 | 717.91 ms | ✅ PASS |
-| `benign_salary_credit` | benign | no_red_flags_found/cannot_verify | **no_red_flags_found** | 0.01 | 724.79 ms | ✅ PASS |
-| `benign_demat_alert` | benign | no_red_flags_found/cannot_verify | **no_red_flags_found** | 0.15 | 716.46 ms | ✅ PASS |
-| `advice_en_stock` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.17 ms | ✅ PASS |
-| `advice_hi_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.13 ms | ✅ PASS |
-| `advice_gu_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.11 ms | ✅ PASS |
-| `advice_roman_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.08 ms | ✅ PASS |
+| `gu_fixed_returns` | scam | strong_red_flags | **strong_red_flags** | 0.94 | 1562.1 ms | ✅ PASS |
+| `gu_double_money` | scam | strong_red_flags | **strong_red_flags** | 0.85 | 789.99 ms | ✅ PASS |
+| `hi_paisa_double` | scam | strong_red_flags | **strong_red_flags** | 0.93 | 692.89 ms | ✅ PASS |
+| `hi_guaranteed_profit` | scam | strong_red_flags | **strong_red_flags** | 0.95 | 704.71 ms | ✅ PASS |
+| `en_vip_operator_group` | scam | strong_red_flags | **strong_red_flags** | 0.98 | 737.19 ms | ✅ PASS |
+| `en_digital_arrest` | scam | strong_red_flags | **strong_red_flags** | 0.98 | 650.32 ms | ✅ PASS |
+| `en_remote_apk` | scam | strong_red_flags | **strong_red_flags** | 1.00 | 652.59 ms | ✅ PASS |
+| `roman_hi_double` | scam | strong_red_flags | **strong_red_flags** | 0.97 | 671.18 ms | ✅ PASS |
+| `roman_gu_nafo` | scam | strong_red_flags | **strong_red_flags** | 0.93 | 707.43 ms | ✅ PASS |
+| `benign_bank_credit` | benign | no_red_flags_found/cannot_verify | **cannot_verify** | 0.00 | 721.85 ms | ✅ PASS |
+| `benign_salary_credit` | benign | no_red_flags_found/cannot_verify | **no_red_flags_found** | 0.01 | 758.16 ms | ✅ PASS |
+| `benign_demat_alert` | benign | no_red_flags_found/cannot_verify | **no_red_flags_found** | 0.15 | 709.51 ms | ✅ PASS |
+| `advice_en_stock` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.58 ms | ✅ PASS |
+| `advice_hi_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.44 ms | ✅ PASS |
+| `advice_gu_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.41 ms | ✅ PASS |
+| `advice_roman_share` | advice | out_of_scope | **out_of_scope** | 0.00 | 0.23 ms | ✅ PASS |
 
 ---
 
