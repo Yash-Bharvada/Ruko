@@ -58,6 +58,10 @@ export function ThemeSyncedVideo({
 
     if (!lightVid || !darkVid) return;
 
+    // Explicitly set muted on DOM nodes to ensure autoplay is permitted by modern browser policies
+    lightVid.muted = true;
+    darkVid.muted = true;
+
     const handleCanPlayLight = () => {
       setIsLightReady(true);
       if (autoPlay) {

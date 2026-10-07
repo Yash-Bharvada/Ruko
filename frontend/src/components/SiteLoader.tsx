@@ -57,15 +57,15 @@ export function SiteLoader({
       images.push(img);
     }
 
-    // Safety fallback timeout: in case of network throttle, unveil after 12s
+    // Safety fallback timeout: unveil after 2.5s to keep navigation snappy
     const fallbackTimer = setTimeout(() => {
       if (!isMounted) return;
       if (count < totalFrames) {
         if (onLoaded) onLoaded(images);
         setIsFadingOut(true);
-        setTimeout(() => setIsCompleted(true), 600);
+        setTimeout(() => setIsCompleted(true), 500);
       }
-    }, 12000);
+    }, 2500);
 
     return () => {
       isMounted = false;

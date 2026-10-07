@@ -8,6 +8,7 @@ import { InsightCharts } from "../components/InsightCharts";
 import { VoiceInput } from "../components/VoiceInput";
 import { SiteLoader } from "../components/SiteLoader";
 import { InteractivePixelGrid } from "../components/InteractivePixelGrid";
+import { VideoIntroSection } from "../components/VideoIntroSection";
 import {
   checkText,
   checkMedia,
@@ -141,10 +142,10 @@ function Nav({ lang, onLangChange }: { lang: string; onLangChange: (l: string) =
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 w-full overflow-x-clip transition-all duration-300 border-b border-border/70 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 ${
+      className={`fixed inset-x-0 top-0 z-50 w-full overflow-x-clip transition-all duration-500 border-b border-border/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 ${
         scrolled
-          ? "shadow-lg shadow-black/10 dark:shadow-cyan-950/20 bg-background/90"
-          : "shadow-sm"
+          ? "translate-y-0 opacity-100 shadow-lg shadow-black/10 dark:shadow-cyan-950/20 bg-background/90"
+          : "-translate-y-full opacity-0 pointer-events-none"
       }`}
     >
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-1.5 xl:gap-3 px-3 py-2.5 text-foreground sm:px-4 md:px-6 lg:px-8">
@@ -1792,25 +1793,46 @@ function Index() {
 
   return (
     <>
-      <SiteLoader />
-      <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
-        <Nav lang={lang} onLangChange={setLang} />
-        <Hero />
-        <Check lang={lang} onResult={setCheckResult} injectedText={injectedText} />
-        <Result
-          result={checkResult}
-          lang={lang}
-          onRunSample={(sample) => {
-            setInjectedText(sample);
-            const checkEl = document.getElementById("check");
-            if (checkEl) checkEl.scrollIntoView({ behavior: "smooth" });
-          }}
-        />
-        <Sebi />
-        <Pause verdict={checkResult?.verdict || "strong_red_flags"} lang={lang} />
-        <Recovery lang={lang} />
-        <Footer />
-      </main>
+      {/* Preloader with Tetrominos & Frame Progress Bar */}
+      <SiteLoader totalFrames={240} />
+
+      {/* Screen 1: Pure Full-Screen Theme-Synced Video Section */}
+      <VideoIntroSection
+        totalFrames={240}
+        fps={24}
+        onScrollDown={() => {
+          const el = document.getElementById("landing-content");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        }}
+      />
+
+      {/* Sticky Header Navigation (slides in as user scrolls into landing page) */}
+      <Nav lang={lang} onLangChange={setLang} />
+
+      {/* Screen 2+: Landing Page Content */}
+      <div
+        id="landing-content"
+        className="relative z-10 min-h-screen bg-background text-foreground transition-colors duration-300 shadow-[0_-24px_60px_rgba(0,0,0,0.35)] rounded-t-[2.5rem] border-t border-border/50 backdrop-blur-sm -mt-6"
+      >
+        <main>
+          <Hero />
+          <Check lang={lang} onResult={setCheckResult} injectedText={injectedText} />
+          <Result
+            result={checkResult}
+            lang={lang}
+            onRunSample={(sample) => {
+              setInjectedText(sample);
+              const checkEl = document.getElementById("check");
+              if (checkEl) checkEl.scrollIntoView({ behavior: "smooth" });
+            }}
+          />
+          <Sebi />
+          <Pause verdict={checkResult?.verdict || "strong_red_flags"} lang={lang} />
+          <Recovery lang={lang} />
+          <Footer />
+        </main>
+      </div>
+
       {/* Floating AI Chat — always accessible, context-aware after scan */}
       <ChatBot scanResult={checkResult} />
     </>
